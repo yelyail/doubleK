@@ -16,8 +16,8 @@
     </a>   
     <div class="card-body-login">
         <div class="row justify-content-center">
-                <form method="POST" action="{{ route('login.action') }}" class="form-control">
-                    @csrf
+            <form method="POST" action="{{ route('login.action') }}" class="form-control">
+                @csrf
                     <div class="Container-date">
                         <div class="rowdate2">
                             <a class="Logo" href="#">

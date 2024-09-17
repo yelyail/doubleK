@@ -39,20 +39,21 @@ class AuthController extends Controller
         }
         public function loginSave(Request $request)
         {
-            // Validate the request
             Validator::make($request->all(), [
                 'username' => 'required',
                 'password' => 'required',
             ])->validate();
 
             if (!Auth::attempt($request->only('username', 'password'))) {
+                Log::error('Login failed for user: ' . $request->username);
                 throw ValidationException::withMessages([
-                    'username' => trans('auth.failed')
+                    'username' => trans('auth.failed'),
                 ]);
             }
+            Log::info('Attempting login for username: ' . $request->username);
+
 
             $request->session()->regenerate();
-
             $user = Auth::user();
 
             if ($user->username === 'admin' && $user->jobtype === '0') {
@@ -60,7 +61,9 @@ class AuthController extends Controller
             } elseif (in_array($user->username, ['helper', 'staff']) && $user->jobtype === '1') {
                 return redirect()->route('userDashboard');
             }
+
             return redirect()->route('login');
         }
+
 
 }

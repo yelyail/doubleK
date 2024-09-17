@@ -52,10 +52,12 @@
                         <i class="fas fa-user"></i>
                         <input type="text" name="username" placeholder="admin" class="input-field" required autofocus>
                     </div>
-                    <div class="input-body">
-                        <i class="fas fa-key"></i>
-                        <input type="password" name="password" placeholder="Password" class="input-field" required>
-                    </div>
+                    <div class="input-body ">
+                            <i class="fas fa-lock"></i>
+                            <x-text-input id="password" class="input-field form-control" type="password" name="password" required autocomplete="current-password" placeholder="********"/>
+                            <span toggle="#password" class="fa fa-fw fa-eye password-toggle" onclick="passVisib()"></span>
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        </div>
                     <button type="submit" name="submit" class="btn btn-danger">
                         Register
                     </button>
@@ -63,5 +65,7 @@
             </form>
         </div>
     </div>
+    <script src="{{ asset('assets/js/status.js') }}"></script>
+
 </body>
 </html>
