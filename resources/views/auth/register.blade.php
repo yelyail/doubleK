@@ -1,52 +1,67 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
-
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Double-K Computer</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>         
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">  
+    <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}"> 
+</head>
+<body>  
+    <a class="navbar-brand" href="#">
+        <img src="{{ URL('assets/images/loh.png') }}" alt="Logo" width="85" class="pic1">
+    </a>   
+    <div class="card-body-register">
+        <div class="row justify-content-center">
+            <form id="registrationForm" action="{{ route('register.save') }}" class="form-control" method="POST">
+                @csrf
+                <div class="Container-date">
+                    <div class="row">
+                        <div class="rowdate2">
+                            <a class="Logo" href="#">
+                                <img src="{{ URL('assets/images/logo.jpg') }}" alt="Logo" width="85" class="pic">
+                            </a> 
+                        </div>
+                    </div>
+                </div>
+                <h2 class="titletxt">Registration Here</h2>
+                <div class="inputs">
+                    <div class="input-body">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="fullname" placeholder="Juan Dela Cruz" class="input-field" required autofocus>
+                    </div>
+                    <div class="input-body">
+                        <i class="fas fa-users"></i>
+                        <select class="select-field" name="jobtype" required> 
+                            <option value="" disabled selected hidden>Job Type</option>
+                            <option value="0">Admin</option>
+                            <option value="1">Helper</option>
+                        </select>  
+                    </div>
+                    <div class="input-body">
+                        <i class="fas fa-phone"></i>
+                        <input type="text" name="user_contact" placeholder="09123654371" class="input-field" required>
+                    </div>
+                    <div class="input-body">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" placeholder="admin" class="input-field" required autofocus>
+                    </div>
+                    <div class="input-body">
+                        <i class="fas fa-key"></i>
+                        <input type="password" name="password" placeholder="Password" class="input-field" required>
+                    </div>
+                    <button type="submit" name="submit" class="btn btn-danger">
+                        Register
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+.custom-input {
+    background-color: #FDFDFC; 
+    border: 1px solid #1F3449;
+}
+.custom-table {
+    background-color: #FDFDFC;
+}
+.cstm-tbl {
+    background-color: #FDFDFC;
+}
+.custom-table th,
+.cstm-tbl th {
+    background-color: #1F3449; 
+    color: #FDFDFC;
+}
+.search-bar{
+    max-width: 550px;
+}
+.btn-custom{
+    background-color: #2F4760;
+    color: #FDFDFC;
+}
+.custom-btn{
+    background-color: #2F4760;
+    color: #FDFDFC;
+}
+.btn-choose {
+    background-color: #2F4760;
+    color: #FDFDFC;
+    
+}
+.btn-custom:hover,
+.custom-btn:hover{
+    background-color: #1F3449; 
+    color: #FDFDFC;
+}
+.card{
+    background-color: rgba(31, 52, 73, 0.6);
+    margin-top: 2%;
+    margin-bottom: 2%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+h4, h5, h6{
+    color: #FDFDFC;
+}
+.order-item{
+    margin-bottom: 2%;
+}
+.order-det{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1%;
+}
+.salesChart{
+    background-color: #1F3449;
+    color: #FDFDFC;
+}
+.btn-date{
+    background-color: #2F4760;
+    color: #FDFDFC;
+    border: 1px solid #1F3449;
+}
+.form-control, .form-select {
+    min-width: 150px;
+    background-color: white !important;
+    border: 1px solid #ced4da;
+    box-shadow: none;
+}
+.form-control:hover, .form-select:hover {
+    background-color: #001d39;
+}
+.d-flex{
+    background-color: #FDFDFC;
+    border: 2px solid #1F3449;
+}
+.title_bod{
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.table-responsive{
+    width: 100%;
+}
