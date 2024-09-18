@@ -8,14 +8,13 @@
     integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
     crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Double-K Computer</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>         
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">  
     <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}"> 
 </head>
 <body>  
     <a class="navbar-brand" href="#">
-        <img src="{{ URL('assets/images/loh.png') }}" alt="Logo" width="85" class="pic1">
+        <img src="{{ URL('assets/images/logo.jpg') }}" alt="Logo" width="85" class="pic1">
     </a>   
     <div class="card-body-register">
         <div class="row justify-content-center">
@@ -30,7 +29,7 @@
                         </div>
                     </div>
                 </div>
-                <h2 class="titletxt">Registration Here</h2>
+                <h2 class="titletxt">Employee Information</h2>
                 <div class="inputs">
                     <div class="input-body">
                         <i class="fas fa-user"></i>
@@ -66,6 +65,115 @@
         </div>
     </div>
     <script src="{{ asset('assets/js/status.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById("registrationForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form from submitting immediately
+        
+        var form = event.target;
+        var formData = new FormData(form);
+        
+        var password = form.elements["password"].value;
+        var contactNum = form.elements["user_contact"].value; 
+        
+        if (contactNum.length !== 10 || !/^\d{10}$/.test(contactNum)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Contact Number',
+                text: 'The contact number must be exactly 10 digits.',
+            });
+            return; 
+        }
+        if (password.length < 8) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Length',
+                text: 'The password must be at least 8 characters long.'
+            });
+            return; // Stop form submission
+        }
 
-</body>
+        fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    if (data.errors) {
+                        if (data.errors.fullname) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Fullname Already Registered',
+                                text: 'The fullname has already been registered. Please use a different fullname.'
+                            });
+                        } else if (data.errors.username) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Username Already Taken',
+                                text: 'The username is already in use. Please use a different username.'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Registration Failed',
+                                text: 'An error occurred while processing your registration.'
+                            });
+                        }
+                    }
+                });
+            } else {
+                return response.json().then(data => {
+                    if (data.status === 'success') {
+                        form.reset(); // Reset the form
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Registration Successful',
+                            text: data.message,
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "OK",
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            allowEnterKey: false,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                return;
+                            }
+                        });
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Failed',
+                text: 'An error occurred while processing your registration.'
+            });
+        });
+    });
+    </script>
+    </body>
+    @if(session('alertShow'))
+        <script>
+            Swal.fire({
+                icon:"{{ session('icon') }}",
+                title:"{{ session('title') }}",
+                text:"{{ session('text') }}",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "OK",
+                allowOutsideClick:false,
+                allowEscapeKey:false,
+                allowEnterKey:false,
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    return;
+                }
+            });
+        </script>
+    @endif
 </html>

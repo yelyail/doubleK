@@ -19,26 +19,34 @@ class AuthController extends Controller
     public function registerSave(Request $request)
     {
         $request->validate([
-            'fullname' => ['required'],
-            'username' => ['required', 'unique:user'],
+            'fullname' => ['required', function ($attribute, $value, $fail) {
+                if (User::where('fullname', $value)->exists()) {
+                    $fail('The fullname has already been registered.');
+                }
+            }],
+            'username' => ['required', 'unique:user,username'],
             'jobtype' => ['required'],
             'user_contact' => ['required'],
             'password' => ['required', 'min:8'],
         ]);
 
         try {
-            $user = User::create([
+            User::create([
                 'fullname' => $request->fullname,
                 'username' => $request->username,
                 'jobtype' => $request->jobtype,
                 'user_contact' => $request->user_contact,
                 'password' => Hash::make($request->password),
             ]);
+            
+            $this->showAlert('success', 'Registration successful', 'Please log in.');
+            return redirect()->back();
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Registration failed. Please try again.');
+            $this->showAlert('error', 'Registration failed', 'Please try again.');
+            return redirect()->back();
         }
-        return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
     }
+
 
     public function login()
     {
@@ -79,13 +87,13 @@ class AuthController extends Controller
         }
 }
 
-public function logout(){
+    public function logout(){
 
-    if(Session::has('user_ID')){
-        Session::pull('user_ID');
+        if(Session::has('user_ID')){
+            Session::pull('user_ID');
+        }
+        return redirect()->route('login');
     }
-    return redirect()->route('login');
-}
     public static function showAlert($icon, $title, $text) {
         Session::flash('alertShow', true);
         Session::flash('icon', $icon);
