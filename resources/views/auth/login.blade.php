@@ -49,23 +49,5 @@
     </div>
 
     <script src="{{ asset('assets/js/status.js') }}"></script>
-    @if(session('alertShow'))
-        <script>
-            swal.fire({
-                icon: "{{ session('icon') }}",
-                title: "{{ session('title') }}",
-                text: "{{ session('text') }}",
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "OK",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ route('dashboard') }}";
-                }
-            });
-        </script>
-    @endif
 </body>
 </html>

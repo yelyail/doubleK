@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::controller(AuthController::class)->group(function() {
@@ -26,8 +26,10 @@ Route::controller(AuthController::class)->group(function() {
     Route::post('/registerStore', 'registerSave')->name('register.save');
     Route::get('/login', 'login')->name('login');
     Route::post('/loginStore', 'loginSave')->name('login.action');
+    Route::get('/logout', 'logout')->name('logout');
 });
 
+//for the admin
 Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/dashboard','adminDashboard')->name('adminDashboard');
     Route::get('/admin/inventory','adminInventory')->name('adminInventory');
@@ -39,10 +41,11 @@ Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/supplier','adminSupplier')->name('adminSupplier');
 });
 
+//for the user
 Route::controller(dashboardController::class)->group(function() {
-    Route::get('/user/dashboard','userDashboard')->name('userDashboard');
-    Route::get('/user/order','userOrder')->name('userOrder');
-    Route::get('/user/reservation','userReservation')->name('userReservation');
-    Route::get('/user/service','userService')->name('userService');
+    Route::get('/user/dashboard','dashboard')->name('userDashboard');
+    Route::get('/user/order','order')->name('userOrder');
+    Route::get('/user/reservation','reservation')->name('userReservation');
+    Route::get('/user/service','service')->name('userService');
 });
-require __DIR__.'/auth.php';
+//require __DIR__.'/auth.php';

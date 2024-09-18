@@ -35,12 +35,12 @@
                     </a>
                     <ul class="sidebar-submenu">
                         <li class="sidebar-item"><a href="{{ route('adminSalesReport') }}"><i class="bi bi-dot"></i>Sales Reports</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminInventoryReport') }}"><i class="bi bi-dot"></i>Inventory Reports</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminInventoryReports') }}"><i class="bi bi-dot"></i>Inventory Reports</a></li>
                     </ul>
                 </li>
             </ul>
             <div class="sidebar-footer">
-                <a href="#" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+                <a href="{{ route('logout')}}" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
             </div>
         </aside>
 

@@ -4,66 +4,92 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-        public function register(){
-            return view('auth/register');
-        }
-        public function registerSave(Request $request){
-            Validator::make($request->all(), [
-                'fullname' => 'required',
-                'username' => 'required',
-                'jobtype' => 'required',
-                'user_contact' => 'required',
-                'password' => 'required'
-            ])->validate();
-            User::create([
+    public function register()
+    {
+        return view('auth/register');
+    }
+
+    public function registerSave(Request $request)
+    {
+        $request->validate([
+            'fullname' => ['required'],
+            'username' => ['required', 'unique:user'],
+            'jobtype' => ['required'],
+            'user_contact' => ['required'],
+            'password' => ['required', 'min:8'],
+        ]);
+
+        try {
+            $user = User::create([
                 'fullname' => $request->fullname,
                 'username' => $request->username,
                 'jobtype' => $request->jobtype,
                 'user_contact' => $request->user_contact,
-                'password' => Hash::make(($request->password)),
-                'type' => "0"
+                'password' => Hash::make($request->password),
             ]);
-            
-            return redirect()->route('login');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Registration failed. Please try again.');
         }
-        public function login(){
-            return view('auth/login');
-        }
-        public function loginSave(Request $request)
-        {
-            Validator::make($request->all(), [
-                'username' => 'required',
-                'password' => 'required',
-            ])->validate();
+        return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
+    }
 
-            if (!Auth::attempt($request->only('username', 'password'))) {
-                Log::error('Login failed for user: ' . $request->username);
-                throw ValidationException::withMessages([
-                    'username' => trans('auth.failed'),
-                ]);
+    public function login()
+    {
+        return view('auth/login');
+    }
+
+    public function loginSave(Request $request)
+    {
+        try {
+            $request->validate([
+                'username' => ['required', 'string'],
+                'password' => ['required', 'min:8'],
+            ]);
+
+            $user = User::where('username', $request->username)->first();
+
+            if (!Hash::check($request->password, $user->password)) {
+                $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
+                return back();
             }
-            Log::info('Attempting login for username: ' . $request->username);
+            $jobType = $user->jobtype;
 
-
-            $request->session()->regenerate();
-            $user = Auth::user();
-
-            if ($user->username === 'admin' && $user->jobtype === '0') {
+            if ($jobType === 1) {
                 return redirect()->route('adminDashboard');
-            } elseif (in_array($user->username, ['helper', 'staff']) && $user->jobtype === '1') {
+            } elseif ($jobType === 0) {
                 return redirect()->route('userDashboard');
+            } else {
+                $this->showAlert('error', 'Error!', 'Unauthorized access.');
+                return back();
             }
-
-            return redirect()->route('login');
+        } catch (\Exception $e) {
+            Log::error("Login Error", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            $this->showAlert('error', 'Error!', 'An unexpected error occurred. Please try again later.');
+            return back();
         }
+}
 
+public function logout(){
 
+    if(Session::has('user_ID')){
+        Session::pull('user_ID');
+    }
+    return redirect()->route('login');
+}
+    public static function showAlert($icon, $title, $text) {
+        Session::flash('alertShow', true);
+        Session::flash('icon', $icon);
+        Session::flash('title', $title);
+        Session::flash('text', $text);
+    }
 }

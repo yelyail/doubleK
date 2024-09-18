@@ -40,8 +40,8 @@
                         <i class="fas fa-users"></i>
                         <select class="select-field" name="jobtype" required> 
                             <option value="" disabled selected hidden>Job Type</option>
-                            <option value="0">Admin</option>
-                            <option value="1">Helper</option>
+                            <option value="1">Admin</option>
+                            <option value="0">Helper</option>
                         </select>  
                     </div>
                     <div class="input-body">

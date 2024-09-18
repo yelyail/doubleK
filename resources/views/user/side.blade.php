@@ -23,13 +23,13 @@
                 </a>
             </div>
             <ul class="sidebar-nav">
-                <li class="sidebar-item"><a href="{{ route('dashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('order') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Order</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('service') }}" class="sidebar-link"><i class="bi bi-gear"></i><span>Services</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('reservation') }}" class="sidebar-link"><i class="bi bi-file-earmark-text"></i><span>Reservation</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('userDashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('userOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Order</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('userService') }}" class="sidebar-link"><i class="bi bi-gear"></i><span>Services</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('userReservation') }}" class="sidebar-link"><i class="bi bi-file-earmark-text"></i><span>Reservation</span></a></li>
             </ul>
             <div class="sidebar-footer">
-                <a href="#" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+                <a href="{{ route('logout')}}" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
             </div>
         </aside>
 
