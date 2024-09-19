@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('tblcustomer', function (Blueprint $table) {
             $table->id("customer_id");
             $table->string('customer_name')->nullable();
-            $table->string('customer_type')->nullable();
             $table->date('reservation_date')->nullable();
             $table->timestamps();
         });

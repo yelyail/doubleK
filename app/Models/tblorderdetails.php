@@ -17,7 +17,8 @@ class tblorderdetails extends Model
         'product_id',
         'qty_order',
         'total_price',
-        'order_date'
+        'order_date',
+        'order_status',
     ];
     public function service()
     {

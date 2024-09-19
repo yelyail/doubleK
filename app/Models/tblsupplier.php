@@ -13,6 +13,7 @@ class tblsupplier extends Model
     protected $fillable = [
         'supplier_name',
         'supplier_contact',
+        'supplier_landline',
         'supplier_address',
         'supplier_email',
     ];

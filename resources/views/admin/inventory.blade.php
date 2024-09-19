@@ -5,7 +5,7 @@
 @section('content')
             <div class="main p-3">
                 <div class="text">
-                    <h1>Inventory Management</h1>
+                    <h1>Product Details</h1>
                 </div>
                 <!-- first table -->
                 <div class="container mt-4">
@@ -90,35 +90,22 @@
                                         </thead>
                                         <tbody id="inventoryTableBody">
                                             <tr>
-                                                <td>1</td>
-                                                <td>Laptop</td>
-                                                <td>Acer</td>
-                                                <td>John</td>
-                                                <td>A sleek and powerful ultrabook featuring a 13-inch InfinityEdge display, Intel Core processors, and a premium build quality, ideal for professionals on the go.</td>
-                                                <td>10</td>
-                                                <td>Php 23,000.00</td>
-                                                <td>1 year</td>
-                                                <td>09/09/2023</td>
                                                 <td></td>
                                                 <td></td>
-                                                <td> 
-                                                    <button class="btn btn-success"><i class="bi bi-pencil"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>Monitor</td>
-                                                <td>HP</td>
-                                                <td>John</td>
-                                                <td>A sleek and powerful ultrabook featuring a 13-inch InfinityEdge display, Intel Core processors, and a premium build quality, ideal for professionals on the go.</td>
-                                                <td>10</td>
-                                                <td>Php 23,000.00</td>
-                                                <td>1 year</td>
-                                                <td>09/09/2023</td>
                                                 <td></td>
                                                 <td></td>
-                                                <td> 
-                                                    <button class="btn btn-success"><i class="bi bi-pencil"></i></button>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>
+                                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                                        <button class="btn btn-success btn-sm"><i class="bi bi-pencil"></i></button>
+                                                        <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </tbody>

@@ -30,8 +30,10 @@ Route::controller(AuthController::class)->group(function() {
 });
 
 //for the admin
+//for getting
 Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/dashboard','adminDashboard')->name('adminDashboard');
+    Route::get('/admin/employee','adminEmployee')->name('adminEmployee');
     Route::get('/admin/inventory','adminInventory')->name('adminInventory');
     Route::get('/admin/order','adminOrder')->name('adminOrder');
     Route::get('/admin/inventoryReports','adminInventoryReports')->name('adminInventoryReports');
@@ -39,6 +41,13 @@ Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/reservation','adminReservation')->name('adminReservation');
     Route::get('/admin/service','adminService')->name('adminService');
     Route::get('/admin/supplier','adminSupplier')->name('adminSupplier');
+    Route::get('/admin/custInfo','custInfo')->name('custInfo');
+    Route::get('/admin/payMeth','payMeth')->name('payMeth');
+    Route::get('/admin/confirm','confirm')->name('confirm');
+});
+//for posting
+Route::controller(adminaccess::class)->group(function(){
+    Route::post('/storeProduct','storeProduct')->name('storeProduct');
 });
 
 //for the user

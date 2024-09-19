@@ -1,12 +1,12 @@
 
 @extends('admin.side')
 
-@section('title', 'Services')
+@section('title', 'Employee')
 
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Services</h1>
+        <h1>Employee Information</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -21,7 +21,7 @@
             </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    <i class="bi bi-plus"></i> Add Service
+                    <i class="bi bi-plus"></i> Add Employee
                 </button>
             </div>
         </div>
@@ -30,10 +30,10 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Service Name</th>
-                        <th>Description</th>
-                        <th>Service Fee</th>
-                        <th>Delivery Date</th>
+                        <th>Employee Name</th>
+                        <th>Username</th>
+                        <th>Job Title</th>
+                        <th>Phone number</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -57,7 +57,6 @@
     </div>
 </div>
 
-<!-- Modal for Adding a Service -->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

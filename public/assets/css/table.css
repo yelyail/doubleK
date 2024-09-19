@@ -85,3 +85,61 @@ h4, h5, h6{
 .table-responsive{
     width: 100%;
 }
+
+/* for the check out page */
+.progress-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.progress-line {
+    position: absolute;
+    top: 55%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #ddd;
+    z-index: 0;
+}
+
+.progress-step {
+    z-index: 1;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.progress-step .step-icon {
+    font-size: 18px;
+    background-color: #FDFDFC;
+    color: #1F3449;
+    border: 2px solid #001d39;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+.progress-step.active .step-icon {
+    background-color: #1F3449;
+    color: #fff;
+}
+
+.progress-label {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #FDFDFC;
+}
+
+.progress-line-active {
+    position: absolute;
+    top: 55%;
+    left: 0;
+    height: 4px;
+    background-color: #1F3449;
+    z-index: 1;
+}

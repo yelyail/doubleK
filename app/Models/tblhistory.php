@@ -15,12 +15,10 @@ class tblhistory extends Model
         'ordDet_ID',
         'qtySold',
         'total_sale',
-        'delivery_date',
-        'status'
     ];
     public function user()
     {
-        return $this->belongsTo(tbluser::class, 'user_ID', 'user_ID');
+        return $this->belongsTo(User::class, 'user_ID', 'user_ID');
     }
     public function orderdetails()
     {

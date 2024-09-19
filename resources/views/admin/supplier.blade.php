@@ -10,7 +10,6 @@
     </div>
 
     <div class="container mt-5">
-        <!-- Search Bar & Add Supplier Button -->
         <div class="row mb-4 align-items-center">
             <div class="col-md-8">
                 <div class="input-group search-bar">
@@ -28,7 +27,6 @@
             </div>
         </div>
 
-        <!-- Supplier Table -->
         <div class="table-responsive">
             <table class="table table-striped custom-table">
                 <thead>
@@ -40,6 +38,7 @@
                         <th>Email</th>
                         <th>Address</th>
                         <th>Representative</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,24 +50,12 @@
                         <td>john@gmail.com</td>
                         <td>Davao City</td>
                         <td>John Doe</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jane Smith</td>
-                        <td>09878372813</td>
-                        <td>082-298-1235</td>
-                        <td>jane@gmail.com</td>
-                        <td>Cebu City</td>
-                        <td>Jane Smith</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Michael Johnson</td>
-                        <td>09878372814</td>
-                        <td>082-298-1236</td>
-                        <td>michael@gmail.com</td>
-                        <td>Manila</td>
-                        <td>Michael Johnson</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <button class="btn btn-success btn-sm"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

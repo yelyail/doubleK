@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id("supplier_ID");
             $table->string('supplier_name')->nullable();
             $table->string('supplier_contact')->nullable();
+            $table->string('supplier_landline')->nullable();
             $table->string('supplier_address')->nullable();
             $table->string('supplier_email')->nullable();
             $table->timestamps();

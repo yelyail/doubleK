@@ -5,7 +5,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Orders</h1>
+        <h1>Payment Method</h1>
     </div>
     <div class="container mt-5">
         <div class="row">
@@ -15,29 +15,28 @@
                         <div class="container mt-4">
                             <div class="progress-container">
                                 <div class="progress-line"></div>
-                                <div class="progress-line-active" id="progressLine" style="width: 0%; left: 0;"></div>
+                                <div class="progress-line-active" id="progressLine" style="width: 0%; left: 0;"></div> 
 
-                                <div class="progress-step active" data-route="{{ route('adminOrder') }}" data-index="0">
+                                <div class="progress-step active" data-route="{{ route('adminOrder') }}">
                                     <div class="step-icon"><i class="bi bi-cart"></i></div>
                                     <div class="progress-label">Shopping</div>
                                 </div>
 
-                                <div class="progress-step active" data-route="{{ route('custInfo') }}" data-index="1">
+                                <div class="progress-step active" data-route="{{ route('custInfo') }}">
                                     <div class="step-icon"><i class="bi bi-person"></i></div>
                                     <div class="progress-label">Customer Information</div>
                                 </div>
 
-                                <div class="progress-step" data-route="{{ route('payMeth') }}" data-index="2">
+                                <div class="progress-step active" data-route="{{ route('payMeth') }}">
                                     <div class="step-icon"><i class="bi bi-credit-card"></i></div>
                                     <div class="progress-label">Payment Method</div>
                                 </div>
 
-                                <div class="progress-step" data-route="{{ route('confirm') }}" data-index="3">
+                                <div class="progress-step" data-route="{{ route('confirm') }}">
                                     <div class="step-icon"><i class="bi bi-check-circle"></i></div>
                                     <div class="progress-label">Preview & Confirm</div>
                                 </div>
-                            </>
-
+                            </div>
                         </div>
 
                         <div class="col-md-6 mt-2">
@@ -76,7 +75,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td> </td>
+                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -87,43 +86,37 @@
     </div>
 </div>
 
-<!-- for the progress bar -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const progressLine = document.getElementById('progressLine');
         const steps = document.querySelectorAll('.progress-step');
 
-        function setInitialProgress() {
-            steps.forEach((step) => {
+        function setProgressLine() {
+            let activeCount = 0;
+
+            steps.forEach((step, index) => {
                 if (step.classList.contains('active')) {
-                    progressLine.style.width = `20%`;
+                    activeCount++;
                 }
             });
+
+            progressLine.style.width = `${(activeCount / steps.length) * 100}%`;
+            progressLine.style.left = `0%`; 
         }
 
         window.navigateTo = function(page, index) {
-            steps.forEach((step, idx) => {
-                if (idx <= index) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
-            });
-
             progressLine.style.width = `${((index + 1) / steps.length) * 100}%`;
             window.location.href = page;
         };
 
         steps.forEach((step, index) => {
             step.onclick = function() {
-                if (index === 0 || steps[index - 1].classList.contains('active')) {
+                if (!step.classList.contains('active')) {
                     navigateTo(step.dataset.route, index);
                 }
             };
         });
-
-        setInitialProgress(); // Set initial progress line on page load
+        setProgressLine();
     });
 </script>
 @endsection
-

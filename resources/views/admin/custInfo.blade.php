@@ -5,7 +5,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Orders</h1>
+        <h1>Customer Information</h1>
     </div>
     <div class="container mt-5">
         <div class="row">
@@ -36,8 +36,7 @@
                                     <div class="step-icon"><i class="bi bi-check-circle"></i></div>
                                     <div class="progress-label">Preview & Confirm</div>
                                 </div>
-                            </>
-
+                            </div>
                         </div>
 
                         <div class="col-md-6 mt-2">
@@ -76,7 +75,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td> </td>
+                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -86,44 +85,39 @@
         </div>
     </div>
 </div>
-
-<!-- for the progress bar -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const progressLine = document.getElementById('progressLine');
         const steps = document.querySelectorAll('.progress-step');
 
-        function setInitialProgress() {
+        function setProgressLine() {
+            let activeCount = 0;
+
             steps.forEach((step) => {
                 if (step.classList.contains('active')) {
-                    progressLine.style.width = `20%`;
+                    activeCount++;
                 }
             });
+            progressLine.style.width = `${(activeCount / steps.length) * 100}%`;
+            progressLine.style.left = `0%`;
         }
-
         window.navigateTo = function(page, index) {
-            steps.forEach((step, idx) => {
-                if (idx <= index) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
-            });
-
             progressLine.style.width = `${((index + 1) / steps.length) * 100}%`;
             window.location.href = page;
         };
 
         steps.forEach((step, index) => {
             step.onclick = function() {
-                if (index === 0 || steps[index - 1].classList.contains('active')) {
+                // Only navigate if the step is not active
+                if (!step.classList.contains('active')) {
                     navigateTo(step.dataset.route, index);
                 }
             };
         });
 
-        setInitialProgress(); // Set initial progress line on page load
+        setProgressLine(); // Set initial progress line on page load
     });
 </script>
-@endsection
 
+
+@endsection

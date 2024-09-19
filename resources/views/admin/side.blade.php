@@ -24,6 +24,7 @@
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item"><a href="{{ route('adminDashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>Customer Information</span></a></li>
                 <li class="sidebar-item"><a href="{{ route('adminInventory') }}" class="sidebar-link"><i class="bi bi-box"></i><span>Inventory</span></a></li>
                 <li class="sidebar-item"><a href="{{ route('adminSupplier') }}" class="sidebar-link"><i class="bi bi-layers-half"></i><span>Supplier</span></a></li>
                 <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Order</span></a></li>

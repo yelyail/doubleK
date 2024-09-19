@@ -17,8 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('ordDet_ID')->nullable();
             $table->integer('qtySold')->nullable();
             $table->float('total_sale')->nullable();
-            $table->date('delivery_date')->nullable();
-            $table->string('status')->nullable();
             $table->foreign('user_ID')->references('user_ID')->on('user')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('ordDet_ID')->references('ordDet_ID')->on('tblorderdetails')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

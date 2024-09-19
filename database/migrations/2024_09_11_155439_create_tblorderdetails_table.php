@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('qty_order')->nullable();
             $table->float('total_price')->nullable();
             $table->date('order_date')->nullable();
+            $table->enum('order_status', ['pending', 'completed', 'cancelled']);
             $table->foreign('service_ID')->references('service_ID')->on('tblservice')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('customer_id')->references('customer_id')->on('tblcustomer')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('payment_id')->references('payment_id')->on('tblpaymentmethod')->onDelete('cascade')->onUpdate('cascade');
