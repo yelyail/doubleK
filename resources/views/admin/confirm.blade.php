@@ -1,6 +1,6 @@
 @extends('admin.side')
 
-@section('title', 'Order')
+@section('title', 'Double-K Computer')
 
 @section('content')
 <div class="main p-3">
@@ -24,11 +24,6 @@
                                 <div class="progress-step active" data-route="{{ route('custInfo') }}">
                                     <div class="step-icon"><i class="bi bi-person"></i></div>
                                     <div class="progress-label">Customer Information</div>
-                                </div>
-
-                                <div class="progress-step active" data-route="{{ route('payMeth') }}">
-                                    <div class="step-icon"><i class="bi bi-credit-card"></i></div>
-                                    <div class="progress-label">Payment Method</div>
                                 </div>
 
                                 <div class="progress-step active" data-route="{{ route('confirm') }}">

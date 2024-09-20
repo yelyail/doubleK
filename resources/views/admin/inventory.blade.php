@@ -1,6 +1,6 @@
 @extends('admin.side')
 
-@section('title', 'indventory')
+@section('title', 'Double-K Computer')
 
 @section('content')
             <div class="main p-3">
@@ -8,9 +8,9 @@
                     <h1>Product Details</h1>
                 </div>
                 <!-- first table -->
-                <div class="container mt-4">
+                <div class="container mt-3">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-2">
                             <div class="card p-3">
                                 <h4>Filter Inventory</h4>
                                 <div class="input-group search-bar mb-3">
@@ -41,19 +41,12 @@
                                         <input type="number" class="form-control" id="maxPrice" placeholder="Max Price">
                                     </div>
                                 </div>
-                                <select class="form-select mb-3" id="brandFilter">
-                                    <option value="">Select Availability</option>
-                                    <option value="In Stock">In Stock</option>
-                                    <option value="Out of Stock">Out of Stock</option>
-                                </select>
                                 <select class="form-select mb-3" id="sortFilter">
                                     <option value="">Sort By</option>
-                                    <option value="priceAsc">Price: Low to High</option>
-                                    <option value="priceDesc">Price: High to Low</option>
                                     <option value="nameAsc">Name: A to Z</option>
                                     <option value="nameDesc">Name: Z to A</option>
                                 </select>
-                                <button class="btn btn-custom mb-2" >Apply Filters</button>
+                                <button class="btn custom-btn mb-2" >Apply Filters</button>
                                 <button class="btn btn-danger">Reset Filters</button>
                             </div>
                         </div> 
@@ -65,7 +58,7 @@
                                         <h4>Inventory List</h4>
                                     </div>
                                     <div class="col-md-4 text-end">
-                                        <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                        <button type="button" class="btn custom-btn" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                                             <i class="bi bi-plus"></i> Add Inventory
                                         </button>
                                     </div>
@@ -81,10 +74,10 @@
                                                 <th>Description</th>
                                                 <th>Price</th>
                                                 <th>Warranty</th>
-                                                <th>Date Added</th>
                                                 <th>Current Stocks</th>
+                                                <th>Date Added</th>
                                                 <th>Updated Stocks</th>
-                                                <th>Updated Restock</th>
+                                                <th>Restock Date</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>

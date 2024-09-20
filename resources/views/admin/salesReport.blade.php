@@ -1,6 +1,6 @@
 @extends('admin.side')
 
-@section('title', 'Inventory Reports')
+@section('title', 'Double-K Computer')
 
 @section('content')
             <div class="main p-3">
@@ -46,28 +46,14 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Product Name</th>
-                                    <th>Quantity</th>
-                                    <th>Purchase Date</th>
                                     <th>Category Name</th>
-                                    <th>Helper Name</th>
+                                    <th>Quantity</th>
                                     <th>Price</th>
                                     <th>Total</th>
-                                    <th>Print</th>
+                                    <th>Purchase Date</th>
+                                    <th>Sales Representative</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Kim Doe</td>
-                                    <td>Laptops</td>
-                                    <td>Hp</td>
-                                    <td>1</td>
-                                    <td>09/09/2024</td>
-                                    <td>Jane Cruz</td>
-                                    <td>Php 20,000.00</td>
-                                    <td><button type="submit" class="btn btn-success"><i class="bi bi-printer"></i></button></td>
-                                </tr>
-                            </tbody>
                         </table>
                     </div>
                 </div>

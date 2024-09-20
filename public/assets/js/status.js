@@ -50,7 +50,7 @@ function resetQuantities() {
 //for the password visibility
 function passVisib() {
     var passwordField = document.getElementById("password");
-    var toggleIcon = document.querySelector(".password-toggle");
+    var toggleIcon = document.getElementById("eyeIcon");
     
     if (passwordField.type === "password") {
         passwordField.type = "text";
@@ -62,3 +62,4 @@ function passVisib() {
         toggleIcon.classList.add("fa-eye");
     }
 }
+

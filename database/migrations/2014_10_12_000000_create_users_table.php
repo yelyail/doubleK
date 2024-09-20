@@ -18,6 +18,7 @@ return new class extends Migration
             $table->boolean('jobtype')->default(false);
             $table->string('user_contact')->nullable();
             $table->string('password')->nullable();
+            $table->string('archived')->nullable();
             $table->timestamps();
         });
     }

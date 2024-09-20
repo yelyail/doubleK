@@ -20,5 +20,6 @@ class User extends Authenticatable
         'jobtype',
         'user_contact',
         'password',
+        'archived',
     ];
 }

@@ -13,5 +13,6 @@ class tblcustomer extends Model
     protected $fillable = [
         'customer_name',
         'reservation_date',
+        'address',
     ];
 }

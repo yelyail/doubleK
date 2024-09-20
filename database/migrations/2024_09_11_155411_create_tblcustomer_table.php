@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id("customer_id");
             $table->string('customer_name')->nullable();
             $table->date('reservation_date')->nullable();
+            $table->string('address')->nullable();
             $table->timestamps();
         });
     }

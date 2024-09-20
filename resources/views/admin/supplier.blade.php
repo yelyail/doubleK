@@ -1,7 +1,7 @@
 
 @extends('admin.side')
 
-@section('title', 'Supplier Information')
+@section('title', 'Double-K Computer')
 
 @section('content')
 <div class="main p-3">

@@ -42,12 +42,16 @@ Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/service','adminService')->name('adminService');
     Route::get('/admin/supplier','adminSupplier')->name('adminSupplier');
     Route::get('/admin/custInfo','custInfo')->name('custInfo');
-    Route::get('/admin/payMeth','payMeth')->name('payMeth');
     Route::get('/admin/confirm','confirm')->name('confirm');
+
+    Route::get('/admin/employee/{id}/edit', 'editClient')->name('editEmployee');
+    Route::post('/admin/employee/{id}/archive', 'archiveClient')->name('archiveClient');
+    Route::post('/admin/employee/{id}/update', 'updateClient')->name('updateClient');
 });
 //for posting
 Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeProduct','storeProduct')->name('storeProduct');
+    Route::post('/storeClient','storeClient')->name('storeClient');
 });
 
 //for the user

@@ -1,12 +1,11 @@
 @extends('admin.side')
-@section('title', 'Reservation')
+@section('title', 'Double-K Computer')
 @section('content')
 <div class="main p-3">
     <div class="text">
         <h1>Reservation</h1>
     </div>
     <div class="container mt-5">
-        <!-- Search Bar & Add Reservation Button -->
         <div class="row mb-4 align-items-center">
             <div class="col-md-8">
                 <div class="input-group search-bar">
@@ -31,10 +30,9 @@
                     <tr>
                         <th>Reference #</th>
                         <th>Customer Name</th>
-                        <th>Product/Service Secured</th>
+                        <th>Product/Service</th>
                         <th>Initial Payment</th>
                         <th>Reservation Date</th>
-                        <th>Customer Type</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -45,7 +43,6 @@
                         <td>Monitor</td>
                         <td>Php 2,000.00</td>
                         <td>09/10/2024</td>
-                        <td>Walk-In</td>
                         <td>
                             <button class="btn btn-warning" onclick="reserveStat(this)">Pending</button>
                         </td>
@@ -56,18 +53,6 @@
                         <td>Laptop</td>
                         <td>Php 2,000.00</td>
                         <td>09/10/2024</td>
-                        <td>Reseller</td>
-                        <td>
-                            <button class="btn btn-warning" onclick="reserveStat(this)">Pending</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Dave</td>
-                        <td>RAM</td>
-                        <td>Php 2,000.00</td>
-                        <td>09/10/2024</td>
-                        <td>Regular</td>
                         <td>
                             <button class="btn btn-warning" onclick="reserveStat(this)">Pending</button>
                         </td>
