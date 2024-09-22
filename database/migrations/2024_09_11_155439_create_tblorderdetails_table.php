@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->unsignedBigInteger('payment_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
+            $table->unsignedBigInteger('user_ID')->nullable();
             $table->integer('qty_order')->nullable();
             $table->float('total_price')->nullable();
             $table->date('order_date')->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->foreign('customer_id')->references('customer_id')->on('tblcustomer')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('payment_id')->references('payment_id')->on('tblpaymentmethod')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('product_id')->references('product_id')->on('tblproduct')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_ID')->references('user_ID')->on('user')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

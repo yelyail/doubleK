@@ -110,7 +110,7 @@ h4, h5, h6{
     background-color: #001d39;
 }
 .btn-sm{
-    color: #050912;
+    color: #FDFDFC;
     margin-left: 10%;
 }
 .text-label
@@ -186,4 +186,44 @@ h4, h5, h6{
     height: 4px;
     background-color: #1F3449;
     z-index: 1;
+}
+
+.order-confirmation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px; 
+}
+.order-details {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-left: 50px;
+}
+.order-peso{
+    font-weight: bold;
+    margin-left: 5px;
+    font-size: 30px;
+    margin-right: 10px;
+}
+
+.place-btn {
+    background-color: #105b13;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+.place-btn:hover{
+    background-color: #18721b;
+    color: white;
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+.orderinfo{
+    font-size: 15px;
+    font-weight: lighter;
+    color: #050912;
 }

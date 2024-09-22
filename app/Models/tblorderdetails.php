@@ -15,6 +15,7 @@ class tblorderdetails extends Model
         'customer_id',
         'payment_id',
         'product_id',
+        'user_ID',
         'qty_order',
         'total_price',
         'order_date',
@@ -36,5 +37,14 @@ class tblorderdetails extends Model
     {
         return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
     }
+    public function supplier()
+    {
+        return $this->belongsTo(tblsupplier::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_ID', 'user_ID');
+    }
+
     
 }

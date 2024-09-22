@@ -25,12 +25,18 @@
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item"><a href="{{ route('adminDashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>POS</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('adminInventory') }}" class="sidebar-link"><i class="bi bi-box"></i><span>Inventory</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Sales Transaction</span></a></li>
+                <li class="sidebar-item reports">
+                    <a href="" class="sidebar-link">
+                        <i class="bi bi-box"></i> <span>Operations</span>
+                    </a>
+                    <ul class="sidebar-submenu">
+                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-dot"></i>Inventory</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-dot"></i>Supplier</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-dot"></i>Services</a></li>
+                    </ul>
+                </li>
                 <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>Employee Information</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('adminSupplier') }}" class="sidebar-link"><i class="bi bi-layers-half"></i><span>Supplier</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('adminService') }}" class="sidebar-link"><i class="bi bi-gear"></i><span>Services</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('adminReservation') }}" class="sidebar-link"><i class="bi bi-file-earmark-text"></i><span>Reservation</span></a></li>
                 <li class="sidebar-item reports">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-clipboard-data"></i><span>Reports</span>
@@ -56,5 +62,6 @@
     <script src="{{ asset('assets/js/style.js') }}"></script>
     <script src="{{ asset('assets/js/search.js') }}"></script>
     <script src="{{ asset('assets/js/status.js') }}"></script>
+    <script src="{{ asset('assets/js/crud.js') }}"></script>
 </body>
 </html>

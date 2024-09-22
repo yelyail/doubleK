@@ -25,3 +25,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+//for the delivery option
+document.getElementById("deliveryMethod").addEventListener("change", function() {
+    var deliveryDateInput = document.getElementById("deliverDate");
+    if (this.value === "deliver") {
+        deliveryDateInput.style.display = "block";
+    } else {
+        deliveryDateInput.style.display = "none";
+    }
+});
+
+//for cash
+document.getElementById("paymentMethod").addEventListener("change", function() {
+    var cashAmountInput = document.getElementById("cashAmountInput");
+    if (this.value === "cash") {
+        cashAmountInput.style.display = "block";
+    } else {
+        cashAmountInput.style.display = "none";
+    }
+});
+
+//for gcash
+document.getElementById("paymentMethod").addEventListener("change", function() {
+    var gcashDetailsInput = document.getElementById("gcashDetailsInput");
+    if (this.value === "gcash") {
+        gcashDetailsInput.style.display = "block";
+    } else {
+        gcashDetailsInput.style.display = "none";
+    }
+});
+
+//for banktransfer
+document.getElementById("paymentMethod").addEventListener("change", function() {
+    var banktransfer = document.getElementById("bankTransferDetails");
+    if (this.value === "banktransfer") {
+        banktransfer.style.display = "block";
+    } else {
+        banktransfer.style.display = "none";
+    }
+});
+

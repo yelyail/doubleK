@@ -167,7 +167,6 @@
 </div>
 
 <input type="hidden" id="clientData" value='@json($clients)'>
-<script src="{{ asset('assets/js/crud.js') }}"></script>
 <script>
     $(document).ready(function() {
         $('.archive-btn').click(function() {

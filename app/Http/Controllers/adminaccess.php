@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\tblinventory;
 use App\Models\User;
+use App\Models\tblcustomer;
+use App\Models\tblservice;
+use App\Models\tblsupplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -35,8 +38,14 @@ class adminaccess extends Controller
     public function adminService(){ 
         return view('admin.service');
     }
-    public function adminSupplier(){ 
-        return view('admin.supplier');
+    public function adminSupplier()
+    {
+        $suppliers = tblsupplier::with([
+                                    'tblinventory.tblproduct',         
+                                    'tblorderdetails.user'              
+                                ])->get();
+                                
+        return view('admin.supplier', compact('suppliers'));
     }
 
     //for posting 
@@ -75,13 +84,69 @@ class adminaccess extends Controller
             return redirect()->back();
         }
     }
+    public function storeService(Request $request){
+        $service = new tblservice;
+        $service->service_name = $request->service_name;
+        $service->service_description = $request->service_description;
+        $service->service_price = $request->service_price;
+        $service->save();
+        return redirect()->back();
+    }
+    public function storeSupplier(Request $request){
+        $validated = $request->validate([
+            'supplierName' => 'required|string|max:255',
+            'email' => 'required|email|unique:suppliers,email',
+            'pNum' => 'required|string|max:255',
+            'landline' => 'required|string',
+            'address' => 'required|string',
+        ]);
+        try {
+            tblsupplier::create([
+                'supplier_name' => $request->supplierName,
+                'supplier_contact' => $request->email,
+                'supplier_landline' => $request->pNum,
+                'supplier_address' => $request->landline,
+                'supplier_email' => $request->address,
+                
+            ]);
+            return redirect()->back();
+        } catch (\Exception $e) {
+            return redirect()->back();
+        }
+        
+    }
 
     //for the progress \
-    public function custInfo(){
-        return view('admin.custInfo');
+    public function custInfo() 
+    {
+        $customer = tblcustomer::select('customer_id', 'customer_name', 'address')->first();
+
+        return view('admin.custInfo', [
+            'customer' => $customer,
+            'customer_name' => $customer->customer_name ?? 'N/A',
+            'address' => $customer->address ?? 'N/A',
+            'customer_id' => $customer->customer_id ?? null
+        ]);
     }
+    
     public function confirm(){
         return view('admin.confirm');
+    }
+    //for editing the progress
+    public function storeCustomer(Request $request){
+        $request->validate([
+            'customer_name' => 'required',  
+            'address' => 'required',
+        ]);
+        try {
+            tblcustomer::create([
+                'customer_name' => $request->customer_name,
+                'address' => $request->address,
+            ]);
+            return redirect()->back();
+        } catch (\Exception $e) {
+            return redirect()->back();
+        }
     }
 
     //For editing a content
@@ -112,15 +177,16 @@ class adminaccess extends Controller
     }
 
     public function archiveClient($id)
-{
-    $client = User::find($id); 
-    if ($client) {
-        $client->archived = true;
-        $client->save();
-        return response()->json(['message' => 'Employee archived successfully.']);
+    {
+        $client = User::find($id); 
+        if ($client) {
+            $client->archived = true;
+            $client->save();
+            return response()->json(['message' => 'Employee archived successfully.']);
+        }
+        return response()->json(['message' => 'Employee not found.'], 404);
     }
-    return response()->json(['message' => 'Employee not found.'], 404);
-}
 
+    
 
 }

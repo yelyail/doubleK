@@ -33,9 +33,9 @@
                     <tr>
                         <th>#</th>
                         <th>Supplier Name</th>
+                        <th>Email</th>
                         <th>Phone Number</th>
                         <th>Landline</th>
-                        <th>Email</th>
                         <th>Address</th>
                         <th>Representative</th>
                         <th>Actions</th>
@@ -43,19 +43,21 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>1</td>
-                        <td>John Doe</td>
-                        <td>09878372812</td>
-                        <td>082-298-1234</td>
-                        <td>john@gmail.com</td>
-                        <td>Davao City</td>
-                        <td>John Doe</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <button class="btn btn-success btn-sm"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
-                            </div>
-                        </td>
+                        @foreach ($suppliers as $supplier){
+                            <td>{{ $supplier->user_ID }}</td>
+                            <td>{{ $supplier->supplier_name }}</td>
+                            <td>{{ $supplier->supplier_email }}</td>
+                            <td>{{ '+63 ' . substr($supplier->supplier_contact, 1, 4) . ' ' . substr($supplier->supplier_contact, 5, 3) . ' ' . substr($supplier->supplier_contact, 8) }}</td>
+                            <td>{{ substr($supplier->supplier_landline, 0, 3) }} {{ substr($supplier->supplier_landline, 3, 3) }} {{ substr($supplier->supplier_landline, 6) }}</td>
+                            <td>{{ $supplier->supplier_address }}</td>
+                            <td>{{ $supplier->orderDetails->user->fullname }}</td>
+                            <td><div style="display: flex; align-items: center; gap: 5px;">
+                                    <button class="btn btn-success btn-sm"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
+                                </div>
+                            </td>
+                        }
+                        @endforeach
                     </tr>
                 </tbody>
             </table>
@@ -72,42 +74,38 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="inventoryForm">
-                    <!-- Supplier Name -->
+                <form id="inventoryForm" action="{{ route('storeSupplier') }}" method="POST">
+                @csrf
                     <div class="mb-3">
                         <label for="supplierName" class="form-label">Supplier Name</label>
-                        <input type="text" class="form-control" id="supplierName" placeholder="Enter supplier name">
+                        <input type="text" class="form-control" id="supplierName" placeholder="Juan Dela Cruz">
                     </div>
-                    <!-- Phone Number -->
-                    <div class="mb-3">
-                        <label for="pNum" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="pNum" placeholder="Enter phone number">
-                    </div>
-                    <!-- Landline -->
-                    <div class="mb-3">
-                        <label for="landline" class="form-label">Landline</label>
-                        <input type="text" class="form-control" id="landline" placeholder="Enter landline number">
-                    </div>
-                    <!-- Address -->
-                    <div class="mb-3">
-                        <label for="address" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="address" placeholder="Enter address">
-                    </div>
-                    <!-- Email -->
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" placeholder="Enter email">
+                        <input type="email" class="form-control" id="email" placeholder="juandelacruz@gmail.com">
                     </div>
-                    <!-- Representative -->
+                    <div class="mb-3">
+                        <label for="pNum" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="pNum" placeholder="9123456789">
+                        format
+                    </div>
+                    <div class="mb-3">
+                        <label for="landline" class="form-label">Landline</label>
+                        <input type="text" class="form-control" id="landline" placeholder="0821234567">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" placeholder="Davao City">
+                    </div>
                     <div class="mb-3">
                         <label for="representative" class="form-label">Representative</label>
-                        <input type="text" class="form-control" id="representative" placeholder="Enter representative name">
+                        <input type="text" class="form-control" id="representative" placeholder="John Ken">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="saveInventory">Save</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="saveInventory">Save</button>
             </div>
         </div>
     </div>

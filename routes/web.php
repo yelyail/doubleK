@@ -52,6 +52,9 @@ Route::controller(adminaccess::class)->group(function(){
 Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeProduct','storeProduct')->name('storeProduct');
     Route::post('/storeClient','storeClient')->name('storeClient');
+    Route::post('/storeCustomer','storeCustomer')->name('storeCustomer');
+    Route::post('/storeService','storeService')->name('storeService');
+    Route::post('/storeSupplier','storeSupplier')->name('storeSupplier');
 });
 
 //for the user

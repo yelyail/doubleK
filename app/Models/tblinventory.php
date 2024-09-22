@@ -20,4 +20,8 @@ class tblinventory extends Model
     {
         return $this->belongsTo(tblsupplier::class, 'supplier_ID', 'supplier_ID');
     }
+    public function product()
+    {
+        return $this->hasMany(tblproduct::class, 'product_id', 'product_id');
+    }
 }
