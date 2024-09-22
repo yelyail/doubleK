@@ -6,7 +6,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Services</h1>
+        <h1>Services Management</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -33,24 +33,24 @@
                         <th>Service Name</th>
                         <th>Description</th>
                         <th>Service Fee</th>
-                        <th>Delivery Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Service 1</td>
-                        <td>Description 1</td>
-                        <td>1000</td>
-                        <td>2021-10-10</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <button class="btn btn-success btn-sm"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
-                            </div>
-                        </td>
-                    </tr>
+                    @foreach ($services as $service)
+                        <tr>
+                            <td>{{ $service->service_ID }}</td>
+                            <td>{{ $service->service_name }}</td>
+                            <td>{{ $service->description }}</td>
+                            <td>₱ {{ $service->service_fee }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <button class="btn btn-success btn-sm" onclick="editService(' {{$service->service_ID }} ')"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -66,32 +66,88 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="inventoryForm">
+                <form id="inventoryForm" action="{{ route('storeService') }}" method="POST">
+                    @csrf
                     <div class="mb-3">
                         <label for="servicesName" class="form-label">Service Name</label>
-                        <input type="text" class="form-control" id="servicesName" placeholder="Enter service name">
+                        <input type="text" class="form-control" id="servicesName" name="serviceName" placeholder="Enter service name">
                     </div>
                     <div class="mb-3">
                         <label for="serviceDesc" class="form-label">Description</label>
-                        <textarea class="form-control" id="serviceDesc" rows="3" placeholder="Enter a description"></textarea>
+                        <textarea class="form-control" id="serviceDesc" rows="3" name="description" placeholder="Enter a description"></textarea>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="serviceFee" class="form-label">Service Fee</label>
-                            <input type="text" class="form-control" id="serviceFee" placeholder="Enter price">
+                            <input type="text" class="form-control" id="serviceFee" name="serviceFee" placeholder="Enter price">
                         </div>
                         <div class="col-md-6">
                             <label for="deliveryDate" class="form-label">Delivery Date</label>
-                            <input type="date" class="form-control" id="deliveryDate">
+                            <input type="date" class="form-control" id="deliveryDate" name="deliveryDate">
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit " class="btn btn-success" id="saveInventory">Save</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="saveInventory">Save</button>
             </div>
         </div>
     </div>
 </div>
+<!-- Editing services -->
+<div class="modal fade" id="editServiceModal" tabindex="-1" aria-labelledby="editServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Edit Service</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editServiceform" method="POST" action="{{ route('updateService', ['id' => 'service_ID']) }}">
+                @csrf
+                    <input type="hidden" id="editServiceId" name="id">
+                    <div class="mb-3">
+                        <label for="editServiceName" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="editServiceName" name="service_name" required> 
+                    </div>
+                    <div class="mb-3">
+                        <label for="editServiceDesc" class="form-label">Description</label>
+                        <textarea class="form-control" id="editServiceDesc" rows="3" name="description" placeholder="Enter a description"></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editServiceFee" class="form-label">Service Fee</label>
+                            <input type="text" class="form-control" id="editServiceFee" name="service_fee" placeholder="Enter price">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="serviceData" value='@json($services)'>
+<script>
+    function editService(serviceID) {
+        $.ajax({
+            url: '/admin/service/' + serviceID + '/editServices', 
+            type: 'GET',
+            success: function (data) {
+                $('#editServiceId').val(data.service_ID);
+                $('#editServiceName').val(data.service_name);
+                $('#editServiceDesc').val(data.description);
+                $('#editServiceFee').val(data.service_fee);
+
+                $('#editServiceModal').modal('show');
+            },
+            error: function () {
+                alert('Error fetching supplier data');
+            }
+        });
+    }
+</script>
 @endsection

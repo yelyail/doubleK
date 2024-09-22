@@ -14,6 +14,5 @@ class tblservice extends Model
         'service_name',
         'description',
         'service_fee',
-        'delivery_date',
     ];
 }

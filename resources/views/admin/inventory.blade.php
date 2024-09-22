@@ -3,11 +3,11 @@
 @section('title', 'Double-K Computer')
 
 @section('content')
-            <div class="main p-3">
-                <div class="text">
-                    <h1>Product Details</h1>
-                </div>
-                <!-- first table -->
+    <div class="main p-3">
+        <div class="text">
+            <h1>Inventory Management</h1>
+        </div>
+        <!-- first table -->
                 <div class="container mt-3">
                     <div class="row">
                         <div class="col-md-4 mt-2">

@@ -51,6 +51,9 @@ Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/supplier/{id}/edit', 'editSupplier')->name('editSupplier');
     Route::post('/admin/supplier/{id}/archive', 'archiveSupplier')->name('archiveSupplier');
     Route::post('/admin/supplier/{id}/update', 'updateSupplier')->name('updateSupplier');
+
+    Route::get('/admin/service/{id}/editServices', 'editService')->name('editService');
+    Route::post('/admin/service/{id}/update', 'updateService')->name('updateService');
 });
 //for posting
 Route::controller(adminaccess::class)->group(function(){

@@ -3,7 +3,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Reservation</h1>
+        <h1>Booking Management</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -41,16 +41,6 @@
                         <td>45435439052</td>
                         <td>John Doe</td>
                         <td>Monitor</td>
-                        <td>Php 2,000.00</td>
-                        <td>09/10/2024</td>
-                        <td>
-                            <button class="btn btn-warning" onclick="reserveStat(this)">Pending</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>67545647547</td>
-                        <td>John Kim</td>
-                        <td>Laptop</td>
                         <td>Php 2,000.00</td>
                         <td>09/10/2024</td>
                         <td>

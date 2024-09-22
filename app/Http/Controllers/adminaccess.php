@@ -25,7 +25,8 @@ class adminaccess extends Controller
         return view('admin.inventory');
     }
     public function adminOrder(){ 
-        return view('admin.order');
+        $services = tblservice::all();
+        return view('admin.order', compact('services'));
     }
     public function adminInventoryReports(){ 
         return view('admin.reports');
@@ -37,7 +38,8 @@ class adminaccess extends Controller
         return view('admin.reservation');
     }
     public function adminService(){ 
-        return view('admin.service');
+        $services = tblservice::all();
+        return view('admin.service', compact('services'));
     }
     public function adminSupplier()
     {
@@ -88,9 +90,10 @@ class adminaccess extends Controller
     }
     public function storeService(Request $request){
         $service = new tblservice;
-        $service->service_name = $request->service_name;
-        $service->service_description = $request->service_description;
-        $service->service_price = $request->service_price;
+        $service->service_name = $request->serviceName;
+        $service->description = $request->description;
+        $service->service_fee = $request->serviceFee;
+        $service->delivery_date = $request->deliveryDate;
         $service->save();
         return redirect()->back();
     }
@@ -117,7 +120,7 @@ class adminaccess extends Controller
         return redirect()->back()->with('success', 'Supplier added successfully!');
     }
 
-
+    // --------------------------------------------------
     //for the progress \
     public function custInfo() 
     {
@@ -187,7 +190,6 @@ class adminaccess extends Controller
         }
         return response()->json(['message' => 'Employee not found.'], 404);
     }
-
     public function archiveSupplier($id)
     {
         $supplier = tblsupplier::find($id); 
@@ -197,8 +199,7 @@ class adminaccess extends Controller
             return response()->json(['message' => 'Supplier archived successfully.']);
         }
         return response()->json(['message' => 'Supplier not found.'], 404);
-    }
-    
+    } 
     public function updateSupplier(Request $request)
     {
         $request->validate([
@@ -219,7 +220,7 @@ class adminaccess extends Controller
             $supplier->user_ID = $request->representative;
             $supplier->save(); 
 
-            return response()->back()->with('success', 'Supplier updated successfully!');;
+            return redirect()->back()->with('success', 'Supplier updated successfully!');;
         } else {
             return response()->json(['error' => 'Supplier not found!'], 404);
         }
@@ -231,6 +232,34 @@ class adminaccess extends Controller
             return response()->json($supplier);  // Return the supplier data as JSON
         } else {
             return response()->json(['error' => 'Supplier not found!'], 404);
+        }
+    }
+    public function updateService(Request $request)
+    {
+        $request->validate([
+            'service_name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'service_fee' => 'required|numeric',
+        ]);
+        $service = tblservice::find($request->id);
+        if ($service) {
+            $service->service_name = $request->service_name;
+            $service->description = $request->description;
+            $service->service_fee = $request->service_fee;
+            $service->save(); 
+
+            return redirect()->back()->with('success', 'Services updated successfully!');;
+        } else {
+            return response()->json(['error' => 'Services not found!'], 404);
+        }
+    }
+    public function editService($id)
+    {
+        $services = tblservice::find($id);
+        if ($services) {
+            return response()->json($services);  
+        } else {
+            return response()->json(['error' => 'Services not found!'], 404);
         }
     }
 

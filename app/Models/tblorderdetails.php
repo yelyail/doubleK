@@ -19,6 +19,7 @@ class tblorderdetails extends Model
         'qty_order',
         'total_price',
         'order_date',
+        'delivery_date',
         'order_status',
     ];
 

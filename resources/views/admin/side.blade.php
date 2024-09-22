@@ -28,12 +28,13 @@
                 <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Sales Transaction</span></a></li>
                 <li class="sidebar-item reports">
                     <a href="" class="sidebar-link">
-                        <i class="bi bi-box"></i> <span>Operations</span>
+                        <i class="bi bi-box"></i> <span>Transaction Management</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-dot"></i>Inventory</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-dot"></i>Supplier</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-dot"></i>Services</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-dot"></i>Inventory Management</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-dot"></i>Supplier Information</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-dot"></i>Services Management</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-dot"></i>Booking Management</a></li>
                     </ul>
                 </li>
                 <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>Employee Information</span></a></li>

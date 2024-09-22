@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('service_name')->nullable();
             $table->string('description')->nullable();
             $table->float('service_fee')->nullable();
-            $table->date('delivery_date')->nullable();
             $table->timestamps();
         });
     }

@@ -84,13 +84,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
+                                @foreach ($services as $service)
+                                    <tr>
+                                        <td>{{ $service->service_ID }}</td>
+                                        <td>{{ $service->service_name }}</td>
+                                        <td>{{ $service->description }}</td>
+                                        <td>₱ {{ $service->service_fee }}</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <button class="btn btn-success btn-sm"><i class="bi bi-plus"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
