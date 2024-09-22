@@ -21,30 +21,15 @@ class tblorderdetails extends Model
         'order_date',
         'order_status',
     ];
-    public function service()
-    {
-        return $this->belongsTo(tblservice::class, 'service_ID', 'service_ID');
-    }
-    public function customer()
-    {
-        return $this->belongsTo(tblcustomer::class, 'customer_id', 'customer_id');
-    }
-    public function payment()
-    {
-        return $this->belongsTo(tblpaymentmethod::class, 'payment_id', 'payment');
-    }
+
     public function product()
     {
         return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
-    }
-    public function supplier()
-    {
-        return $this->belongsTo(tblsupplier::class);
     }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_ID', 'user_ID');
     }
 
-    
 }
+

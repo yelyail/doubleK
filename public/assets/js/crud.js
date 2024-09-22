@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
 //for the delivery option
 document.getElementById("deliveryMethod").addEventListener("change", function() {
     var deliveryDateInput = document.getElementById("deliverDate");

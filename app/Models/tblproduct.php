@@ -22,8 +22,16 @@ class tblproduct extends Model
         'warranty',
         'size'
     ];
+
     public function inventory()
     {
         return $this->belongsTo(tblinventory::class, 'inventory_ID', 'inventory_id');
     }
+
+    public function orderDetails()
+    {
+        return $this->hasMany(tblorderdetails::class, 'product_id', 'product_id');
+    }
 }
+
+

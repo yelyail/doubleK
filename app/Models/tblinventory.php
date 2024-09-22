@@ -16,12 +16,14 @@ class tblinventory extends Model
         'lastRestockDate',
         'nextRestockDate'
     ];
+
     public function supplier()
     {
         return $this->belongsTo(tblsupplier::class, 'supplier_ID', 'supplier_ID');
     }
+
     public function product()
     {
-        return $this->hasMany(tblproduct::class, 'product_id', 'product_id');
+        return $this->hasMany(tblproduct::class, 'inventory_ID', 'inventory_id'); 
     }
 }

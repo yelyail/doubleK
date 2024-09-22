@@ -9,6 +9,7 @@ use App\Models\tblservice;
 use App\Models\tblsupplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class adminaccess extends Controller
 {
@@ -40,14 +41,15 @@ class adminaccess extends Controller
     }
     public function adminSupplier()
     {
-        $suppliers = tblsupplier::with([
-                                    'tblinventory.tblproduct',         
-                                    'tblorderdetails.user'              
-                                ])->get();
-                                
-        return view('admin.supplier', compact('suppliers'));
-    }
+        $suppliers = tblsupplier::with('user')->get();
 
+        $users = User::where(function($query) {
+            $query->where('archived', 0)
+                  ->orWhereNull('archived');
+            })->get();        
+        return view('admin.supplier', compact('suppliers', 'users'));
+    }
+    
     //for posting 
     public function storeProduct(Request $request){
         $inventory = new tblinventory;
@@ -92,29 +94,29 @@ class adminaccess extends Controller
         $service->save();
         return redirect()->back();
     }
-    public function storeSupplier(Request $request){
-        $validated = $request->validate([
-            'supplierName' => 'required|string|max:255',
-            'email' => 'required|email|unique:suppliers,email',
-            'pNum' => 'required|string|max:255',
-            'landline' => 'required|string',
-            'address' => 'required|string',
+    public function storeSupplier(Request $request)
+    {
+        $request->validate([
+            'supplier_name' => 'required|string|max:255',
+            'supplier_email' => 'required|email',
+            'supplier_contact' => 'required|string|size:10',
+            'supplier_landline' => 'nullable|string|size:10',
+            'supplier_address' => 'required|string',
+            'representative' => 'required|exists:user,user_ID',
         ]);
-        try {
-            tblsupplier::create([
-                'supplier_name' => $request->supplierName,
-                'supplier_contact' => $request->email,
-                'supplier_landline' => $request->pNum,
-                'supplier_address' => $request->landline,
-                'supplier_email' => $request->address,
-                
-            ]);
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back();
-        }
-        
+
+        $supplier = new tblsupplier();
+        $supplier->supplier_name = $request->supplier_name;
+        $supplier->supplier_email = $request->supplier_email;
+        $supplier->supplier_contact = $request->supplier_contact;
+        $supplier->supplier_landline = $request->supplier_landline;
+        $supplier->supplier_address = $request->supplier_address;
+        $supplier->user_ID = $request->representative;
+        $supplier->save();
+
+        return redirect()->back()->with('success', 'Supplier added successfully!');
     }
+
 
     //for the progress \
     public function custInfo() 
@@ -175,7 +177,6 @@ class adminaccess extends Controller
     
         return redirect()->route('adminEmployee')->with('success', 'Employee updated successfully.');
     }
-
     public function archiveClient($id)
     {
         $client = User::find($id); 
@@ -187,6 +188,50 @@ class adminaccess extends Controller
         return response()->json(['message' => 'Employee not found.'], 404);
     }
 
+    public function archiveSupplier($id)
+    {
+        $supplier = tblsupplier::find($id); 
+        if ($supplier) {
+            $supplier->archived = true;
+            $supplier->save();
+            return response()->json(['message' => 'Supplier archived successfully.']);
+        }
+        return response()->json(['message' => 'Supplier not found.'], 404);
+    }
     
+    public function updateSupplier(Request $request)
+    {
+        $request->validate([
+            'supplier_name' => 'required|string|max:255',
+            'supplier_email' => 'required|email',
+            'supplier_contact' => 'required|string|max:10',
+            'supplier_landline' => 'nullable|string|max:10',
+            'supplier_address' => 'nullable|string|max:255',
+            'representative' => 'required|exists:user,user_ID',
+        ]);
+        $supplier = tblsupplier::find($request->id);
+        if ($supplier) {
+            $supplier->supplier_name = $request->supplier_name;
+            $supplier->supplier_email = $request->supplier_email;
+            $supplier->supplier_contact = $request->supplier_contact;
+            $supplier->supplier_landline = $request->supplier_landline;
+            $supplier->supplier_address = $request->supplier_address;
+            $supplier->user_ID = $request->representative;
+            $supplier->save(); 
+
+            return response()->back()->with('success', 'Supplier updated successfully!');;
+        } else {
+            return response()->json(['error' => 'Supplier not found!'], 404);
+        }
+    }
+    public function editSupplier($id)
+    {
+        $supplier = tblsupplier::find($id);
+        if ($supplier) {
+            return response()->json($supplier);  // Return the supplier data as JSON
+        } else {
+            return response()->json(['error' => 'Supplier not found!'], 404);
+        }
+    }
 
 }

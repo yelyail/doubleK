@@ -22,4 +22,8 @@ class User extends Authenticatable
         'password',
         'archived',
     ];
+    public function suppliers()
+    {
+        return $this->hasMany(tblsupplier::class, 'user_ID', 'user_ID');
+    }
 }
