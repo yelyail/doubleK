@@ -6,7 +6,7 @@
 <div class="main p-3">
     <div class="row mb-4 align-items-center">
         <div class="col-md-9">
-            <h1>Dashboard</h1>
+            <h1 class="prod_title">Dashboard</h1>
         </div>
     </div>
     <div class="row">

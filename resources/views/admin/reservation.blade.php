@@ -3,7 +3,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Booking Management</h1>
+        <h1 class="prod_title">Booking Management</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -22,18 +22,17 @@
                 </button>
             </div>
         </div>
-
-        <!-- Reservation Table -->
         <div class="table-responsive">
             <table class="table table-striped custom-table">
                 <thead>
                     <tr>
-                        <th>Reference #</th>
+                        <th>Reference Number</th>
                         <th>Customer Name</th>
-                        <th>Product/Service</th>
+                        <th>Address</th>
+                        <th>Reserve Product</th>
                         <th>Initial Payment</th>
                         <th>Reservation Date</th>
-                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,10 +62,18 @@
             </div>
             <div class="modal-body">
                 <form id="inventoryForm">
+                    <div class="mb-3">
+                        <label for="trNumber" class="form-label">Transaction Reference Number</label>
+                        <input type="number" class="form-control" id="trNumber" name="trNumber" placeholder="Enter reference number">
+                    </div>
                     <!-- Customer Name -->
                     <div class="mb-3">
                         <label for="customerName" class="form-label">Customer Name</label>
                         <input type="text" class="form-control" id="customerName" placeholder="Enter Customer name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" placeholder="Address">
                     </div>
                     <div class="row mb-3">
                         <!-- Reserve Product -->
@@ -80,27 +87,16 @@
                             <input type="text" class="form-control" id="initPay" placeholder="Payment">
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <!-- Reservation Date -->
-                        <div class="col-md-6">
+                    <!-- Reservation Date -->
+                    <div class="col-md-6">
                             <label for="reserveDate" class="form-label">Reservation Date</label>
                             <input type="date" class="form-control me-2" id="reserveDate">
                         </div>
-                        <!-- Customer Type -->
-                        <div class="col-md-6">
-                            <label for="custType" class="form-label">Customer Type</label>
-                            <select class="form-select" id="custType">
-                                <option value="walkin">Walk-In</option>
-                                <option value="regular">Regular</option>
-                                <option value="reseller">Reseller</option>
-                            </select>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="saveInventory">Save</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="saveInventory">Save</button>
             </div>
         </div>
     </div>

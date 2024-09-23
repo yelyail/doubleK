@@ -211,6 +211,7 @@ h4, h5, h6{
     background-color: #105b13;
     color: white;
     padding: 10px 20px;
+    margin-left: 5px;
     border: none;
     cursor: pointer;
 }
@@ -225,5 +226,62 @@ h4, h5, h6{
 .orderinfo{
     font-size: 15px;
     font-weight: lighter;
+    color: #050912;
+}
+.prod_desc{
+    font-size: 20px;
+    font-weight: lighter;
+    color: #050912;
+}
+.prod_name{
+    color: #050912;
+    font-size: 30px;
+    font-weight: bold;
+}
+.prod_cat{
+    color: #050912;
+    font-size: 20px;
+    font-weight:normal;
+}
+.prod_title{
+    color: #050912;
+    font-size: 50px;
+    font-weight: bold;
+}
+.modal-title{
+    color: #050912;
+    font-size: 30px;
+    font-weight: bold;
+}
+.quantity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.quantity label {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.format-control-prod {
+    width: 70px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    outline: none;
+    font-size: 16px;
+}
+.card-cstm-bt{
+    background-color: rgba(255, 255, 255, 0.927);
+    color: #FDFDFC;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+.card-title-text{
     color: #050912;
 }

@@ -6,7 +6,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Services Management</h1>
+        <h1 class="prod_title">Services Management</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -76,15 +76,9 @@
                         <label for="serviceDesc" class="form-label">Description</label>
                         <textarea class="form-control" id="serviceDesc" rows="3" name="description" placeholder="Enter a description"></textarea>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="serviceFee" class="form-label">Service Fee</label>
-                            <input type="text" class="form-control" id="serviceFee" name="serviceFee" placeholder="Enter price">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="deliveryDate" class="form-label">Delivery Date</label>
-                            <input type="date" class="form-control" id="deliveryDate" name="deliveryDate">
-                        </div>
+                    <div class="mb-3">
+                        <label for="serviceFee" class="form-label">Service Fee</label>
+                        <input type="text" class="form-control" id="serviceFee" name="serviceFee" placeholder="Enter price">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
@@ -115,11 +109,9 @@
                         <label for="editServiceDesc" class="form-label">Description</label>
                         <textarea class="form-control" id="editServiceDesc" rows="3" name="description" placeholder="Enter a description"></textarea>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="editServiceFee" class="form-label">Service Fee</label>
-                            <input type="text" class="form-control" id="editServiceFee" name="service_fee" placeholder="Enter price">
-                        </div>
+                    <div class="mb-3">
+                        <label for="editServiceFee" class="form-label">Service Fee</label>
+                        <input type="text" class="form-control" id="editServiceFee" name="service_fee" placeholder="Enter price">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>

@@ -6,7 +6,7 @@
             <div class="main p-3">
                 <div class="row mb-4 align-items-center">
                     <div class="col-md-9">
-                        <h1>Inventory Reports</h1>
+                        <h1 class="prod_title">Inventory Reports</h1>
                     </div>
                     <div class="col-md-3 text-end">
                         <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;">

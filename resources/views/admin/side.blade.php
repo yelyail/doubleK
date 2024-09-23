@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
     <title>@yield('title', 'Double-K Computer Parts')</title>
@@ -25,16 +25,16 @@
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item"><a href="{{ route('adminDashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Sales Transaction</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-pc-display"></i><span>Sales Transaction</span></a></li>
                 <li class="sidebar-item reports">
                     <a href="" class="sidebar-link">
-                        <i class="bi bi-box"></i> <span>Transaction Management</span>
+                    <i class="bi bi-cash-stack"></i> <span>Transaction Management</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-dot"></i>Inventory Management</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-dot"></i>Supplier Information</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-dot"></i>Services Management</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-dot"></i>Booking Management</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-boxes"></i> Inventory Management</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-person-lines-fill"></i> Supplier Information</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-gear"></i> Services Management</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-bookmark-check"></i> Booking Management</a></li>
                     </ul>
                 </li>
                 <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>Employee Information</span></a></li>
@@ -43,8 +43,8 @@
                         <i class="bi bi-clipboard-data"></i><span>Reports</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li class="sidebar-item"><a href="{{ route('adminSalesReport') }}"><i class="bi bi-dot"></i>Sales Reports</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminInventoryReports') }}"><i class="bi bi-dot"></i>Inventory Reports</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminSalesReport') }}"><i class="bi bi-receipt"></i> Sales Reports</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminInventoryReports') }}"><i class="bi bi-file-earmark-text"></i> Inventory Reports</a></li>
                     </ul>
                 </li>
             </ul>

@@ -6,7 +6,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1>Supplier Information</h1>
+        <h1 class="prod_title">Supplier Information</h1>
     </div>
 
     <div class="container mt-5">
@@ -48,7 +48,7 @@
                                 <td>{{ $supplier->supplier_ID }}</td>
                                 <td>{{ ucwords(strtolower($supplier->supplier_name)) }}</td>
                                 <td>{{ $supplier->supplier_email }}</td>
-                                <td>{{ '+63 ' . substr($supplier->supplier_contact, 1, 4) . ' ' . substr($supplier->supplier_contact, 5, 3) . ' ' . substr($supplier->supplier_contact, 8) }}</td>
+                                <td>{{ '+63 ' . substr($supplier->supplier_contact, 0, 3) . ' ' . substr($supplier->supplier_contact, 3, 3) . ' ' . substr($supplier->supplier_contact, 6) }}</td>
                                 <td>{{ substr($supplier->supplier_landline, 0, 3) . ' ' . substr($supplier->supplier_landline, 3, 3) . ' ' . substr($supplier->supplier_landline, 6) }}</td>
                                 <td>{{ $supplier->supplier_address }}</td>
                                 <td>{{ ucwords(strtolower($supplier->user->fullname ?? 'N/A')) }}</td>
@@ -195,7 +195,6 @@
         });
     }
 </script>
-
 <script>
     $(document).ready(function() {
         $('.archive-btn').click(function() {

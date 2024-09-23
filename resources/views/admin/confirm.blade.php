@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="main p-2">
+    <h1 class="prod_title">Order Confirmation</h1> 
     <div class="container mt-2">
         <div class="row">
             <div class="col-md-12">
@@ -33,11 +34,12 @@
                     </div>
                     <div class="container">
                         <div class="order-confirmation">
-                            <h2>Order Confirmation</h2>
+                            <h2></h2>
                             <div class="order-details">
                                 <span class="order-total">Order Total:</span>
                                 <span class="order-peso">$3137.85</span>
                                 <button class="place-btn">Place Order</button>
+                                <button class="place-btn">Make Reservation</button>
                             </div>
                         </div>
                     </div>
@@ -55,7 +57,6 @@
                             <h3><b>Payment Method</b></h3>
                             <h4 class="orderinfo"><b>Type of Payment</b></h4>
                             <h4 class="orderinfo">Sender Name</h4>
-                            <h4 class="orderinfo">Receiver Name</h4>
                             <h4 class="orderinfo">Transaction Amount</h4>
                             <h4 class="orderinfo">Transaction Reference</h4>
                             <h4 class="orderinfo">Transaction Date</h4>

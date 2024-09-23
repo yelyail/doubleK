@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id("inventory_ID");
             $table->unsignedBigInteger('supplier_ID')->nullable();
             $table->integer('stock_qty')->nullable();
-            $table->date('lastRestockDate')->nullable();
             $table->date('nextRestockDate')->nullable();
             $table->foreign('supplier_ID')->references('supplier_ID')->on('tblsupplier')->onDelete('cascade')->onUpdate('cascade'); 
             $table->timestamps();

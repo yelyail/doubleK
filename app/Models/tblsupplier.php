@@ -21,13 +21,17 @@ class tblsupplier extends Model
     ];
 
 
-    public function inventories()
+    public function inventory()
     {
         return $this->hasMany(tblinventory::class, 'supplier_ID', 'supplier_ID');
     }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_ID', 'user_ID');
+    }
+    public function products()
+    {
+        return $this->belongsToMany(tblproduct::class)->pivot('inventory_id');
     }
 }
 

@@ -14,9 +14,8 @@ class tblproduct extends Model
         'inventory_ID',
         'category_name',
         'product_name',
-        'qtyPerUnity',
         'unit_price',
-        'stockUnit',
+        'updatedQty',
         'product_desc',
         'prod_add',
         'warranty',
@@ -28,10 +27,12 @@ class tblproduct extends Model
         return $this->belongsTo(tblinventory::class, 'inventory_ID', 'inventory_id');
     }
 
+
     public function orderDetails()
     {
         return $this->hasMany(tblorderdetails::class, 'product_id', 'product_id');
     }
+
 }
 
 

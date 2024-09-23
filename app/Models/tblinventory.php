@@ -13,7 +13,6 @@ class tblinventory extends Model
     protected $fillable = [
         'supplier_ID',
         'stock_qty',
-        'lastRestockDate',
         'nextRestockDate'
     ];
 
