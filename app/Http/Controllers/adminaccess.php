@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class adminaccess extends Controller
 {
@@ -202,35 +203,31 @@ class adminaccess extends Controller
     }
     public function addProduct(Request $request)
     {
-        $validatedData = $request->validate([
-            'service_ID' => 'nullable|integer',
-            'customer_id' => 'required|integer',
-            'payment_id' => 'required|integer',
-            'product_id' => 'required|integer',
-            'qty_order' => 'required|integer|min:1'
-        ]);
-        $product = tblproduct::findOrFail($validatedData['product_id']);
-
-        if (!$product->isAvailable()) {
-            return response()->json(['error' => 'Product is not available for purchase.'], 422);
-        }
-        $totalPrice = $product->price * $validatedData['qty_order'];
-
-        $orderDetail = tblorderdetails::create([
-            'service_ID' => $validatedData['service_ID'],
-            'customer_id' => $validatedData['customer_id'],
-            'payment_id' => $validatedData['payment_id'],
-            'product_id' => $validatedData['product_id'],
-            'qty_order' => $validatedData['qty_order'],
-            'total_price' => $totalPrice
+        // yawa wapani nahuman matug nako
+        $request->validate([
+            'product_id' => 'required|exists:tblproduct,product_id', 
+            'qty_order' => 'required|integer|min:1', 
         ]);
 
-        if ($product->stock > 0) {
-            $product->update(['stock' => $product->stock - $validatedData['quantity']]);
-        }
+        $productId = $request->input('product_id');
+        $quantity = $request->input('qty_order');
 
-        // Return a success message
-        return response()->json(['message' => 'Order created successfully!', 'orderDetail' => $orderDetail]);
+        $product = tblproduct::find($productId);
+        if ($product) {
+            if ($product->inventory_count >= $quantity) {
+                $product->inventory_count -= $quantity; 
+
+                Session::flash('success', 'Product added successfully! Quantity: ' . $quantity);
+            } else {
+                Session::flash('error', 'Not enough inventory for this product!');
+                return redirect()->back()->withErrors(['qty_order' => 'Insufficient inventory for the selected product.']);
+            }
+
+            return redirect()->back(); 
+        } else {
+            Session::flash('error', 'Product not found!');
+            return redirect()->back()->withErrors(['product_id' => 'Invalid product selected.']);
+        }
     }
     
     //For editing a content
@@ -280,14 +277,17 @@ class adminaccess extends Controller
     } 
     public function archiveInventory($id)
     {
-        $product = tblproduct::find($id); 
-        if ($product) {
-            $product->archived = true;
-            $product->save();
-            return response()->json(['message' => 'Supplier archived successfully.']);
+        $product = tblproduct::find($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found.'], 404);
         }
-        return response()->json(['message' => 'Supplier not found.'], 404);
-    } 
+        $product->archived = true; 
+        $product->save();
+
+        return response()->json(['message' => 'Product archived successfully.']);
+    }
+
     public function updateSupplier(Request $request)
     {
         $request->validate([
@@ -351,9 +351,11 @@ class adminaccess extends Controller
         }
     }
     // not finish ang edit inventory ug update inventory yawa sigi rag cannot be found edi wow
-    public function editInventory($product_id) 
+    public function editInventory($id) 
     {
-        $product = tblproduct::find($product_id);
+        $product = tblproduct::find($id);
+        dd($product); // Temporarily dump the result to see if it exists
+
         if ($product) {
             return response()->json($product);
         } else {
@@ -364,7 +366,6 @@ class adminaccess extends Controller
     {
         // Validate the incoming request
         $validatedData = $request->validate([
-            'id' => 'required|integer',
             'editCategoryName' => 'required|string|max:255',
             'editProductName' => 'required|string|max:255',
             'editProductDescription' => 'nullable|string',
@@ -394,17 +395,12 @@ class adminaccess extends Controller
             // Check if the product has related inventory and update
             if ($product->inventory) {
                 $product->inventory->nextRestockDate = $request->editRestockDate;
-                $product->inventory->supplier_id = $request->editSupplierId; // Ensure correct column name
-
-                // Save the updated inventory data
+                $product->inventory->supplier_id = $request->editSupplierId;
                 $product->inventory->save();
             }
 
-            // Redirect with success message
             return redirect()->back()->with('success', 'Inventory updated successfully.');
         }
-
-        // If product not found, redirect with error message
         return redirect()->back()->with('error', 'Inventory not found.');
     }
 

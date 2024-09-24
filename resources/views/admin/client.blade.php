@@ -43,7 +43,7 @@
                         @foreach($clients as $client)
                             @if($client->archived == 0)  
                                 <tr>
-                                    <td>{{ $client->user_ID }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ ucwords(strtolower($client->fullname)) }}</td>
                                     <td>{{ $client->username }}</td>
                                     <td>{{ $client->jobtype == 0 ? 'Helper' : ($client->jobtype == 2 ? 'Staff' : 'Admin') }}</td>

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('product_desc')->nullable();
             $table->date('prod_add')->nullable();
             $table->integer('warranty')->nullable();
-            $table->integer('size')->nullable();
+            $table->integer('archived')->nullable();
             $table->foreign('inventory_ID')->references('inventory_ID')->on('tblinventory')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

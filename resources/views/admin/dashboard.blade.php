@@ -9,32 +9,7 @@
             <h1 class="prod_title">Dashboard</h1>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-4 col-md-6">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Daily Sales</h5>
-                    <h2 class="card-text" id="dailySales">₱0.00</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Sales</h5>
-                    <h2 class="card-text" id="totalSales">₱0.00</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Product Sold</h5>
-                    <h2 class="card-text" id="productSold">0</h2>
-                </div>
-            </div>
-        </div>
-    </div>
+    
     <div class="row">
     <!-- Inventory Status Column -->
     <div class="col-lg-6 col-md-6">

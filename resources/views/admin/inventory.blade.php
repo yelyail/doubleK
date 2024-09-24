@@ -68,30 +68,16 @@
                                 <td>{{ $product->stock_qty ?? 'N/A' }}</td>
                                 <td>{{ $product->prod_add ?? 'N/A' }}</td>
                                 <td>{{ $product->updatedQty ?? 'N/A' }}</td>
-                                <td>{{ $product->inventory->nextRestockDate ?? 'N/A' }}</td>
+                                <td>{{ $product->nextRestockDate ?? 'N/A' }}</td>
                                 <td>
                                     <div style="display: flex; align-items: center;">
-                                    <button class="btn btn-success btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editInventoryModal" 
-                                        data-inventory="{{ json_encode([
-                                            'id' => $product->product_id, // Change to product_id
-                                            'category_name' => $product->category_name,
-                                            'product_name' => $product->product_name,
-                                            'product_description' => $product->product_desc,
-                                            'price_per_unit' => $product->unit_price,
-                                            'stocks' => $product->updatedQty, 
-                                            'restock_date' => $product->prod_add, 
-                                            'warranty_period' => $product->warranty, 
-                                            'warranty_unit' => 'days',
-                                            'supplier_id' => $product->supplierName // Access the supplier ID
-                                        ]) }}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-
-                                        <button type="button"class="btn btn-danger btn-sm archive-btn" data-productId="{{ $product->product_id }}">
+                                    <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
                                             <i class="bi bi-archive"></i>
                                         </button>
+
                                     </div>
                                 </td>
                             </tr>
@@ -180,7 +166,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editInventoryForm" action="{{ route('updateInventory') }}" method="POST">
+                <form id="editInventoryForm" method="POST">
                     @csrf
                     <input type="hidden" id="editInventoryID" name="id">
                     <div class="mb-3">
@@ -259,69 +245,73 @@
 
         const form = document.getElementById('inventoryForm');
         form.addEventListener('submit', function(event) {
-            // Convert the warranty period before form submission
             const days = convertToDays();
-            warrantyPeriodInput.value = days; // Update input value for submission
-            // Optionally, prevent default submission for testing
-            // event.preventDefault(); 
+            warrantyPeriodInput.value = days; 
         });
     });
 </script>
 <input type="hidden" id="productsData" value='@json($products)'>
 <!-- Edit Inventory -->
 <script>
-    $('#editInventoryModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var inventoryData = button.data('inventory'); // Extract inventory data from data-* attributes
+    function editInventory($product_id) {
+        $.ajax({
+            url: '/admin/inventory/' + product_id + '/edit', 
+            type: 'GET',
+            success: function (data) {
+                $('#editSupplierId').val(data.product_id);
+                $('#editCategoryName').val(data.category_name);
+                $('#editProductName').val(data.product_name);
+                $('#editProductDescription').val(data.product_desc);
+                $('#editUpdatedStocks').val(data.updatedQty);
+                $('#editPricePerUnit').val(data.unit_price);
+                $('#editRestockDate').val(data.nextRestockDate);
+                $('#editWarrantyPeriod').val(data.warranty);
+                $('#editSupplierName').val(data.supplier_ID);
 
-        var modal = $(this);
-        modal.find('#editInventoryID').val(inventoryData.id);
-        modal.find('#editCategoryName').val(inventoryData.category_name);
-        modal.find('#editProductName').val(inventoryData.product_name);
-        modal.find('#editProductDescription').val(inventoryData.product_description);
-        modal.find('#editUpdatedStocks').val(inventoryData.stocks);
-        modal.find('#editPricePerUnit').val(inventoryData.price_per_unit);
-        modal.find('#editRestockDate').val(inventoryData.restock_date);
-        modal.find('#editWarrantyPeriod').val(inventoryData.warranty_period);
-        modal.find('#warrantyUnit').val(inventoryData.warranty_unit);
-        modal.find('#suppName').val(inventoryData.supplier_id);
-    });
+                $('#editInventoryModal').modal('show');
+            },
+            error: function () {
+                alert('Error fetching supplier data');
+            }
+        });
+    }
 </script>
 <!-- Archive Inventory -->
 <script>
-    $(document).ready(function() {
-        $('.archive-btn').click(function() {
-            var productId = $(this).data('productId'); 
-            var row = $(this).closest('tr'); 
+$(document).ready(function() {
+    $('.archive-btn').click(function() {
+        var productId = $(this).data('productId'); // Get the product ID
+        var row = $(this).closest('tr'); // Get the closest row
 
-            Swal.fire({
-                title: 'Inventory Archiving',
-                text: 'Are you sure to archive this product??',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Archive',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: 'POST',
-                        url: `{{ url('/admin/inventory/') }}/${productId}/archive`,
-                        data: {
-                            '_token': '{{ csrf_token() }}',
-                        },
-                        success: function(data) {
-                            row.remove();
-                            Swal.fire('Archived', 'Archived successfully', 'success');
-                        },
-                        error: function(data) {
-                            console.error(data);
-                            Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
-                        }
-                    });
-                }
-            });
+        Swal.fire({
+            title: 'Inventory Archiving',
+            text: 'Are you sure to archive this product?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Archive',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: 'POST',
+                    url: `/admin/inventory/${productId}/archive`, // Ensure the URL is correct
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                    },
+                    success: function(data) {
+                        row.remove(); // Remove the row from the table
+                        Swal.fire('Archived', 'Archived successfully', 'success');
+                    },
+                    error: function(data) {
+                        console.error(data);
+                        Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
+                    }
+                });
+            }
         });
     });
+});
 </script>
+
 
 @endsection

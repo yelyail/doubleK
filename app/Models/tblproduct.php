@@ -19,12 +19,12 @@ class tblproduct extends Model
         'product_desc',
         'prod_add',
         'warranty',
-        'size'
+        'archived'
     ];
 
     public function inventory()
     {
-        return $this->hasOne(tblinventory::class, 'inventory_ID', 'inventory_id');
+        return $this->hasMany(tblinventory::class, 'inventory_ID', 'inventory_id');
     }
 
 

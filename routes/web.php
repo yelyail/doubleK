@@ -54,11 +54,11 @@ Route::controller(adminaccess::class)->group(function(){
 
     Route::get('/admin/service/{id}/editServices', 'editService')->name('editService');
     Route::post('/admin/service/{id}/update', 'updateService')->name('updateService');
-
-    Route::post('/admin/inventory/{id}/archive', 'archiveInventory')->name('archiveInventory');
-    Route::get('/admin/inventory/{product_id}/editInventory',  'editInventory')->name('editInventory');
-    Route::post('/admin/inventory', 'updateInventory')->name('updateInventory');
-
+});
+Route::prefix('admin')->group(function () {
+    Route::get('/inventory/{id}/edit', [adminaccess::class, 'editInventory'])->name('editInventory');
+    Route::post('/inventory/{id}/archive', [adminaccess::class, 'archiveInventory'])->name('archiveInventory');
+    Route::post('/inventory', [adminaccess::class, 'updateInventory'])->name('updateInventory');
 });
 //for posting
 Route::controller(adminaccess::class)->group(function(){

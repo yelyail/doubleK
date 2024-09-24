@@ -39,9 +39,9 @@
                 <tbody>
                     @foreach ($services as $service)
                         <tr>
-                            <td>{{ $service->service_ID }}</td>
-                            <td>{{ $service->service_name }}</td>
-                            <td>{{ $service->description }}</td>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{  ucwords(strtolower($service->service_name)) }}</td>
+                            <td>{{  ucwords(strtolower($service->description)) }}</td>
                             <td>₱ {{ $service->service_fee }}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 5px;">

@@ -65,10 +65,10 @@
                                             <tbody>
                                                 @foreach ($products as $product)
                                                     <tr>
-                                                        <td>{{ $product->product_id }}</td>
+                                                        <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $product->product_name }}</td>
                                                         <td>{{ $product->category_name }}</td>
-                                                        <td>{{ $product->product_desc }}</td>
+                                                        <td style="text-align: justify;">{{ $product->product_desc }}</td>
                                                         <td>₱ {{ $product->unit_price }}</td>
                                                         <td>
                                                             <div style="display: flex; align-items: center; gap: 5px;">
@@ -194,6 +194,7 @@
             <form id="productForm" action="{{ route('addProduct') }}" method="POST">
                 @csrf
                 <div class="modal-body">
+                    <!-- mag add ko ug product pero ugma na kapoy -->
                     <h1 class="prod_name"><span id="modalProductName"></span></h1>
                     <h5 class="prod_cat"><span id="modalProductCategory"></span></h5>
                     <h5 class="prod_desc"><span id="modalProductDesc"></span></h5>

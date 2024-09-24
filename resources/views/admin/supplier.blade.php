@@ -45,7 +45,7 @@
                     @foreach ($suppliers as $supplier)
                         @if($supplier->archived == 0) 
                             <tr>
-                                <td>{{ $supplier->supplier_ID }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ ucwords(strtolower($supplier->supplier_name)) }}</td>
                                 <td>{{ $supplier->supplier_email }}</td>
                                 <td>{{ '+63 ' . substr($supplier->supplier_contact, 0, 3) . ' ' . substr($supplier->supplier_contact, 3, 3) . ' ' . substr($supplier->supplier_contact, 6) }}</td>
