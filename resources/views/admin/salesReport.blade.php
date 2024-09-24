@@ -51,7 +51,6 @@
                                     <th>Price</th>
                                     <th>Total</th>
                                     <th>Purchase Date</th>
-                                    <th>Sales Representative</th>
                                 </tr>
                             </thead>
                         </table>

@@ -169,7 +169,6 @@ class adminaccess extends Controller
 
         return redirect()->back()->with('success', 'Supplier added successfully!');
     }
-
     // --------------------------------------------------
     //for the progress \
     public function custInfo() 
@@ -363,41 +362,50 @@ class adminaccess extends Controller
     }
     public function updateInventory(Request $request)
     {
-        // Validate the request
-        $request->validate([
-            'category_name' => 'required|string',
-            'product_name' => 'required|string',
-            'product_desc' => 'required|string',
-            'updatedQty' => 'required|numeric',
-            'unit_price' => 'required|numeric',
-            'nextRestockDate' => 'required|date',
-            'warranty' => 'required|numeric',
-            'supplier_ID' => 'required|numeric',
-        ]);
-        $product = tblproduct::findOrFail($request->product_id);
-        // Update product fields
-        $product->update([
-            'category_name' => $request->category_name,
-            'product_name' => $request->product_name,
-            'product_desc' => $request->product_desc,
-            'updatedQty' => $request->updatedQty,
-            'unit_price' => $request->unit_price,
-            'warranty' => $request->warranty,
-            'supplier_ID' => $request->supplier_ID,
+        // Validate the incoming request
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'editCategoryName' => 'required|string|max:255',
+            'editProductName' => 'required|string|max:255',
+            'editProductDescription' => 'nullable|string',
+            'editUpdatedStocks' => 'nullable|integer',
+            'editPricePerUnit' => 'required|numeric',
+            'editRestockDate' => 'nullable|date',
+            'warrantyPeriod' => 'nullable|integer',
+            'editSupplierName' => 'required|integer',
         ]);
 
-        // Update inventory fields if applicable
-        if ($product->inventory) {
-            $product->inventory->update([
-                'nextRestockDate' => $request->nextRestockDate,
-            ]);
+        // Find the product by ID
+        $product = tblproduct::find($request->product_id);
+
+        // Check if product exists
+        if ($product) {
+            // Update product details
+            $product->category_name = $request->editCategoryName;
+            $product->product_name = $request->editProductName;
+            $product->product_desc = $request->editProductDescription;
+            $product->updatedQty = $request->editUpdatedStocks; 
+            $product->unit_price = $request->editPricePerUnit;
+            $product->warranty = $request->warrantyPeriod;
+
+            // Save the updated product data
+            $product->save();
+
+            // Check if the product has related inventory and update
+            if ($product->inventory) {
+                $product->inventory->nextRestockDate = $request->editRestockDate;
+                $product->inventory->supplier_id = $request->editSupplierId; // Ensure correct column name
+
+                // Save the updated inventory data
+                $product->inventory->save();
+            }
+
+            // Redirect with success message
+            return redirect()->back()->with('success', 'Inventory updated successfully.');
         }
 
-        // Handle success or failure
-        return response()->json([
-            'success' => true,
-            'message' => 'Product updated successfully',
-            'product' => $product->load('inventory'), // Load inventory data for response
-        ]);
+        // If product not found, redirect with error message
+        return redirect()->back()->with('error', 'Inventory not found.');
     }
+
 }

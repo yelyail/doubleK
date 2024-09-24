@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id("payment_id");
             $table->string('payment_type')->nullable();
             $table->integer('reference_num')->nullable();
+            $table->double('payment')->nullable();
             $table->timestamps();
         });
     }

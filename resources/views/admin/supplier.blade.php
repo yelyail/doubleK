@@ -6,7 +6,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1 class="prod_title">Supplier Information</h1>
+        <h1 class="prod_title">Supplier</h1>
     </div>
 
     <div class="container mt-5">

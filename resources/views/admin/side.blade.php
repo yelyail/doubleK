@@ -31,13 +31,13 @@
                     <i class="bi bi-cash-stack"></i> <span>Transaction Management</span>
                     </a>
                     <ul class="sidebar-submenu">
-                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-boxes"></i> Inventory Management</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-person-lines-fill"></i> Supplier Information</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-gear"></i> Services Management</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-bookmark-check"></i> Booking Management</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-boxes"></i> Inventory</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-person-lines-fill"></i> Supplier</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-gear"></i> Services</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-bookmark-check"></i> Booking</a></li>
                     </ul>
                 </li>
-                <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>Employee Information</span></a></li>
+                <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>User Information</span></a></li>
                 <li class="sidebar-item reports">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-clipboard-data"></i><span>Reports</span>

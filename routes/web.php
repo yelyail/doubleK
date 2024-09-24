@@ -57,7 +57,7 @@ Route::controller(adminaccess::class)->group(function(){
 
     Route::post('/admin/inventory/{id}/archive', 'archiveInventory')->name('archiveInventory');
     Route::get('/admin/inventory/{product_id}/editInventory',  'editInventory')->name('editInventory');
-    Route::post('/admin/inventory/{id}/update', 'updateInventory')->name('updateInventory');
+    Route::post('/admin/inventory', 'updateInventory')->name('updateInventory');
 
 });
 //for posting

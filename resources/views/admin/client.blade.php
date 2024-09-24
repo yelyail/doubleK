@@ -5,7 +5,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1 class="prod_title">Employee Information</h1>
+        <h1 class="prod_title">User Information</h1>
     </div>
     <div class="container mt-7">
         <div class="row mb-4 align-items-center">
@@ -20,7 +20,7 @@
             </div>
             <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-custom" id="plus-button" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    <i class="bi bi-plus"></i> Add Employee
+                    <i class="bi bi-plus"></i> Add User
                 </button>
             </div>
         </div>

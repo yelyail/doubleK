@@ -3,7 +3,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1 class="prod_title">Booking Management</h1>
+        <h1 class="prod_title">Booking</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">

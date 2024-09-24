@@ -11,6 +11,8 @@ class tblpaymentmethod extends Model
     protected $table = 'tblpaymentmethod';
     protected $primaryKey = 'payment';
     protected $fillable = [
-        'payment_type'
+        'payment_type',
+        'reference_num',
+        'payment',
     ];
 }

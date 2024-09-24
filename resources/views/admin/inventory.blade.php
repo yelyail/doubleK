@@ -5,7 +5,7 @@
 @section('content')
     <div class="main p-3">
         <div class="text">
-            <h1 class="prod_title">Inventory Management</h1>
+            <h1 class="prod_title">Inventory</h1>
         </div>
         <div class="container mt-5">
             <div class="row mb-4 align-items-center">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                        <i class="bi bi-plus"></i> Add Inventory
+                        <i class="bi bi-plus"></i> Add Product
                     </button>
                 </div>
             </div>
@@ -71,9 +71,24 @@
                                 <td>{{ $product->inventory->nextRestockDate ?? 'N/A' }}</td>
                                 <td>
                                     <div style="display: flex; align-items: center;">
-                                        <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
+                                    <button class="btn btn-success btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editInventoryModal" 
+                                        data-inventory="{{ json_encode([
+                                            'id' => $product->product_id, // Change to product_id
+                                            'category_name' => $product->category_name,
+                                            'product_name' => $product->product_name,
+                                            'product_description' => $product->product_desc,
+                                            'price_per_unit' => $product->unit_price,
+                                            'stocks' => $product->updatedQty, 
+                                            'restock_date' => $product->prod_add, 
+                                            'warranty_period' => $product->warranty, 
+                                            'warranty_unit' => 'days',
+                                            'supplier_id' => $product->supplierName // Access the supplier ID
+                                        ]) }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+
                                         <button type="button"class="btn btn-danger btn-sm archive-btn" data-productId="{{ $product->product_id }}">
                                             <i class="bi bi-archive"></i>
                                         </button>
@@ -165,7 +180,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editInventoryForm" method="POST">
+                <form id="editInventoryForm" action="{{ route('updateInventory') }}" method="POST">
                     @csrf
                     <input type="hidden" id="editInventoryID" name="id">
                     <div class="mb-3">
@@ -181,8 +196,8 @@
                         <textarea class="form-control" id="editProductDescription" rows="3" name="editProductDescription" placeholder="Enter a description"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editStocks" class="form-label">Updated Stocks</label>
-                        <input type="number" class="form-control" id="editStocks" name="editStocks" placeholder="Enter how many stocks">                    </div>
+                        <label for="editUpdatedStocks" class="form-label">Updated Stocks</label>
+                    <input type="number" class="form-control" id="editUpdatedStocks" name="editUpdatedStocks" placeholder="Enter how many stocks">                    </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="editPricePerUnit" class="form-label">Price</label>
@@ -254,6 +269,24 @@
 </script>
 <input type="hidden" id="productsData" value='@json($products)'>
 <!-- Edit Inventory -->
+<script>
+    $('#editInventoryModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var inventoryData = button.data('inventory'); // Extract inventory data from data-* attributes
+
+        var modal = $(this);
+        modal.find('#editInventoryID').val(inventoryData.id);
+        modal.find('#editCategoryName').val(inventoryData.category_name);
+        modal.find('#editProductName').val(inventoryData.product_name);
+        modal.find('#editProductDescription').val(inventoryData.product_description);
+        modal.find('#editUpdatedStocks').val(inventoryData.stocks);
+        modal.find('#editPricePerUnit').val(inventoryData.price_per_unit);
+        modal.find('#editRestockDate').val(inventoryData.restock_date);
+        modal.find('#editWarrantyPeriod').val(inventoryData.warranty_period);
+        modal.find('#warrantyUnit').val(inventoryData.warranty_unit);
+        modal.find('#suppName').val(inventoryData.supplier_id);
+    });
+</script>
 <!-- Archive Inventory -->
 <script>
     $(document).ready(function() {
