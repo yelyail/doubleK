@@ -3,19 +3,7 @@
 use App\Http\Controllers\adminaccess;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\dashboardController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -41,8 +29,8 @@ Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/reservation','adminReservation')->name('adminReservation');
     Route::get('/admin/service','adminService')->name('adminService');
     Route::get('/admin/supplier','adminSupplier')->name('adminSupplier');
-    Route::get('/admin/custInfo','custInfo')->name('custInfo');
-    Route::get('/admin/confirm','confirm')->name('confirm');
+    Route::get('/admin/custInfo','adminCustInfo')->name('adminCustInfo');
+    Route::get('/admin/confirm','adminConfirm')->name('adminConfirm');
 
     Route::get('/admin/employee/{id}/edit', 'editClient')->name('editEmployee');
     Route::post('/admin/employee/{id}/archive', 'archiveClient')->name('archiveClient');
@@ -67,8 +55,10 @@ Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeCustomer','storeCustomer')->name('storeCustomer');
     Route::post('/storeService','storeService')->name('storeService');
     Route::post('/storeSupplier','storeSupplier')->name('storeSupplier');
+    Route::post('/storeCustomerInfor','storeCustomerInfor')->name('storeCustomerInfor');
 
     Route::post('/addProduct','addProduct')->name('addProduct');
+    Route::post('/addService','addService')->name('addService');
 });
 
 //for the user

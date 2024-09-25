@@ -27,10 +27,9 @@ class tblorderdetails extends Model
     {
         return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
     }
-    public function user()
+    public function customer()
     {
-        return $this->belongsTo(User::class, 'user_ID', 'user_ID');
+        return $this->belongsTo(tblcustomer::class, 'customer_id', 'customer_id');
     }
-
 }
 

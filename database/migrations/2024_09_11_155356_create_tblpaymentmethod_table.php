@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tblpaymentmethod', function (Blueprint $table) {
             $table->id("payment_id");
             $table->string('payment_type')->nullable();
-            $table->integer('reference_num')->nullable();
+            $table->string('reference_num')->nullable();
             $table->double('payment')->nullable();
             $table->timestamps();
         });

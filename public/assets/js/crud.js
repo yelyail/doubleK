@@ -36,33 +36,26 @@ document.getElementById("deliveryMethod").addEventListener("change", function() 
     }
 });
 
-//for cash
-document.getElementById("paymentMethod").addEventListener("change", function() {
-    var cashAmountInput = document.getElementById("cashAmountInput");
-    if (this.value === "cash") {
-        cashAmountInput.style.display = "block";
-    } else {
-        cashAmountInput.style.display = "none";
+document.getElementById('paymentMethod').addEventListener('change', function() {
+    const cashInput = document.getElementById('cashAmountInput');
+    const gcashInput = document.getElementById('gcashDetailsInput');
+    const bankTransferInput = document.getElementById('bankTransferDetails');
+
+    cashInput.style.display = 'none';
+    gcashInput.style.display = 'none';
+    bankTransferInput.style.display = 'none';
+
+    switch (this.value) {
+        case 'cash':
+            cashInput.style.display = 'block';
+            break;
+        case 'gcash':
+            gcashInput.style.display = 'block';
+            break;
+        case 'banktransfer':
+            bankTransferInput.style.display = 'block';
+            break;
     }
 });
 
-//for gcash
-document.getElementById("paymentMethod").addEventListener("change", function() {
-    var gcashDetailsInput = document.getElementById("gcashDetailsInput");
-    if (this.value === "gcash") {
-        gcashDetailsInput.style.display = "block";
-    } else {
-        gcashDetailsInput.style.display = "none";
-    }
-});
-
-//for banktransfer
-document.getElementById("paymentMethod").addEventListener("change", function() {
-    var banktransfer = document.getElementById("bankTransferDetails");
-    if (this.value === "banktransfer") {
-        banktransfer.style.display = "block";
-    } else {
-        banktransfer.style.display = "none";
-    }
-});
 

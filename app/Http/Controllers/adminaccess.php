@@ -9,11 +9,11 @@ use App\Models\tblproduct;
 use App\Models\tblservice;
 use App\Models\tblsupplier;
 use App\Models\tblorderdetails;
+use App\Models\tblpaymentmethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 
 class adminaccess extends Controller
 {
@@ -50,7 +50,21 @@ class adminaccess extends Controller
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
-        return view('admin.order', compact('services', 'products'));
+        $orderDetails = tblorderdetails::with('product')->get();
+        $orderDetailsData = [];
+        $overallTotal = 0;
+
+        foreach ($orderDetails as $orderDetail) {
+            $orderDetailsData[] = [
+                'product_name' => $orderDetail->product->product_name,
+                'qty_order' => $orderDetail->qty_order,
+                'unit_price' => $orderDetail->product->unit_price,
+                'total_price' => $orderDetail->total_price,
+            ];
+
+            $overallTotal += $orderDetail->total_price;
+        }
+        return view('admin.order', compact('services', 'products','orderDetails'));
     }
     public function adminInventoryReports(){ 
         return view('admin.reports');
@@ -75,6 +89,76 @@ class adminaccess extends Controller
             })->get();        
         return view('admin.supplier', compact('suppliers', 'users'));
     }
+    public function adminCustInfo(){
+        return view('admin.custInfo');
+    }
+    public function adminConfirm(){
+        $order = session()->get('order', []);
+        return view('admin.confirm', compact('order'));
+    }
+    public function storeCustomerInfor(Request $request)
+    {
+        $orderDetails = json_decode($request->input('orderDetails'), true);
+        $overallTotal = $request->input('overallTotal');
+
+        // Pass data to the view
+        return view('admin.custInfo', compact('orderDetails', 'overallTotal'));
+    }
+// for storing customer inforamtion
+    public function storeCustomer(Request $request)
+    {
+        $request->validate([
+            'custName' => 'nullable|string|max:255',
+            'address' => 'required|string|max:255',
+            'deliveryMethod' => 'required|string|in:deliver,pick-up',
+            'deliveryDate' => 'required_if:deliveryMethod,deliver|date|nullable',
+            'paymentType' => 'required|string|in:cash,gcash,banktransfer',
+
+            'cashPayment' => 'required_if:paymentType,cash|nullable|numeric',
+
+            'gcashCustomerName' => 'required_if:paymentType,gcash|nullable|string|max:255',
+            'gcashPayment' => 'required_if:paymentType,gcash|nullable|numeric',
+            'gcashReferenceNum' => 'required_if:paymentType,gcash|nullable|string|max:255',
+
+            'bankPaymentType' => 'required_if:paymentType,banktransfer|nullable|string|max:255',
+            'bankCustomerName' => 'required_if:paymentType,banktransfer|nullable|string|max:255',
+            'bankPayment' => 'required_if:paymentType,banktransfer|nullable|numeric',
+            'bankTransactionDate' => 'required_if:paymentType,banktransfer|nullable|date',
+            'bankReferenceNum' => 'required_if:paymentType,banktransfer|nullable|string|max:255',
+        ]);
+
+        // Create or update customer record
+        $customer = tblcustomer::updateOrCreate(
+            ['customer_name' => $request->custName],
+            ['address' => $request->address, 'transaction_date' => $request->bankTransactionDate]
+        );
+
+        // Create payment method
+        $payment = new tblpaymentmethod();
+        if ($request->paymentType == 'cash') {
+            $payment->payment_type = 'cash';
+            $payment->payment = $request->cashPayment;
+        } elseif ($request->paymentType == 'gcash') {
+            $payment->payment_type = 'gcash';
+            $payment->payment = $request->gcashPayment;
+            $payment->reference_num = $request->gcashReferenceNum;
+        } elseif ($request->paymentType == 'banktransfer') {
+            $payment->payment_type = 'banktransfer';
+            $payment->payment = $request->bankPayment;
+            $payment->reference_num = $request->bankReferenceNum;
+        }
+        $payment->save();
+
+        $order = tblorderdetails::create([
+            'customer_id' => $customer->customer_id,
+            'payment_id' => $payment->payment_id,
+            'order_date' => now(),
+            'delivery_date' => $request->deliveryDate,
+            'order_status' => 'Pending',
+        ]);
+        return redirect()->route('adminConfirm')->with('success', 'Order placed successfully!');
+    }
+
     
     //for posting 
     public function storeProduct(Request $request)
@@ -172,64 +256,50 @@ class adminaccess extends Controller
     }
     // --------------------------------------------------
     //for the progress \
-    public function custInfo() 
-    {
-        $customer = tblcustomer::select('customer_id', 'customer_name', 'address')->first();
-
-        return view('admin.custInfo', [
-            'customer' => $customer,
-            'customer_name' => $customer->customer_name ?? 'N/A',
-            'address' => $customer->address ?? 'N/A',
-            'customer_id' => $customer->customer_id ?? null
-        ]);
-    }
-    public function storeCustomer(Request $request){
-        $request->validate([
-            'customer_name' => 'required',  
-            'address' => 'required',
-        ]);
-        try {
-            tblcustomer::create([
-                'customer_name' => $request->customer_name,
-                'address' => $request->address,
-            ]);
-            return redirect()->back();
-        } catch (\Exception $e) {
-            return redirect()->back();
-        }
-    }
-    public function confirm(){
-        return view('admin.confirm');
-    }
     public function addProduct(Request $request)
     {
-        // yawa wapani nahuman matug nako
-        $request->validate([
-            'product_id' => 'required|exists:tblproduct,product_id', 
-            'qty_order' => 'required|integer|min:1', 
+        // Validate request
+        $validatedData = $request->validate([
+            'product_id' => 'required|exists:tblproduct,product_id',
+            'qty_order' => 'required|integer|min:1',
         ]);
 
-        $productId = $request->input('product_id');
-        $quantity = $request->input('qty_order');
+        // Find the product
+        $product = tblproduct::findOrFail($validatedData['product_id']);
 
-        $product = tblproduct::find($productId);
-        if ($product) {
-            if ($product->inventory_count >= $quantity) {
-                $product->inventory_count -= $quantity; 
+        // Calculate total price (price * quantity)
+        $total_price = $product->unit_price * $validatedData['qty_order'];
 
-                Session::flash('success', 'Product added successfully! Quantity: ' . $quantity);
-            } else {
-                Session::flash('error', 'Not enough inventory for this product!');
-                return redirect()->back()->withErrors(['qty_order' => 'Insufficient inventory for the selected product.']);
-            }
-
-            return redirect()->back(); 
-        } else {
-            Session::flash('error', 'Product not found!');
-            return redirect()->back()->withErrors(['product_id' => 'Invalid product selected.']);
-        }
+        // Create order details
+        tblorderdetails::create([
+            'product_id' => $validatedData['product_id'],
+            'qty_order' => $validatedData['qty_order'],
+            'total_price' => $total_price,
+            'order_date' => now(),
+        ]);
+        return redirect()->back()->with('success', 'Product added to order successfully.');
     }
-    
+    public function addServices(Request $request){
+        $validatedData = $request->validate([
+            'service_id' => 'required|exists:tblservice,service_id',
+            'qty_order' => 'required|integer|min:1',
+        ]);
+
+        $service = tblservice::findOrFail($validatedData['service_id']);
+        $total_price = $service->service_fee * $validatedData['qty_order'];
+
+        tblorderdetails::create([
+            'service_ID' => $validatedData['service_id'],
+            'qty_order' => $validatedData['qty_order'],
+            'total_price' => $total_price,
+            'order_date' => now(),
+        ]);
+        return redirect()->back()->with('success', 'Service added to order successfully.');
+    }
+
+
+
+
     //For editing a content
     public function editClient($user_ID)
     {

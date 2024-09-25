@@ -6,7 +6,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1 class="prod_title">Services Management</h1>
+        <h1 class="prod_title">Services</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -42,7 +42,7 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{  ucwords(strtolower($service->service_name)) }}</td>
                             <td>{{  ucwords(strtolower($service->description)) }}</td>
-                            <td>₱ {{ $service->service_fee }}</td>
+                            <td>₱ {{ number_format($service->service_fee,2) }}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 5px;">
                                     <button class="btn btn-success btn-sm" onclick="editService(' {{$service->service_ID }} ')"><i class="bi bi-pencil"></i></button>

@@ -57,14 +57,14 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>1</td>
-                                    <td>Kim Doe</td>
-                                    <td>Laptops</td>
-                                    <td>Hp</td>
-                                    <td>1</td>
-                                    <td>09/09/2024</td>
-                                    <td>Jane Cruz</td>
-                                    <td>Php 20,000.00</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td><button type="submit" class="btn btn-success"><i class="bi bi-printer"></i></button></td>
                                 </tr>
                             </tbody>

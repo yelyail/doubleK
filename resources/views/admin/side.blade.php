@@ -28,7 +28,7 @@
                 <li class="sidebar-item"><a href="{{ route('adminOrder') }}" class="sidebar-link"><i class="bi bi-pc-display"></i><span>Sales Transaction</span></a></li>
                 <li class="sidebar-item reports">
                     <a href="" class="sidebar-link">
-                    <i class="bi bi-cash-stack"></i> <span>Transaction Management</span>
+                    <i class="bi bi-cash-stack"></i><span>Transaction Management</span>
                     </a>
                     <ul class="sidebar-submenu">
                         <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-boxes"></i> Inventory</a></li>

@@ -64,7 +64,7 @@
                                     @endphp
                                     {{ $warranty }} {{ $warrantyUnit }}
                                 </td>
-                                <td>{{ $product->unit_price }}</td>
+                                <td>₱ {{ number_format($product->unit_price,2) }}</td>
                                 <td>{{ $product->stock_qty ?? 'N/A' }}</td>
                                 <td>{{ $product->prod_add ?? 'N/A' }}</td>
                                 <td>{{ $product->updatedQty ?? 'N/A' }}</td>
@@ -278,39 +278,39 @@
 </script>
 <!-- Archive Inventory -->
 <script>
-$(document).ready(function() {
-    $('.archive-btn').click(function() {
-        var productId = $(this).data('productId'); // Get the product ID
-        var row = $(this).closest('tr'); // Get the closest row
+    $(document).ready(function() {
+        $('.archive-btn').click(function() {
+            var productId = $(this).data('productId'); // Get the product ID
+            var row = $(this).closest('tr'); // Get the closest row
 
-        Swal.fire({
-            title: 'Inventory Archiving',
-            text: 'Are you sure to archive this product?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Archive',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    type: 'POST',
-                    url: `/admin/inventory/${productId}/archive`, // Ensure the URL is correct
-                    data: {
-                        '_token': '{{ csrf_token() }}',
-                    },
-                    success: function(data) {
-                        row.remove(); // Remove the row from the table
-                        Swal.fire('Archived', 'Archived successfully', 'success');
-                    },
-                    error: function(data) {
-                        console.error(data);
-                        Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
-                    }
-                });
-            }
+            Swal.fire({
+                title: 'Inventory Archiving',
+                text: 'Are you sure to archive this product?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Archive',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: `/admin/inventory/${productId}/archive`, // Ensure the URL is correct
+                        data: {
+                            '_token': '{{ csrf_token() }}',
+                        },
+                        success: function(data) {
+                            row.remove(); // Remove the row from the table
+                            Swal.fire('Archived', 'Archived successfully', 'success');
+                        },
+                        error: function(data) {
+                            console.error(data);
+                            Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
+                        }
+                    });
+                }
+            });
         });
     });
-});
 </script>
 
 
