@@ -58,9 +58,13 @@ Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeCustomerInfor','storeCustomerInfor')->name('storeCustomerInfor');
     Route::post('/storeOrder','storeOrder')->name('storeOrder');
 
+    
     Route::post('/addProduct','addProduct')->name('addProduct');
     Route::post('/addService','addService')->name('addService');
 });
+
+
+//Char rani
 
 //for the user
 Route::controller(dashboardController::class)->group(function() {

@@ -156,6 +156,7 @@ class adminaccess extends Controller
         return redirect()->route('adminConfirm')->with('success', 'Order placed successfully!');
     }
 
+    //mag add ug order sa
     public function storeOrder(Request $request)
     {
         $request->validate([

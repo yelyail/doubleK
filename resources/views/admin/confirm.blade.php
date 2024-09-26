@@ -39,7 +39,7 @@
                                 <span class="order-total">Order Total:</span>
                                 <span class="order-peso" id="orderTotal">₱0.00</span>
 
-                                <form action="{{ route('storeOrder') }}" method="POST">
+                                <!-- <form action="{{ route('storeOrder') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="customer_id" id="customer_id" value="">
                                     <input type="hidden" name="service_ID" id="service_ID" value="">
@@ -51,6 +51,23 @@
                                     <input type="hidden" name="order_date" id="order_date" value="{{ now() }}">
                                     <input type="hidden" name="delivery_date" id="delivery_date" value="2024-09-30">
 
+                                    <button type="submit" class="place-btn">Place Order</button>
+                                </form> -->
+
+                                <form action="{{ route('storeOrder') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="customer_id" id="customer_id" value="">
+                                    <input type="hidden" name="service_ID" id="service_ID" value="">
+                                    <input type="hidden" name="payment_id" id="payment_id" value="">
+                                    <input type="hidden" name="user_ID" id="user_ID" value="">
+                                    <input type="hidden" name="qty_order" id="qty_order" value="1">
+                                    <input type="hidden" name="total_price" id="total_price" value="1000">
+                                    <input type="hidden" name="order_date" id="order_date" value="{{ now() }}">
+                                    <input type="hidden" name="delivery_date" id="delivery_date" value="2024-09-30">
+                                    
+                                    <!-- JSON encoded order summary -->
+                                    <input type="hidden" name="orderSummary" id="orderSummary" value="">
+                                    
                                     <button type="submit" class="place-btn">Place Order</button>
                                 </form>
 
@@ -250,7 +267,6 @@
     });
 
 </script>
-
 </script>
 <!-- Order Summary -->
 <script>
@@ -286,7 +302,7 @@
         };
 
         // Send the order details to your server or handle it as needed
-        fetch('/submit-order', {
+        fetch('/storeOrder', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
