@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('tblorderdetails', function (Blueprint $table) {
             $table->id("ordDet_ID");
-            $table->unsignedBigInteger('service_ID')->nullable();
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->unsignedBigInteger('payment_id')->nullable();
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->unsignedBigInteger('user_ID')->nullable();
+            $table->unsignedBigInteger('service_ID');
+            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('payment_id');
+            $table->unsignedBigInteger('product_id');
             $table->integer('qty_order')->nullable();
-            $table->float('total_price')->nullable();
-            $table->date('order_date')->nullable();
+            $table->decimal('total_price', 10, 2);
             $table->date('delivery_date')->nullable();
+            $table->date('order_date');
             $table->enum('order_status', ['pending', 'completed', 'cancelled']);
             $table->foreign('service_ID')->references('service_ID')->on('tblservice')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('customer_id')->references('customer_id')->on('tblcustomer')->onDelete('cascade')->onUpdate('cascade');

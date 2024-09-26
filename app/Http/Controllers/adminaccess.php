@@ -12,8 +12,6 @@ use App\Models\tblorderdetails;
 use App\Models\tblpaymentmethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
 
 class adminaccess extends Controller
 {
@@ -104,7 +102,7 @@ class adminaccess extends Controller
         // Pass data to the view
         return view('admin.custInfo', compact('orderDetails', 'overallTotal'));
     }
-// for storing customer inforamtion
+    // for storing customer inforamtion
     public function storeCustomer(Request $request)
     {
         $request->validate([
@@ -127,7 +125,6 @@ class adminaccess extends Controller
             'bankReferenceNum' => 'required_if:paymentType,banktransfer|nullable|string|max:255',
         ]);
 
-        // Create or update customer record
         $customer = tblcustomer::updateOrCreate(
             ['customer_name' => $request->custName],
             ['address' => $request->address, 'transaction_date' => $request->bankTransactionDate]
@@ -159,7 +156,22 @@ class adminaccess extends Controller
         return redirect()->route('adminConfirm')->with('success', 'Order placed successfully!');
     }
 
-    
+    public function storeOrder(Request $request)
+    {
+        $request->validate([
+            'customer_id' => 'required|integer',
+            'service_ID' => 'required|integer',
+            'payment_id' => 'required|string',
+            'qty_order' => 'required|integer',
+            'total_price' => 'required|numeric',
+            'delivery_date' => 'nullable|date',
+            'order_date' => 'required|date',
+        ]);
+        tblorderdetails::create($request->all());
+
+        return redirect()->back()->with('success', 'Order placed successfully!');
+    }
+
     //for posting 
     public function storeProduct(Request $request)
     {

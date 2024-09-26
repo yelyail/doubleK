@@ -39,7 +39,6 @@
                         <form id="orderForm" action="{{ route('storeCustomer') }}" method="POST">
                             @csrf
                             <h3>Personal Details 
-                                <button type="submit" class="btn btn-medium">Save</button>
                             </h3>
                             <div class="row">
                                 <div class="col-md-6">
@@ -109,11 +108,11 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="modal-footer">
+                                <a href="{{ route('adminOrder') }}" class="btn btn-secondary btn-medium" style="width:100px; margin-left: 10px;">Back Product</a>
+                                <button type="submit" class="btn btn-success btn-medium" style="width:100px; margin-left: 10px;">Confirm Payment</button>
+                            </div>
                         </form>
-                        <div class="modal-footer">
-                            <a href="{{ route('adminOrder') }}" class="btn btn-secondary btn-medium" style="width:150px; margin-left: 10px;">Back to the Product</a>
-                            <button id="placeCustomerButton" class="btn btn-success" style="width:100px;" disabled>Confirm Payment</button>
-                        </div>
                         </div>
                     </div>
                 </div>
@@ -126,42 +125,24 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
     const orderForm = document.getElementById('orderForm');
-    const reviewConfirmButton = document.getElementById('placeCustomerButton');
-
     if (!orderForm) {
         console.error("Order form not found!");
         return;
     }
-
-    console.log("Order Form retrieved:", orderForm);
-
-    // Handle form submission
     orderForm.addEventListener('submit', function (event) {
-        event.preventDefault();  // Prevent form from submitting immediately
-        console.log("Inside submit event listener:", orderForm);
-
-        // Retrieve values from form inputs
+        event.preventDefault();  
         const custName = document.getElementById('custName').value || null;
         const address = document.getElementById('address').value;
         const deliveryMethod = document.getElementById('deliveryMethod').value;
         const deliveryDate = document.getElementById('deliveryDate').value || null;
         const paymentMethod = document.getElementById('paymentMethod').value;
 
-        // Log customer details for debugging
-        console.log("Customer Name:", custName);
-        console.log("Address:", address);
-        console.log("Delivery Method:", deliveryMethod);
-        console.log("Delivery Date:", deliveryDate);
-        console.log("Payment Method:", paymentMethod);
-
-        // Ensure that the required fields (address, delivery method, and payment method) are filled in
         if (!address || !deliveryMethod || !paymentMethod) {
             console.error("Required fields are missing!");
             alert("Please fill in all required fields (Address, Delivery Method, and Payment Method).");
             return;
         }
 
-        // Payment details based on payment method
         let paymentDetails = {};
         if (paymentMethod === 'cash') {
             const cashPayment = document.getElementById('cashAmount').value || null;
@@ -200,42 +181,30 @@
             paymentMethod,
             paymentDetails
         };
-
-        // Store customer info in localStorage
         try {
             localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
-            console.log("Stored customer info:", localStorage.getItem('customerInfo')); // Log stored data
+            console.log("Stored customer info:", localStorage.getItem('customerInfo'));
         } catch (error) {
             console.error("Error storing customer info:", error);
             return;
         }
-
-        // Enable the review confirm button
-        reviewConfirmButton.disabled = false;
-
-        // Redirect to confirmation page after a successful save
-        console.log("Redirecting to confirmation page");
-        window.location.href = "{{ route('adminConfirm') }}"; // Adjust the URL as necessary
+        window.location.href = "{{ route('adminConfirm') }}"; 
     });
 
-    // Handle change event for delivery method
     document.getElementById('deliveryMethod').addEventListener('change', function () {
         const deliverDateContainer = document.getElementById('deliverDate');
         deliverDateContainer.style.display = (this.value === 'deliver') ? 'block' : 'none';
     });
 
-    // Handle change event for payment method
     document.getElementById('paymentMethod').addEventListener('change', function () {
         const cashInput = document.getElementById('cashAmountInput');
         const gcashInput = document.getElementById('gcashDetailsInput');
         const bankTransferInput = document.getElementById('bankTransferDetails');
 
-        // Hide all payment detail sections initially
         cashInput.style.display = 'none';
         gcashInput.style.display = 'none';
         bankTransferInput.style.display = 'none';
 
-        // Show the appropriate section based on the selected payment method
         if (this.value === 'cash') {
             cashInput.style.display = 'block';
         } else if (this.value === 'gcash') {

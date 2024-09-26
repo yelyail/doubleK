@@ -300,3 +300,12 @@ h4, h5, h6{
 .order-summary-row{
     font-size: 12px;
 }
+.orderReceipt{
+    font-size: 15px;
+    color: #050912;
+}
+.orderReceiptTitle{
+    font-size: 20px;
+    color: #050912;
+    
+}

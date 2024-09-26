@@ -47,7 +47,7 @@
                                     <td>{{ ucwords(strtolower($client->fullname)) }}</td>
                                     <td>{{ $client->username }}</td>
                                     <td>{{ $client->jobtype == 0 ? 'Helper' : ($client->jobtype == 2 ? 'Staff' : 'Admin') }}</td>
-                                    <td>{{ $client->user_contact }}</td>
+                                    <td>{{ '+63 ' . substr($client->user_contact, 0, 3) . ' ' . substr($client->user_contact, 3, length: 3) . ' ' . substr($client->user_contact, 6) }}</td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 5px;">
                                             <button class="btn btn-success btn-sm" onclick="editClient('{{ $client->user_ID }}')">

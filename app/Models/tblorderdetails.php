@@ -15,7 +15,6 @@ class tblorderdetails extends Model
         'customer_id',
         'payment_id',
         'product_id',
-        'user_ID',
         'qty_order',
         'total_price',
         'order_date',

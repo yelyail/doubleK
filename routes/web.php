@@ -56,6 +56,7 @@ Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeService','storeService')->name('storeService');
     Route::post('/storeSupplier','storeSupplier')->name('storeSupplier');
     Route::post('/storeCustomerInfor','storeCustomerInfor')->name('storeCustomerInfor');
+    Route::post('/storeOrder','storeOrder')->name('storeOrder');
 
     Route::post('/addProduct','addProduct')->name('addProduct');
     Route::post('/addService','addService')->name('addService');
