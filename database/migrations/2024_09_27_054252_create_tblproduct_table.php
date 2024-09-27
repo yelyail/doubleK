@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tblproduct', function (Blueprint $table) {
             $table->id("product_id");
             $table->unsignedBigInteger('inventory_ID')->nullable();
-            $table->string('category_name')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->string('product_name')->nullable();
             $table->float('unit_price')->nullable();
             $table->integer('updatedQty')->nullable();
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('warranty')->nullable();
             $table->integer('archived')->nullable();
             $table->foreign('inventory_ID')->references('inventory_ID')->on('tblinventory')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('category_id')->references('category_id')->on('tblcategory')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

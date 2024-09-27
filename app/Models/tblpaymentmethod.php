@@ -9,7 +9,7 @@ class tblpaymentmethod extends Model
 {
     use HasFactory;
     protected $table = 'tblpaymentmethod';
-    protected $primaryKey = 'payment';
+    protected $primaryKey = 'payment_id';
     protected $fillable = [
         'payment_type',
         'reference_num',

@@ -16,12 +16,5 @@ class tblhistory extends Model
         'qtySold',
         'total_sale',
     ];
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_ID', 'user_ID');
-    }
-    public function orderdetails()
-    {
-        return $this->belongsTo(tblorderdetails::class, 'ordDet_ID', 'ordDet_ID');
-    }
+    
 }

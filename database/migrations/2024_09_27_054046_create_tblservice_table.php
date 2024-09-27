@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
-            $table->id("user_ID");
-            $table->string('fullname')->nullable();
-            $table->string('username')->nullable();
-            $table->string('jobtitle')->nullable();
-            $table->string('user_contact')->nullable();
-            $table->string('password')->nullable();
+        Schema::create('tblservice', function (Blueprint $table) {
+            $table->id("service_ID");
+            $table->string('service_name')->nullable();
+            $table->string('description')->nullable();
+            $table->float('service_fee')->nullable();
+            $table->string('service_status')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('tblservice');
     }
 };

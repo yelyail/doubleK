@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tblservice', function (Blueprint $table) {
-            $table->id("service_ID");
-            $table->string('service_name')->nullable();
-            $table->string('description')->nullable();
-            $table->float('service_fee')->nullable();
+        Schema::create('tblreserve', function (Blueprint $table) {
+            $table->id('reserve_id');
+            $table->string('reserveName');
+            $table->float('initialPayment');
+            $table->date('reserveDate');
+            $table->string('reserveStatus');
+            $table->string('reserveAction');
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tblservice');
+        Schema::dropIfExists('tblreserve');
     }
 };

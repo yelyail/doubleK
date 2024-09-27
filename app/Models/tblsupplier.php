@@ -11,27 +11,12 @@ class tblsupplier extends Model
     protected $table = 'tblsupplier';
     protected $primaryKey = 'supplier_ID';
     protected $fillable = [
-        'supplier_name',
         'user_ID',
+        'supplier_name',
         'supplier_contact',
         'supplier_landline',
         'supplier_address',
         'supplier_email',
-        'archive',
+        'archived',
     ];
-
-
-    public function inventory()
-    {
-        return $this->hasMany(tblinventory::class, 'supplier_ID', 'supplier_ID');
-    }
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_ID', 'user_ID');
-    }
-    public function products()
-    {
-        return $this->belongsToMany(tblproduct::class)->pivot('inventory_id');
-    }
 }
-

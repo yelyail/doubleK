@@ -12,27 +12,13 @@ class tblproduct extends Model
     protected $primaryKey = 'product_id';
     protected $fillable = [
         'inventory_ID',
-        'category_name',
+        'category_id',
         'product_name',
         'unit_price',
         'updatedQty',
         'product_desc',
         'prod_add',
         'warranty',
-        'archived'
+        'archived',
     ];
-
-    public function inventory()
-    {
-        return $this->hasMany(tblinventory::class, 'inventory_ID', 'inventory_id');
-    }
-
-
-    public function orderDetails()
-    {
-        return $this->hasMany(tblorderdetails::class, 'product_id', 'product_id');
-    }
-
 }
-
-
