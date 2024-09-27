@@ -160,7 +160,7 @@ class adminaccess extends Controller
     public function storeOrder(Request $request)
     {
         $request->validate([
-            'customer_id' => 'required|integer',
+            ' ' => 'required|integer',
             'service_ID' => 'required|integer',
             'payment_id' => 'required|string',
             'qty_order' => 'required|integer',
