@@ -42,6 +42,9 @@
                         </tr>
                     </thead>
                     <tbody>
+                    @if($products->isEmpty())
+                        <td colspan="11" class="text-center">No Inventory available.</td>
+                        @else
                         <!-- wala pani nahuman yawa balikan ko rani unya kay boshit di ma update ang table pota -->
                         @foreach ($products as $product)
                             <tr>
@@ -82,6 +85,7 @@
                                 </td>
                             </tr>
                         @endforeach
+                    @endif
                     </tbody>
                 </table>
             </div>
@@ -312,6 +316,4 @@
         });
     });
 </script>
-
-
 @endsection

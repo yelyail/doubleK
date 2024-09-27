@@ -83,13 +83,11 @@ class adminaccess extends Controller
     {
         $suppliers = tblsupplier::with('user')->get();
 
-        // Get users that are not archived or have null in the archived column
         $users = User::where(function($query) {
             $query->where('archived', 0)
                 ->orWhereNull('archived');
         })->get();        
         
-        // Pass both suppliers and users to the view
         return view('admin.supplier', compact('suppliers', 'users'));
     }
 

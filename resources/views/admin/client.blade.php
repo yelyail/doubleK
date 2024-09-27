@@ -38,8 +38,8 @@
                 </thead>
                 <tbody>
                     @if($clients->isEmpty())
-                        <tr><td colspan="6">No Employee</td></tr>
-                    @else
+                        <td colspan="8" class="text-center">No Employee Available.</td>
+                        @else
                         @foreach($clients as $client)
                             @if($client->archived == 0)  
                                 <tr>

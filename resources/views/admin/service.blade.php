@@ -37,6 +37,9 @@
                     </tr>
                 </thead>
                 <tbody>
+                @if($services->isEmpty())
+                    <td colspan="8" class="text-center">No Services Available.</td>
+                    @else
                     @foreach ($services as $service)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
@@ -51,6 +54,7 @@
                             </td>
                         </tr>
                     @endforeach
+                @endif
                 </tbody>
             </table>
         </div>

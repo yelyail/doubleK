@@ -1,4 +1,3 @@
-
 @extends('admin.side')
 
 @section('title', 'Double-K Computer')
@@ -42,11 +41,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if($suppliers->isEmpty())
-                        <p>No suppliers available.</p>
+                @if($suppliers->isEmpty())
+                    <td colspan="8" class="text-center">No suppliers available.</td>
                     @else
-                        <!-- Loop through suppliers -->
-                        @foreach($suppliers as $supplier)
+                    <!-- Loop through suppliers -->
+                    @foreach($suppliers as $supplier)
                         @if($supplier->archived == 0) 
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
@@ -69,6 +68,7 @@
                             </tr>
                         @endif
                     @endforeach
+                @endif
                 </tbody>
             </table>
         </div>
@@ -234,5 +234,4 @@
         });
     });
 </script>
-
 @endsection
