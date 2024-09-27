@@ -16,4 +16,15 @@ class tblinventory extends Model
         'stock_qty',
         'nextRestockDate',
     ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(tblsupplier::class, 'supplier_ID', 'supplier_ID');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(tblproduct::class, 'inventory_ID', 'inventory_ID');
+    }
 }
+

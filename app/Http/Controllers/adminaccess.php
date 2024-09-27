@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\tblcategory;
 use App\Models\tblinventory;
 use App\Models\User;
 use App\Models\tblcustomer;
 use App\Models\tblproduct;
 use App\Models\tblservice;
 use App\Models\tblsupplier;
-use App\Models\tblorderdetails;
+use App\Models\tblorderreceipt;
 use App\Models\tblpaymentmethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +27,7 @@ class adminaccess extends Controller
     public function adminInventory()
     {
         $products = tblproduct::select(
-            'tblproduct.category_name',
+            'tblcategory.categoryName',
             'tblproduct.product_name',
             'tblsupplier.supplier_name',
             'tblproduct.product_desc',
@@ -37,6 +38,7 @@ class adminaccess extends Controller
             'tblproduct.updatedQty',
             'tblinventory.nextRestockDate'
         )
+        ->join('tblcategory', 'tblproduct.category_id', '=', 'tblcategory.category_id')
         ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_id')
         ->join('tblsupplier', 'tblinventory.supplier_ID', '=', 'tblsupplier.supplier_ID')
         ->get();
@@ -48,7 +50,7 @@ class adminaccess extends Controller
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
-        $orderDetails = tblorderdetails::with('product')->get();
+        $orderDetails = tblorderreceipt::with('product')->get();
         $orderDetailsData = [];
         $overallTotal = 0;
 
@@ -81,12 +83,16 @@ class adminaccess extends Controller
     {
         $suppliers = tblsupplier::with('user')->get();
 
+        // Get users that are not archived or have null in the archived column
         $users = User::where(function($query) {
             $query->where('archived', 0)
-                  ->orWhereNull('archived');
-            })->get();        
+                ->orWhereNull('archived');
+        })->get();        
+        
+        // Pass both suppliers and users to the view
         return view('admin.supplier', compact('suppliers', 'users'));
     }
+
     public function adminCustInfo(){
         return view('admin.custInfo');
     }
@@ -146,7 +152,7 @@ class adminaccess extends Controller
         }
         $payment->save();
 
-        $order = tblorderdetails::create([
+        $order = tblorderreceipt::create([
             'customer_id' => $customer->customer_id,
             'payment_id' => $payment->payment_id,
             'order_date' => now(),
@@ -168,7 +174,7 @@ class adminaccess extends Controller
             'delivery_date' => 'nullable|date',
             'order_date' => 'required|date',
         ]);
-        tblorderdetails::create($request->all());
+        tblorderreceipt::create($request->all());
 
         return redirect()->back()->with('success', 'Order placed successfully!');
     }
@@ -188,8 +194,12 @@ class adminaccess extends Controller
         ]);
 
         try {
+            $category = tblcategory::create(
+                ['category_name' => $request->categoryName,
+                ]
+            );
             $product = tblproduct::create([
-                'category_name' => $request->categoryName,
+                
                 'product_name' => $request->productName,
                 'product_desc' => $request->productDescription,
                 'unit_price' => $request->pricePerUnit, 
@@ -284,7 +294,7 @@ class adminaccess extends Controller
         $total_price = $product->unit_price * $validatedData['qty_order'];
 
         // Create order details
-        tblorderdetails::create([
+        tblorderreceipt::create([
             'product_id' => $validatedData['product_id'],
             'qty_order' => $validatedData['qty_order'],
             'total_price' => $total_price,
@@ -301,7 +311,7 @@ class adminaccess extends Controller
         $service = tblservice::findOrFail($validatedData['service_id']);
         $total_price = $service->service_fee * $validatedData['qty_order'];
 
-        tblorderdetails::create([
+        tblorderreceipt::create([
             'service_ID' => $validatedData['service_id'],
             'qty_order' => $validatedData['qty_order'],
             'total_price' => $total_price,
@@ -447,6 +457,7 @@ class adminaccess extends Controller
     }
     public function updateInventory(Request $request)
     {
+        // wla pani kay di ko ka update ug inventory
         // Validate the incoming request
         $validatedData = $request->validate([
             'editCategoryName' => 'required|string|max:255',

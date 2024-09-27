@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('qtySold')->nullable();
             $table->float('total_sale')->nullable();
             $table->foreign('user_ID')->references('user_ID')->on('user')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('ordDet_ID')->references('ordDet_ID')->on('tblorderdetails')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('ordDet_ID')->references('ordDet_ID')->on('tblorderreceipt')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

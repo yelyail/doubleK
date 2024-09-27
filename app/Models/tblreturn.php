@@ -16,4 +16,10 @@ class tblreturn extends Model
         'returnReason',
         'return_status',
     ];
+
+    // A return belongs to a product
+    public function product()
+    {
+        return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
+    }
 }

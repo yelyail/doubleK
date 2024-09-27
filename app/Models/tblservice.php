@@ -16,4 +16,11 @@ class tblservice extends Model
         'service_fee',
         'service_status',
     ];
+
+    // A service has many order receipts
+    public function orderReceipts()
+    {
+        return $this->hasMany(tblorderreceipt::class, 'service_ID', 'service_ID');
+    }
 }
+

@@ -15,4 +15,10 @@ class tblcustomer extends Model
         'transaction_date',
         'address',
     ];
+
+    public function orderReceipts()
+    {
+        return $this->hasMany(tblorderreceipt::class, 'customer_id', 'customer_id');
+    }
 }
+

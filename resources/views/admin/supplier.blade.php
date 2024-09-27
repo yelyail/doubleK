@@ -42,7 +42,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($suppliers as $supplier)
+                    @if($suppliers->isEmpty())
+                        <p>No suppliers available.</p>
+                    @else
+                        <!-- Loop through suppliers -->
+                        @foreach($suppliers as $supplier)
                         @if($supplier->archived == 0) 
                             <tr>
                                 <td>{{ $loop->iteration }}</td>

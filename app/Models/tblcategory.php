@@ -15,5 +15,10 @@ class tblcategory extends Model
         'categoryDescription',
         'categoryStatus',
     ];
-    
+
+    public function products()
+    {
+        return $this->hasMany(tblproduct::class, 'category_id', 'category_id');
+    }
 }
+

@@ -15,4 +15,11 @@ class tblpaymentmethod extends Model
         'reference_num',
         'payment',
     ];
+
+    // A payment method has many order receipts
+    public function orderReceipts()
+    {
+        return $this->hasMany(tblorderreceipt::class, 'payment_id', 'payment_id');
+    }
 }
+

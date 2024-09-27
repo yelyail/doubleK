@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('supplier_address')->nullable();
             $table->string('supplier_email')->nullable();
             $table->boolean('archived')->default(false);
-            $table->foreign('user_ID')->references('user_ID')->on('user')->onDelete('cascade')->onUpdate('cascade'); 
+            $table->foreign('user_ID')->references('user_ID')->on('user')->onDelete('cascade')->onUpdate('cascade');
+            $table->timestamps(); 
         });
     }
 

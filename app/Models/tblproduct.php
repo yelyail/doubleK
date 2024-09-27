@@ -21,4 +21,25 @@ class tblproduct extends Model
         'warranty',
         'archived',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(tblcategory::class, 'category_id', 'category_id');
+    }
+
+    public function inventory()
+    {
+        return $this->belongsTo(tblinventory::class, 'inventory_ID', 'inventory_ID');
+    }
+
+    public function orderReceipts()
+    {
+        return $this->hasMany(tblorderreceipt::class, 'product_id', 'product_id');
+    }
+
+    public function returns()
+    {
+        return $this->hasMany(tblreturn::class, 'product_id', 'product_id');
+    }
 }
+
