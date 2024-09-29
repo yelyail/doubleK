@@ -46,7 +46,7 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ ucwords(strtolower($client->fullname)) }}</td>
                                     <td>{{ $client->username }}</td>
-                                    <td>{{ $client->jobtype == 0 ? 'Helper' : ($client->jobtype == 2 ? 'Staff' : 'Admin') }}</td>
+                                    <td>{{ ucwords(strtolower($client->jobtitle))  }}</td>
                                     <td>{{ '+63 ' . substr($client->user_contact, 0, 3) . ' ' . substr($client->user_contact, 3, length: 3) . ' ' . substr($client->user_contact, 6) }}</td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 5px;">
@@ -89,10 +89,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="jobRole" class="form-label">Job Role</label>
-                        <select class="form-control" name="jobtype" required>
+                        <select class="form-control" name="jobtitle" required>
                             <option value="" disabled selected hidden>Job Role</option>
-                            <option value="2">Staff</option>
-                            <option value="0">Helper</option>
+                            <option value="staff">Staff</option>
+                            <option value="helper">Helper</option>
                         </select>  
                     </div>
                     <div class="row mb-3">
@@ -148,13 +148,19 @@
                         <label for="editJobRole" class="form-label">Job Role</label>
                         <select class="form-control" name="jobtype" id="editJobRole" required>
                             <option value="" disabled selected hidden>Job Role</option>
-                            <option value="2">Staff</option>
-                            <option value="0">Helper</option>
+                            <option value="admin">Admin</option>
+                            <option value="staff">Staff</option>
+                            <option value="helper">Helper</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="editPhoneNumber" class="form-label">Phone Number</label>
                         <input type="tel" class="form-control" id="editPhoneNumber" name="user_contact" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="editPassword" name="password" placeholder="Enter new password (optional)">
+                        <small class="form-text text-muted">Leave blank if you don't want to change the password.</small>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>

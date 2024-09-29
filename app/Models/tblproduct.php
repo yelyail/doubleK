@@ -26,10 +26,8 @@ class tblproduct extends Model
     {
         return $this->belongsTo(tblcategory::class, 'category_id', 'category_id');
     }
-
-    public function inventory()
-    {
-        return $this->belongsTo(tblinventory::class, 'inventory_ID', 'inventory_ID');
+    public function inventory() {
+        return $this->hasOne(tblinventory::class, 'inventory_ID');
     }
 
     public function orderReceipts()

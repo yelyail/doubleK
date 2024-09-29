@@ -43,15 +43,16 @@
                     </thead>
                     <tbody>
                     @if($products->isEmpty())
-                        <td colspan="11" class="text-center">No Inventory available.</td>
-                        @else
-                        <!-- wala pani nahuman yawa balikan ko rani unya kay boshit di ma update ang table pota -->
+                        <tr>
+                            <td colspan="11" class="text-center">No Inventory available.</td>
+                        </tr>
+                    @else
                         @foreach ($products as $product)
                             <tr>
-                                <td>{{ $product->category_name }}</td>
-                                <td>{{ $product->product_name }}</td> 
+                                <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
+                                <td>{{ ucwords(strtolower($product->product_name)) }}</td> 
                                 <td>{{ $product->supplier_name ?? 'N/A' }}</td> 
-                                <td>{{ $product->product_desc }}</td>
+                                <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
                                 <td>
                                     @php
                                         $warranty = $product->warranty;
@@ -74,9 +75,11 @@
                                 <td>{{ $product->nextRestockDate ?? 'N/A' }}</td>
                                 <td>
                                     <div style="display: flex; align-items: center;">
-                                    <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
+                                        <button class="btn btn-success btn-sm" 
+                                                onclick="editInventory('{{ $product->product_id }}')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
+
                                         <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
                                             <i class="bi bi-archive"></i>
                                         </button>
@@ -92,7 +95,7 @@
         </div>
     </div>
 
-<!-- Add HERE-->
+<!-- Add Inventory Modal -->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -135,33 +138,36 @@
                             <input type="number" class="form-control me-2" id="warrantyPeriod" name="warrantyPeriod" placeholder="Enter warranty period">
                         </div>
                         <div class="col-md-6">
-                            <select class="form-select" id="warrantyUnit">
+                            <select class="form-select" id="warrantyUnit" name="warrantyUnit" required>
+                                <option value="" disabled selected>Warranty Units</option>
                                 <option value="days">Days</option>
                                 <option value="weeks">Weeks</option>
                                 <option value="months">Months</option>
                             </select>
                         </div>
                     </div>
-                <div class="row mb-3">
-                    <label for="suppName" class="form-label">Supplier Name</label>
+                    <div class="row mb-3">
+                        <label for="suppName" class="form-label">Supplier Name</label>
                         <div class="col-md-8">
-                            <select class="form-select" id="suppName" name="supplierName">
+                            <select class="form-select" id="suppName" name="supplierName" required>
+                                <option value="" disabled selected>Supplier Name</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->supplier_ID }}">{{ $supplier->supplier_name }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success" id="saveInventory">Save</button>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="saveInventory">Save</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-<!-- Edit Inventory -->
+
+<!-- Edit Inventory Modal -->
 <div class="modal fade" id="editInventoryModal" tabindex="-1" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -172,48 +178,52 @@
             <div class="modal-body">
                 <form id="editInventoryForm" method="POST">
                     @csrf
-                    <input type="hidden" id="editInventoryID" name="id">
+                    <input type="hidden" id="editInventoryID" name="product_id">
                     <div class="mb-3">
                         <label for="editCategoryName" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" id="editCategoryName" name="editCategoryName" placeholder="Enter category name">
+                        <input type="text" class="form-control" id="editCategoryName" name="editCategoryName" placeholder="Enter category name" required>
                     </div>
                     <div class="mb-3">
                         <label for="editProductName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="editProductName" name="editProductName" placeholder="Enter Product name">
+                        <input type="text" class="form-control" id="editProductName" name="editProductName" placeholder="Enter Product name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editProductDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="editProductDescription" rows="3" name="editProductDescription" placeholder="Enter a description"></textarea>
+                        <label for="editItemDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editItemDescription" rows="3" name="editProductDescription" placeholder="Enter a description" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editUpdatedStocks" class="form-label">Updated Stocks</label>
-                    <input type="number" class="form-control" id="editUpdatedStocks" name="editUpdatedStocks" placeholder="Enter how many stocks">                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="editPricePerUnit" class="form-label">Price</label>
-                            <input type="text" class="form-control" id="editPricePerUnit" name="editPricePerUnit" placeholder="Enter price">
-                        </div>
-                        <div class="col-md-6">
-                        <label for="editRestockDate" class="form-label">Restock Date</label>
-                        <input type="date" class="form-control" id="editRestockDate" name="editRestockDate">                        </div>
+                        <label for="editStocks" class="form-label">Stocks</label>
+                        <input type="number" class="form-control" id="editStocks" name="editStocks" placeholder="Enter how many stocks" required>
                     </div>
                     <div class="row mb-3">
-                        <label for="warranty" class="form-label">Warranty</label>
                         <div class="col-md-6">
-                            <input type="number" class="form-control me-2" id="editWarrantyPeriod" name="warrantyPeriod" placeholder="Enter warranty period">
+                            <label for="editItemPrice" class="form-label">Price</label>
+                            <input type="text" class="form-control" id="editItemPrice" name="editPricePerUnit" placeholder="Enter price" required>
                         </div>
                         <div class="col-md-6">
-                            <select class="form-select" id="warrantyUnit">
+                            <label for="editItemDate" class="form-label">Date Added</label>                                    
+                            <input type="date" class="form-control" id="editItemDate" name="editDateAdded">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="editWarranty" class="form-label">Warranty</label>
+                        <div class="col-md-6">
+                            <input type="number" class="form-control me-2" id="editWarrantyPeriod" name="editWarrantyPeriod" placeholder="Enter warranty period">
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select" id="editWarrantyUnit" name="editWarrantyUnit" required>
+                                <option value="" disabled selected>Warranty Units</option>
                                 <option value="days">Days</option>
                                 <option value="weeks">Weeks</option>
                                 <option value="months">Months</option>
                             </select>
                         </div>
                     </div>
-                <div class="row mb-3">
-                    <label for="suppName" class="form-label">Supplier Name</label>
+                    <div class="row mb-3">
+                        <label for="editSuppName" class="form-label">Supplier Name</label>
                         <div class="col-md-8">
-                            <select class="form-select" id="suppName" name="editSupplierName">
+                            <select class="form-select" id="editSuppName" name="editSupplierName" required>
+                                <option value="" disabled selected>Supplier Name</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->supplier_ID }}">{{ $supplier->supplier_name }}</option>
                                 @endforeach
@@ -222,92 +232,65 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success">Update</button>
+                        <button type="submit" class="btn btn-success" id="updateInventory">Update</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-<!-- converting days for warranty -->
+<!-- not done yawa -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const warrantyPeriodInput = document.getElementById('warrantyPeriod');
-        const warrantyUnitSelect = document.getElementById('warrantyUnit');
+    function editInventory(productId) {
+        // Fetch product details using AJAX
+        fetch(`/admin/inventory/${productId}/edit`)
+            .then(response => response.json())
+            .then(data => {
+                // Populate modal fields with product data
+                document.getElementById('editInventoryID').value = data.product_id;
+                document.getElementById('editCategoryName').value = data.categoryName;
+                document.getElementById('editProductName').value = data.product_name;
+                document.getElementById('editItemDescription').value = data.product_desc;
+                document.getElementById('editStocks').value = data.stock_qty;
+                document.getElementById('editItemPrice').value = data.unit_price;
+                document.getElementById('editItemDate').value = data.prod_add;
+                document.getElementById('editWarrantyPeriod').value = data.warranty;
 
-        function convertToDays() {
-            const period = parseInt(warrantyPeriodInput.value) || 0;
-            const unit = warrantyUnitSelect.value;
-
-            if (unit === 'weeks') {
-                return Math.round(period * 7);
-            } else if (unit === 'months') {
-                return Math.round(period * 30);
-            }
-            return period; // Default is days
-        }
-
-        const form = document.getElementById('inventoryForm');
-        form.addEventListener('submit', function(event) {
-            const days = convertToDays();
-            warrantyPeriodInput.value = days; 
-        });
-    });
-</script>
-<input type="hidden" id="productsData" value='@json($products)'>
-<!-- Edit Inventory -->
-<script>
-    function editInventory($product_id) {
-        $.ajax({
-            url: '/admin/inventory/' + product_id + '/edit', 
-            type: 'GET',
-            success: function (data) {
-                $('#editSupplierId').val(data.product_id);
-                $('#editCategoryName').val(data.category_name);
-                $('#editProductName').val(data.product_name);
-                $('#editProductDescription').val(data.product_desc);
-                $('#editUpdatedStocks').val(data.updatedQty);
-                $('#editPricePerUnit').val(data.unit_price);
-                $('#editRestockDate').val(data.nextRestockDate);
-                $('#editWarrantyPeriod').val(data.warranty);
-                $('#editSupplierName').val(data.supplier_ID);
-
-                $('#editInventoryModal').modal('show');
-            },
-            error: function () {
-                alert('Error fetching supplier data');
-            }
-        });
+                document.getElementById('editWarrantyUnit').value = data.warrantyUnit;
+                
+                var editModal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
+                editModal.show();
+            })
+            .catch(error => console.error('Error fetching product:', error));
     }
-</script>
-<!-- Archive Inventory -->
-<script>
-    $(document).ready(function() {
-        $('.archive-btn').click(function() {
-            var productId = $(this).data('productId'); // Get the product ID
-            var row = $(this).closest('tr'); // Get the closest row
 
+    // Archive product
+    document.querySelectorAll('.archive-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.getAttribute('data-product-id');
+            const url = `/admin/inventory/${productId}/archive`;
+            
             Swal.fire({
-                title: 'Inventory Archiving',
-                text: 'Are you sure to archive this product?',
+                title: 'Are you sure?',
+                text: 'You won’t be able to revert this!',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Archive',
-                cancelButtonText: 'Cancel'
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, archive it!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: `/admin/inventory/${productId}/archive`, // Ensure the URL is correct
+                        url: url,
                         data: {
                             '_token': '{{ csrf_token() }}',
                         },
-                        success: function(data) {
-                            row.remove(); // Remove the row from the table
-                            Swal.fire('Archived', 'Archived successfully', 'success');
+                        success: function (data) {
+                            button.closest('tr').remove();
+                            Swal.fire('Archived', 'Product archived successfully', 'success');
                         },
-                        error: function(data) {
-                            console.error(data);
+                        error: function (data) {
                             Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
                         }
                     });

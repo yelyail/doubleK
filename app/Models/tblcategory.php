@@ -12,7 +12,6 @@ class tblcategory extends Model
     protected $primaryKey = 'category_id';
     protected $fillable = [
         'categoryName',
-        'categoryDescription',
         'categoryStatus',
     ];
 

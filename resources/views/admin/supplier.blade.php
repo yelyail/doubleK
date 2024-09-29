@@ -94,13 +94,20 @@
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="supplier_email" placeholder="juandelacruz@gmail.com">
                     </div>
+                    <!-- Phone Number Input -->
                     <div class="mb-3">
                         <label for="pNum" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="pNum" name="supplier_contact" placeholder="9123456789">
+                        <input type="tel" class="form-control" id="pNum" name="supplier_contact"
+                            pattern="\d{10}" maxlength="10" placeholder="9123456789"
+                            title="Phone number should only contain 10 digits (without country code)" required>
                     </div>
+
+                    <!-- Landline Input -->
                     <div class="mb-3">
                         <label for="landline" class="form-label">Landline</label>
-                        <input type="text" class="form-control" id="landline" name="supplier_landline" placeholder="0821234567">
+                        <input type="tel" class="form-control" id="landline" name="supplier_landline"
+                            pattern="\d{7,8}" maxlength="8" placeholder="0821234567"
+                            title="Landline should only contain 7-8 digits" required>
                     </div>
                     <div class="mb-3">
                         <label for="address" class="form-label">Address</label>
@@ -146,11 +153,15 @@
                     </div>
                     <div class="mb-3">
                         <label for="editPhoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="editPhoneNumber" name="supplier_contact" required maxlength="10">
+                        <input type="tel" class="form-control" id="editPhoneNumber" name="supplier_contact"
+                            pattern="\d{10}" maxlength="10" placeholder="9123456789"
+                            title="Phone number should only contain 10 digits (without country code)" required>
                     </div>
                     <div class="mb-3">
                         <label for="editLandline" class="form-label">Landline</label>
-                        <input type="text" class="form-control" id="editLandline" name="supplier_landline" placeholder="0821234567" maxlength="10">
+                        <input type="tel" class="form-control" id="editLandline" name="supplier_landline"
+                            pattern="\d{7,8}" maxlength="8" placeholder="0821234567"
+                            title="Landline should only contain 7-8 digits" required>
                     </div>
                     <div class="mb-3">
                         <label for="editAddress" class="form-label">Address</label>

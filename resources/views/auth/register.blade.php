@@ -35,10 +35,11 @@
                     </div>
                     <div class="input-body">
                         <i class="fas fa-users"></i>
-                        <select class="select-field" name="jobtype" required> 
+                        <select class="select-field" name="jobtitle" required> 
                             <option value="" disabled selected hidden>Job Type</option>
-                            <option value="1">Admin</option>
-                            <option value="0">Helper</option>
+                            <option value="admin">Admin</option>
+                            <option value="helper">Helper</option>
+                            <option value="staff">Staff</option>
                         </select>  
                     </div>
                     <div class="input-body">

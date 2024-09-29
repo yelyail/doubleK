@@ -13,6 +13,7 @@ use App\Models\tblorderreceipt;
 use App\Models\tblpaymentmethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class adminaccess extends Controller
 {
@@ -39,7 +40,7 @@ class adminaccess extends Controller
             'tblinventory.nextRestockDate'
         )
         ->join('tblcategory', 'tblproduct.category_id', '=', 'tblcategory.category_id')
-        ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_id')
+        ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_ID')
         ->join('tblsupplier', 'tblinventory.supplier_ID', '=', 'tblsupplier.supplier_ID')
         ->get();
 
@@ -47,6 +48,7 @@ class adminaccess extends Controller
 
         return view('admin.inventory', compact('products', 'suppliers'));
     }
+
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
@@ -188,30 +190,32 @@ class adminaccess extends Controller
             'pricePerUnit' => 'required|numeric',
             'dateAdded' => 'required|date',
             'warrantyPeriod'=> 'required|numeric',
-            'supplierName' => 'required|numeric',
+            'supplierName' => 'required|exists:tblsupplier,supplier_ID',
         ]);
 
         try {
-            $category = tblcategory::create(
-                ['category_name' => $request->categoryName,
-                ]
+            $category = tblcategory::firstOrCreate(
+                ['categoryName' => $request->categoryName],
+                ['categoryStatus' => 'active'] // Assuming you have a default status
             );
+
             $product = tblproduct::create([
-                
+                'category_id' => $category->category_id, // Link category
                 'product_name' => $request->productName,
                 'product_desc' => $request->productDescription,
                 'unit_price' => $request->pricePerUnit, 
                 'prod_add' => $request->dateAdded,
                 'warranty' => $request->warrantyPeriod,
-                'supplier_ID' => $request->supplierName,
             ]);
+
             $inventory = tblinventory::create([
                 'supplier_ID' => $request->supplierName,
                 'stock_qty' => $request->Stocks,
             ]);
 
+            // Link product to inventory
             $product->update([
-                'inventory_ID' => $inventory->inventory_id, 
+                'inventory_ID' => $inventory->inventory_ID,
             ]);
 
             return redirect()->back()->with('success', 'Product and inventory added successfully');
@@ -258,8 +262,8 @@ class adminaccess extends Controller
         $request->validate([
             'supplier_name' => 'required|string|max:255',
             'supplier_email' => 'required|email',
-            'supplier_contact' => 'required|string|size:10',
-            'supplier_landline' => 'nullable|string|size:10',
+            'supplier_contact' => 'required|digits:10', // 10 digits for the phone number
+            'supplier_landline' => 'nullable|digits_between:7,8', // 7 or 8 digits for the landline
             'supplier_address' => 'required|string',
             'representative' => 'required|exists:user,user_ID',
         ]);
@@ -275,6 +279,7 @@ class adminaccess extends Controller
 
         return redirect()->back()->with('success', 'Supplier added successfully!');
     }
+
     // --------------------------------------------------
     //for the progress \
     public function addProduct(Request $request)
@@ -285,13 +290,10 @@ class adminaccess extends Controller
             'qty_order' => 'required|integer|min:1',
         ]);
 
-        // Find the product
         $product = tblproduct::findOrFail($validatedData['product_id']);
 
-        // Calculate total price (price * quantity)
         $total_price = $product->unit_price * $validatedData['qty_order'];
 
-        // Create order details
         tblorderreceipt::create([
             'product_id' => $validatedData['product_id'],
             'qty_order' => $validatedData['qty_order'],
@@ -332,20 +334,29 @@ class adminaccess extends Controller
         $request->validate([
             'fullname' => 'required',
             'username' => 'required|unique:user,username,' . $user_ID . ',user_ID',
-            'jobtype' => 'required',
+            'jobtitle' => 'required',
             'user_contact' => 'required',
+            'password' => 'nullable|min:8',
         ]);
 
         $client = User::findOrFail($user_ID);
-        $client->update([
+        
+        $data = [
             'fullname' => $request->fullname,
             'username' => $request->username,
-            'jobtype' => $request->jobtype,
+            'jobtitle' => $request->jobtitle,
             'user_contact' => $request->user_contact,
-        ]);
-    
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password); 
+        }
+
+        $client->update($data);
+        
         return redirect()->route('adminEmployee')->with('success', 'Employee updated successfully.');
     }
+
     public function archiveClient($id)
     {
         $client = User::find($id); 
@@ -366,18 +377,7 @@ class adminaccess extends Controller
         }
         return response()->json(['message' => 'Supplier not found.'], 404);
     } 
-    public function archiveInventory($id)
-    {
-        $product = tblproduct::find($id);
-
-        if (!$product) {
-            return response()->json(['message' => 'Product not found.'], 404);
-        }
-        $product->archived = true; 
-        $product->save();
-
-        return response()->json(['message' => 'Product archived successfully.']);
-    }
+    
 
     public function updateSupplier(Request $request)
     {
@@ -442,58 +442,50 @@ class adminaccess extends Controller
         }
     }
     // not finish ang edit inventory ug update inventory yawa sigi rag cannot be found edi wow
-    public function editInventory($id) 
+    public function editProduct($product_id)
     {
-        $product = tblproduct::find($id);
-        dd($product); // Temporarily dump the result to see if it exists
-
-        if ($product) {
-            return response()->json($product);
-        } else {
-            return response()->json(['error' => 'Product not found!'], 404);
+        $product = tblproduct::find($product_id);
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
         }
+        
+        return response()->json($product);
     }
-    public function updateInventory(Request $request)
-    {
-        // wla pani kay di ko ka update ug inventory
-        // Validate the incoming request
-        $validatedData = $request->validate([
+
+
+    public function updateInventory(Request $request, $product_id) {
+        // Validate incoming request data
+        $request->validate([
             'editCategoryName' => 'required|string|max:255',
             'editProductName' => 'required|string|max:255',
             'editProductDescription' => 'nullable|string',
-            'editUpdatedStocks' => 'nullable|integer',
-            'editPricePerUnit' => 'required|numeric',
+            'editStocks' => 'required|integer',
             'editRestockDate' => 'nullable|date',
-            'warrantyPeriod' => 'nullable|integer',
-            'editSupplierName' => 'required|integer',
         ]);
-
-        // Find the product by ID
-        $product = tblproduct::find($request->product_id);
-
-        // Check if product exists
-        if ($product) {
-            // Update product details
-            $product->category_name = $request->editCategoryName;
-            $product->product_name = $request->editProductName;
-            $product->product_desc = $request->editProductDescription;
-            $product->updatedQty = $request->editUpdatedStocks; 
-            $product->unit_price = $request->editPricePerUnit;
-            $product->warranty = $request->warrantyPeriod;
-
-            // Save the updated product data
-            $product->save();
-
-            // Check if the product has related inventory and update
-            if ($product->inventory) {
-                $product->inventory->nextRestockDate = $request->editRestockDate;
-                $product->inventory->supplier_id = $request->editSupplierId;
-                $product->inventory->save();
-            }
-
-            return redirect()->back()->with('success', 'Inventory updated successfully.');
-        }
-        return redirect()->back()->with('error', 'Inventory not found.');
+    
+        // Find the product by ID and update it
+        $product = tblproduct::findOrFail($product_id);
+        $product->name = $request->input('editProductName');
+        // Update other fields as necessary
+        $product->save();
+    
+        // Redirect or return response
+        return redirect()->back()->with('success', 'Inventory updated successfully!');
     }
+    public function archiveInventory($id)
+    {
+        $product = tblproduct::find($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        $product->archived = true;
+        $product->save();
+
+        return response()->json(['message' => 'Product archived successfully'], 200);
+    }
+
+
 
 }

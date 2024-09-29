@@ -11,6 +11,7 @@ class tblinventory extends Model
     protected $table = 'tblinventory';
     protected $primaryKey = 'inventory_ID';
     protected $fillable = [
+        'supplier_ID',
         'inventory_ID',
         'supplier_ID',
         'stock_qty',

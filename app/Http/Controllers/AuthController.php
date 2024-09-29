@@ -25,7 +25,7 @@ class AuthController extends Controller
                 }
             }],
             'username' => ['required', 'unique:user,username'],
-            'jobtype' => ['required'],
+            'jobtitle' => ['required'],
             'user_contact' => ['required'],
             'password' => ['required', 'min:8'],
         ]);
@@ -34,7 +34,7 @@ class AuthController extends Controller
             User::create([
                 'fullname' => $request->fullname,
                 'username' => $request->username,
-                'jobtype' => $request->jobtype,
+                'jobtitle' => $request->jobtitle,
                 'user_contact' => $request->user_contact,
                 'password' => Hash::make($request->password),
             ]);
@@ -67,11 +67,11 @@ class AuthController extends Controller
                 $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
                 return back();
             }
-            $jobType = $user->jobtype;
+            $jobtitle = $user->jobtitle;
 
-            if ($jobType === 1) {
+            if ($jobtitle === 'admin') {
                 return redirect()->route('adminDashboard');
-            } elseif ($jobType === 0) {
+            } elseif ($jobtitle === 'helper' || $jobtitle === 'staff') {
                 return redirect()->route('userDashboard');
             } else {
                 $this->showAlert('error', 'Error!', 'Unauthorized access.');
