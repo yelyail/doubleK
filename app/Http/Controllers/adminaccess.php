@@ -26,7 +26,6 @@ class adminaccess extends Controller
         $clients = User::all();
         return view('admin.client', compact('clients'));
     }
-    
     public function adminInventory()
     {
         $products = tblproduct::select(
@@ -41,12 +40,12 @@ class adminaccess extends Controller
             'tblproduct.prod_add',
             'tblproduct.updatedQty',
             'tblinventory.nextRestockDate',
-            'tblproduct.archived' // Add this line to include the 'archived' column
+            'tblproduct.archived' 
         )
         ->join('tblcategory', 'tblproduct.category_id', '=', 'tblcategory.category_id')
         ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_ID')
         ->join('tblsupplier', 'tblinventory.supplier_ID', '=', 'tblsupplier.supplier_ID')
-        ->where('tblproduct.archived', '=', false) // Filter out archived products
+        ->where('tblproduct.archived', '=', false) 
         ->get();
 
         $suppliers = tblsupplier::all();
@@ -58,6 +57,7 @@ class adminaccess extends Controller
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
+        $category = tblcategory::all();
         $orderDetails = tblorderreceipt::with('product')->get();
         $orderDetailsData = [];
         $overallTotal = 0;
@@ -72,7 +72,7 @@ class adminaccess extends Controller
 
             $overallTotal += $orderDetail->total_price;
         }
-        return view('admin.order', compact('services', 'products','orderDetails'));
+        return view('admin.order', compact('services', 'products','orderDetails', 'category'));
     }
     public function adminInventoryReports(){ 
         return view('admin.reports');
@@ -171,19 +171,35 @@ class adminaccess extends Controller
     //mag add ug order sa
     public function storeOrder(Request $request)
     {
-        $request->validate([
-            ' ' => 'required|integer',
-            'service_ID' => 'required|integer',
-            'payment_id' => 'required|string',
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'customer_id' => 'required',
+            'service_ID' => 'required',
+            'payment_id' => 'required',
+            'product_id' => 'required',
             'qty_order' => 'required|integer',
             'total_price' => 'required|numeric',
             'delivery_date' => 'nullable|date',
-            'order_date' => 'required|date',
+            'order_date' => 'nullable|date',
+            'payment_method' => 'required|string',
         ]);
-        tblorderreceipt::create($request->all());
 
-        return redirect()->back()->with('success', 'Order placed successfully!');
+        // Create a new order in the database
+        $order = new tblorderreceipt(); // Replace 'Order' with your actual Order model
+        $order->customer_id = $validatedData['customer_id'];
+        $order->service_ID = $validatedData['service_ID'];
+        $order->payment_id = $validatedData['payment_id'];
+        $order->product_id = $validatedData['product_id'];
+        $order->qty_order = $validatedData['qty_order'];
+        $order->total_price = $validatedData['total_price'];
+        $order->order_date = $validatedData['order_date'];
+        $order->delivery_date = $validatedData['delivery_date'];
+        $order->save();
+
+        // Return a response
+        return response()->json(['success' => true, 'order' => $order]);
     }
+
 
     //for posting 
     public function storeProduct(Request $request)
@@ -202,11 +218,11 @@ class adminaccess extends Controller
         try {
             $category = tblcategory::firstOrCreate(
                 ['categoryName' => $request->categoryName],
-                ['categoryStatus' => 'active'] // Assuming you have a default status
+                ['categoryStatus' => 'active']
             );
 
             $product = tblproduct::create([
-                'category_id' => $category->category_id, // Link category
+                'category_id' => $category->category_id,
                 'product_name' => $request->productName,
                 'product_desc' => $request->productDescription,
                 'unit_price' => $request->pricePerUnit, 
@@ -381,8 +397,6 @@ class adminaccess extends Controller
         }
         return response()->json(['message' => 'Supplier not found.'], 404);
     } 
-    
-
     public function updateSupplier(Request $request)
     {
         $request->validate([
@@ -445,7 +459,7 @@ class adminaccess extends Controller
             return response()->json(['error' => 'Services not found!'], 404);
         }
     }
-    // not finish ang edit inventory ug update inventory yawa sigi rag cannot be found edi wow
+    //humana litsiii 
     public function editProduct($product_id)
     {
         $product = tblproduct::with(['category', 'inventory.supplier'])->find($product_id);
@@ -513,8 +527,6 @@ class adminaccess extends Controller
     }
     public function archiveInventory($product_id)
     {
-        Log::info("Archiving product with ID: " . $product_id);
-
         $product = tblproduct::find($product_id); 
         if ($product) {
             $product->archived = true;

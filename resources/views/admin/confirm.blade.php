@@ -36,23 +36,9 @@
                         <div class="order-confirmation">
                             <h2></h2>
                             <div class="order-details">
-                                <span class="order-total">Order Total:</span>
+                                <span class="order-total">Grand Total:</span>
                                 <span class="order-peso" id="orderTotal">₱0.00</span>
-
-                                <!-- <form action="{{ route('storeOrder') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="customer_id" id="customer_id" value="">
-                                    <input type="hidden" name="service_ID" id="service_ID" value="">
-                                    <input type="hidden" name="payment_id" id="payment_id" value="">
-                                    <input type="hidden" name="product_id" id="product_id" value="">
-                                    <input type="hidden" name="user_ID" id="user_ID" value="">
-                                    <input type="hidden" name="qty_order" id="qty_order" value="1">
-                                    <input type="hidden" name="total_price" id="total_price" value="1000">
-                                    <input type="hidden" name="order_date" id="order_date" value="{{ now() }}">
-                                    <input type="hidden" name="delivery_date" id="delivery_date" value="2024-09-30">
-
-                                    <button type="submit" class="place-btn">Place Order</button>
-                                </form> -->
+                                
 
                                 <form action="{{ route('storeOrder') }}" method="POST">
                                     @csrf
@@ -64,14 +50,12 @@
                                     <input type="hidden" name="total_price" id="total_price" value="1000">
                                     <input type="hidden" name="order_date" id="order_date" value="{{ now() }}">
                                     <input type="hidden" name="delivery_date" id="delivery_date" value="2024-09-30">
-                                    
-                                    <!-- JSON encoded order summary -->
                                     <input type="hidden" name="orderSummary" id="orderSummary" value="">
                                     
                                     <button type="submit" class="place-btn">Place Order</button>
                                 </form>
-
                                 <button class="place-btn-1">Make Reservation</button>
+
                             </div>
                         </div>
                     </div>
@@ -106,7 +90,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Product Name</th>
+                                <th>Particulars</th>
                                 <th>Quantity</th>
                                 <th>Price</th>
                                 <th>Total</th>
@@ -131,7 +115,7 @@
             </div>
             <div class="modal-body">
                 <h3 class="orderReceiptTitle text-center">#20 Pag-Asa Street, S.I.R. Matina, Phase 2, Barangay Bucana, Davao City 8000 Philippines</h3><br><hr>
-                <h4 class="orderReceipt"><b>Order Total: ₱<span id="modalOrderTotal">0.00</span></b></h4>
+                <h4 class="orderReceipt"><b>Grand Total: ₱<span id="modalOrderTotal">0.00</span></b></h4>
                 <h5 class="orderReceipt"><b>Customer Name:</b> <span id="modalCustomerName"></span></h5>
                 <h5 class="orderReceipt"><b>Delivery Method:</b> <span id="modalDeliveryMethod"></span></h5>
                 <h5 class="orderReceipt"><b>Payment Method:</b> <span id="modalPaymentMethod"></span></h5>
@@ -267,7 +251,6 @@
     });
 
 </script>
-</script>
 <!-- Order Summary -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -294,24 +277,23 @@
             customer_id: document.getElementById('customer_id').value,
             service_id: document.getElementById('service_ID').value,
             payment_id: document.getElementById('payment_id').value,
-            product_id: document.getElementById('product_id').value, // Ensure you have a way to get this
+            product_id: document.getElementById('product_id').value, 
             quantity: document.getElementById('qty_order').value,
             total_price: document.getElementById('total_price').value,
             order_date: document.getElementById('order_date').value,
             delivery_date: document.getElementById('delivery_date').value,
         };
 
-        // Send the order details to your server or handle it as needed
         fetch('/storeOrder', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // Include CSRF token
             },
             body: JSON.stringify(orderDetails),
         })
         .then(response => response.json())
         .then(data => {
-            // Handle success or error response
             console.log('Success:', data);
         })
         .catch((error) => {
@@ -320,82 +302,99 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const placeOrderButton = document.querySelector('.place-btn'); // Place Order button
-        const makeReservationButton = document.querySelector('.place-btn-1'); // Reservation button
-        const confirmOrderButton = document.getElementById('confirmOrderBtn'); // Confirm Order button in the modal
+        const placeOrderButton = document.querySelector('.place-btn');
+        const confirmOrderButton = document.getElementById('confirmOrderBtn'); 
         const orderForm = document.querySelector('form');
 
-        function showReceiptModal() {
-            const customerInfo = JSON.parse(localStorage.getItem('customerInfo'));
-            document.getElementById('modalCustomerName').textContent = toProperCase(customerInfo.custName || "N/A");
-            document.getElementById('modalDeliveryMethod').textContent = toProperCase(customerInfo.deliveryMethod === 'deliver' ? 'Home Delivery' : 'In-store Pickup');
-            document.getElementById('modalPaymentMethod').textContent = toProperCase(customerInfo.paymentMethod || "N/A");
-            document.getElementById('modalDeliveryDate').textContent = toProperCase(customerInfo.deliveryDate || "N/A");
-            
-            const orderTotal = localStorage.getItem('orderTotal') || "0.00"; 
-            document.getElementById('modalOrderTotal').textContent = parseFloat(orderTotal).toFixed(2);
-            
-            // Populate order summary
-            const modalOrderSummary = document.getElementById('modalOrderSummary');
-            const savedOrderItems = JSON.parse(localStorage.getItem('orderSummary')) || [];
-            modalOrderSummary.innerHTML = ''; 
-
-            let grandTotal = 0; 
-
-            savedOrderItems.forEach(item => {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>₱ ${item.price.toFixed(2)}</td>
-                    <td>₱ ${item.total.toFixed(2)}</td>
-                `;
-                modalOrderSummary.appendChild(newRow);
-                grandTotal += item.total; 
+        // Function to show SweetAlert confirmation dialog
+        function showConfirmationDialog() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to confirm this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, place order!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitOrder();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire(
+                        'Cancelled',
+                        'Your order was not placed',
+                        'error'
+                    );
+                }
             });
+        }
+        function submitOrder() {
+            const orderDetails = {
+                customer_id: document.getElementById('customer_id').value,
+                service_id: document.getElementById('service_ID').value,
+                payment_id: document.getElementById('payment_id').value,
+                product_id: document.getElementById('product_id')?.value || '', // Ensure you have a product ID
+                quantity: document.getElementById('qty_order').value,
+                total_price: document.getElementById('total_price').value,
+                order_date: document.getElementById('order_date').value,
+                delivery_date: document.getElementById('delivery_date').value,
+            };
 
-            // Create a total row
-            const totalRow = document.createElement('tr'); // Use 'tr' to create a new table row
-            totalRow.innerHTML = `
-                <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
-                <td>₱ ${grandTotal.toFixed(2)}</td>
-            `;
+            // Submit order to the backend
+            fetch('/storeOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // Include CSRF token
+                },
+                body: JSON.stringify(orderDetails),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
 
-            // Create a payment received row
-            const paymentRow = document.createElement('tr'); // Create another row for payment
-            paymentRow.innerHTML = `
-                <td colspan="3" class="text-end"><strong>Payment Received:</strong></td>
-                <td>₱ ${grandTotal.toFixed(2)}</td>
-            `;
+                // Clear localStorage after successful order submission
+                localStorage.clear();
 
-            // Create a change row
-            const changeRow = document.createElement('tr'); // Create another row for change
-            changeRow.innerHTML = `
-                <td colspan="3" class="text-end"><strong>Change:</strong></td>
-                <td>₱ 0.00</td> <!-- Assuming no change for simplicity -->
-            `;
+                // Redirect or show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Confirmed!',
+                    text: 'Your order has been placed successfully!',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Redirect to another page after confirmation
+                    window.location.href = '/order-success'; // Redirect to a success page or any other route
+                });
 
-            // Append all total rows to the modal order summary
-            modalOrderSummary.appendChild(totalRow);
-            modalOrderSummary.appendChild(paymentRow);
-            modalOrderSummary.appendChild(changeRow);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
 
-            // Show the receipt modal
-            const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
-            receiptModal.show();
+                // Show error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: 'There was an issue placing your order. Please try again.',
+                    confirmButtonText: 'OK'
+                });
+            });
         }
 
-
+        // Event listener for the Place Order button
         placeOrderButton.addEventListener('click', function(event) {
-            event.preventDefault(); 
-            showReceiptModal();
-        }); 
-
-        confirmOrderButton.addEventListener('click', function() {
-            orderForm.submit(); 
+            event.preventDefault(); // Prevent form from submitting immediately
+            showConfirmationDialog(); // Show confirmation dialog
         });
 
+        // Confirmation for printing receipt
+        confirmOrderButton.addEventListener('click', function() {
+            submitOrder();  // Call submitOrder when confirming
+        });
     });
+
+
 </script>
+
 
 @endsection

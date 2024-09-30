@@ -65,17 +65,17 @@
                                                 @foreach ($products as $product)
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $product->product_name }}</td>
-                                                        <td>{{ $product->category_name }}</td>
-                                                        <td style="text-align: justify;">{{ $product->product_desc }}</td>
+                                                        <td>{{ ucwords(strtolower($product->product_name)) }}</td>
+                                                        <td>{{ ucwords(strtolower($product->category->categoryName)) }}</td>
+                                                        <td style="text-align: justify;">{{ucwords(strtolower( $product->product_desc)) }}</td>
                                                         <td>₱ {{ $product->unit_price }}</td>
                                                         <td>
                                                             <div style="display: flex; align-items: center; gap: 5px;">
                                                                 <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#productModal"
                                                                     data-id="{{ $product->product_id }}"
-                                                                    data-name="{{ $product->product_name }}"
-                                                                    data-category="{{ $product->category_name }}"
-                                                                    data-desc="{{ $product->product_desc }}"
+                                                                    data-name="{{ ucwords(strtolower($product->product_name)) }}"
+                                                                    data-category="{{ ucwords(strtolower($product->category->categoryName ))}}"
+                                                                    data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
                                                                     data-price="{{ $product->unit_price }}">
                                                                     <i class="bi bi-plus"></i>
                                                                 </button>
@@ -217,7 +217,6 @@
         var productCategory = button.data('category');
         var productDesc = button.data('desc');
         var productPrice = button.data('price');
-        saveOrderSummary();
 
         var modal = $(this);
         modal.find('#modalProductName').text(productName);
@@ -228,16 +227,28 @@
         
         $('#addProductButton').off('click').on('click', function() {
             const quantity = parseInt($('#quantity').val());
+            if (isNaN(quantity) || quantity < 1) {
+                alert("Please enter a valid quantity."); // Validation for quantity
+                return;
+            }
+            
             const totalPrice = parseFloat(productPrice) * quantity;
-
             const orderSummaryBody = document.getElementById('orderSummaryBody');
 
-            let existingRow = Array.from(orderSummaryBody.rows).find(row => row.cells[0].innerText === productName);
+            // Check if an existing row matches productName, productCategory, and productPrice
+            let existingRow = Array.from(orderSummaryBody.rows).find(row => 
+                row.cells[0].innerText === productName &&
+                row.cells[2].innerText.replace('₱ ', '').replace(',', '') === parseFloat(productPrice).toFixed(2) &&
+                row.cells[4].innerText === productCategory
+            );
+
             if (existingRow) {
+                // If the row exists, update the quantity and total
                 let existingQuantity = parseInt(existingRow.cells[1].innerText);
                 existingRow.cells[1].innerText = existingQuantity + quantity;
                 existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + totalPrice).toFixed(2)}`;
             } else {
+                // Create a new row
                 const newRow = orderSummaryBody.insertRow();
                 newRow.innerHTML = `
                     <td>${productName}</td>
@@ -252,44 +263,14 @@
                     updateTotalAmount(); 
                 });
             }
+
             updateTotalAmount();
             $('#productModal').modal('hide');
         });
     });
 
-    document.querySelectorAll('.add-service').forEach(button => {
-        button.addEventListener('click', function() {
-            const serviceName = this.getAttribute('data-name');
-            const serviceFee = parseFloat(this.getAttribute('data-fee'));
 
-            const orderSummaryBody = document.getElementById('orderSummaryBody');
-
-            let existingRow = Array.from(orderSummaryBody.rows).find(row => row.cells[0].innerText === serviceName);
-            if (existingRow) {
-                let existingQuantity = parseInt(existingRow.cells[1].innerText);
-                existingRow.cells[1].innerText = existingQuantity + 1;
-                existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + serviceFee).toFixed(2)}`;
-            } else {
-                const newRow = orderSummaryBody.insertRow();
-                newRow.innerHTML = `
-                    <td>${serviceName}</td>
-                    <td class="text-center">1</td>
-                    <td>₱ ${serviceFee.toFixed(2)}</td>
-                    <td>₱ ${serviceFee.toFixed(2)}</td>
-                    <td><button class="btn btn-danger btn-sm remove-service"><i class="bi bi-x-circle"></i></button></td>
-                `;
-
-                newRow.querySelector('.remove-service').addEventListener('click', function() {
-                    orderSummaryBody.deleteRow(newRow.rowIndex - 1); 
-                    updateTotalAmount(); 
-                });
-            }
-
-            updateTotalAmount();
-        });
-    });
-    document.getElementById('placeOrderButton').disabled = true; 
-
+    // Function to update total amount and toggle button state
     function updateTotalAmount() {
         const orderSummaryBody = document.getElementById('orderSummaryBody');
         let overallTotal = 0;
@@ -297,8 +278,7 @@
             overallTotal += parseFloat(row.cells[3].innerText.replace('₱ ', '').replace(',', ''));
         }
         document.getElementById('totalAmount').innerText = `₱ ${overallTotal.toFixed(2)}`;
-
-        togglePlaceOrderButton();
+        togglePlaceOrderButton(); // Ensure this is called after the total amount is updated
     }
 
     function togglePlaceOrderButton() {
@@ -306,7 +286,6 @@
         const placeOrderButton = document.getElementById('placeOrderButton');
         placeOrderButton.disabled = orderSummaryBody.rows.length === 0;
     }
-
     document.getElementById('placeOrderButton').addEventListener('click', function() {
         window.location.href = "{{ route('adminCustInfo') }}";
     });
@@ -369,7 +348,6 @@
 
         document.getElementById('totalAmount').innerText = `₱ ${overallTotal.toFixed(2)}`;
 
-        // Store the total amount in localStorage
         localStorage.setItem('orderTotal', overallTotal.toFixed(2)); 
 
         togglePlaceOrderButton(); 
