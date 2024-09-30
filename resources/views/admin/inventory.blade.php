@@ -42,53 +42,51 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if($products->isEmpty())
-                        <tr>
-                            <td colspan="11" class="text-center">No Inventory available.</td>
-                        </tr>
-                    @else
-                        @foreach ($products as $product)
+                        @forelse ($products as $product)
+                            @if($product->archived == 0) 
+                                <tr>
+                                     <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
+                                    <td>{{ ucwords(strtolower($product->product_name)) }}</td> 
+                                    <td>{{ ucwords(strtolower($product->supplier_name ?? 'N/A')) }}</td>
+                                    <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
+                                    <td>
+                                        @php
+                                            $warranty = $product->warranty;
+                                            $warrantyUnit = 'days';
+                                            
+                                            if ($warranty >= 30) {
+                                                $warranty = round($warranty / 30, 1);
+                                                $warrantyUnit = 'months';
+                                            } elseif ($warranty >= 7) {
+                                                $warranty = round($warranty / 7, 1);
+                                                $warrantyUnit = 'weeks';
+                                            }
+                                        @endphp
+                                        {{ $warranty }} {{ $warrantyUnit }}
+                                    </td>
+                                    <td>₱ {{ number_format($product->unit_price, 2) }}</td>
+                                    <td>{{ $product->stock_qty ?? 'N/A' }}</td>
+                                    <td>{{ $product->prod_add ?? 'N/A' }}</td>
+                                    <td>{{ $product->updatedQty ?? 'N/A' }}</td>
+                                    <td>{{ $product->nextRestockDate ?? 'N/A' }}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center;">
+                                            <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
+                                                <i class="bi bi-archive"></i>
+                                            </button>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
+                        @empty
                             <tr>
-                                <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
-                                <td>{{ ucwords(strtolower($product->product_name)) }}</td> 
-                                <td>{{ $product->supplier_name ?? 'N/A' }}</td> 
-                                <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
-                                <td>
-                                    @php
-                                        $warranty = $product->warranty;
-                                        $warrantyUnit = 'days';
-                                        
-                                        if ($warranty >= 30) {
-                                            $warranty = round($warranty / 30, 1);
-                                            $warrantyUnit = 'months';
-                                        } elseif ($warranty >= 7) {
-                                            $warranty = round($warranty / 7, 1);
-                                            $warrantyUnit = 'weeks';
-                                        }
-                                    @endphp
-                                    {{ $warranty }} {{ $warrantyUnit }}
-                                </td>
-                                <td>₱ {{ number_format($product->unit_price,2) }}</td>
-                                <td>{{ $product->stock_qty ?? 'N/A' }}</td>
-                                <td>{{ $product->prod_add ?? 'N/A' }}</td>
-                                <td>{{ $product->updatedQty ?? 'N/A' }}</td>
-                                <td>{{ $product->nextRestockDate ?? 'N/A' }}</td>
-                                <td>
-                                    <div style="display: flex; align-items: center;">
-                                        <button class="btn btn-success btn-sm" 
-                                                onclick="editInventory('{{ $product->product_id }}')">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-
-                                        <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
-                                            <i class="bi bi-archive"></i>
-                                        </button>
-
-                                    </div>
-                                </td>
+                                <td colspan="11" class="text-center">No Inventory available.</td>
                             </tr>
-                        @endforeach
-                    @endif
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -120,7 +118,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="stocks" class="form-label">Stocks</label>
-                        <input type="number" class="form-control" id="stocks" name="Stocks" placeholder="Enter how many stocks">
+                        <input type="number" class="form-control" id="stocks" name="stocks" placeholder="Enter how many stocks">
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -166,7 +164,6 @@
         </div>
     </div>
 </div>
-
 <!-- Edit Inventory Modal -->
 <div class="modal fade" id="editInventoryModal" tabindex="-1" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -176,39 +173,38 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editInventoryForm" method="POST">
-                    @csrf
-                    <input type="hidden" id="editInventoryID" name="product_id">
+                <form id="editInventoryForm" method="POST" action="{{ route('updateInventory', ['productID' => $product->product_id]) }}">
+                @csrf
+                    <input type="hidden" name="productID" id="editInventoryID">
                     <div class="mb-3">
-                        <label for="editCategoryName" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" id="editCategoryName" name="editCategoryName" placeholder="Enter category name" required>
+                        <h4 class="prod_cat"><b>Product Name:</b> <span id="editProductNameDisplay"></span></h4>
                     </div>
                     <div class="mb-3">
-                        <label for="editProductName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="editProductName" name="editProductName" placeholder="Enter Product name" required>
+                        <h4 class="prod_cat"><b>Category:</b> <span id="editCategoryNameDisplay"></span></h4>
                     </div>
                     <div class="mb-3">
-                        <label for="editItemDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="editItemDescription" rows="3" name="editProductDescription" placeholder="Enter a description" required></textarea>
+                        <h4 class="prod_cat"><b>Supplier:</b> <span id="editSupplierNameDisplay"></span></h4>
                     </div>
                     <div class="mb-3">
-                        <label for="editStocks" class="form-label">Stocks</label>
-                        <input type="number" class="form-control" id="editStocks" name="editStocks" placeholder="Enter how many stocks" required>
+                        <label for="editStocks" class="form-label">Updated Stocks</label>
+                        <input type="number" class="form-control" name="editStocks" id="editStocks" required>
                     </div>
+                        
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="editItemPrice" class="form-label">Price</label>
-                            <input type="text" class="form-control" id="editItemPrice" name="editPricePerUnit" placeholder="Enter price" required>
+                            <label for="editPricePerUnit" class="form-label">Price</label>
+                            <input type="number" class="form-control" name="editPricePerUnit" id="editPricePerUnit" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="editItemDate" class="form-label">Date Added</label>                                    
-                            <input type="date" class="form-control" id="editItemDate" name="editDateAdded">
+                            <label for="editItemDate" class="form-label">Restock Date</label>
+                            <input type="date" class="form-control" id="editItemDate" name="editRestockAdded">
                         </div>
                     </div>
+                        
                     <div class="row mb-3">
                         <label for="editWarranty" class="form-label">Warranty</label>
                         <div class="col-md-6">
-                            <input type="number" class="form-control me-2" id="editWarrantyPeriod" name="editWarrantyPeriod" placeholder="Enter warranty period">
+                            <input type="number" class="form-control" id="editWarrantyPeriod" name="editWarrantyPeriod" placeholder="Enter warranty period">
                         </div>
                         <div class="col-md-6">
                             <select class="form-select" id="editWarrantyUnit" name="editWarrantyUnit" required>
@@ -219,78 +215,98 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <label for="editSuppName" class="form-label">Supplier Name</label>
-                        <div class="col-md-8">
-                            <select class="form-select" id="editSuppName" name="editSupplierName" required>
-                                <option value="" disabled selected>Supplier Name</option>
-                                @foreach($suppliers as $supplier)
-                                    <option value="{{ $supplier->supplier_ID }}">{{ $supplier->supplier_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success" id="updateInventory">Update</button>
+                        <button type="submit" class="btn btn-success" id="updateInventory">Save changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-<!-- not done yawa -->
+<!-- for editing -->
 <script>
-    function editInventory(productId) {
-        // Fetch product details using AJAX
-        fetch(`/admin/inventory/${productId}/edit`)
-            .then(response => response.json())
-            .then(data => {
-                // Populate modal fields with product data
-                document.getElementById('editInventoryID').value = data.product_id;
-                document.getElementById('editCategoryName').value = data.categoryName;
-                document.getElementById('editProductName').value = data.product_name;
-                document.getElementById('editItemDescription').value = data.product_desc;
-                document.getElementById('editStocks').value = data.stock_qty;
-                document.getElementById('editItemPrice').value = data.unit_price;
-                document.getElementById('editItemDate').value = data.prod_add;
-                document.getElementById('editWarrantyPeriod').value = data.warranty;
-
-                document.getElementById('editWarrantyUnit').value = data.warrantyUnit;
+    function editInventory(productID) {
+        $.ajax({
+            url: '/admin/inventory/' + productID + '/edit',
+            type: 'GET',
+            success: function (data) {
+                $('#editInventoryID').val(data.product_id);  
+                $('#editProductNameDisplay').text(data.product_name); 
+                $('#editCategoryNameDisplay').text(data.categoryName); 
+                $('#editSupplierNameDisplay').text(data.supplier_name);
+                $('#editStocks').val(data.updatedQty); 
+                $('#editPricePerUnit').val(data.unit_price); 
+                $('#editItemDate').val(data.nextRestockDate);
+                $('#editWarrantyPeriod').val(data.warranty); 
                 
-                var editModal = new bootstrap.Modal(document.getElementById('editInventoryModal'));
-                editModal.show();
-            })
-            .catch(error => console.error('Error fetching product:', error));
+                $('#editInventoryForm').attr('action', '/admin/inventory/' + productID + '/update');
+                $('#editInventoryModal').modal('show');
+            },
+            error: function () {
+                alert('Error fetching inventory data');
+            }
+        });
     }
 
-    // Archive product
-    document.querySelectorAll('.archive-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const productId = this.getAttribute('data-product-id');
-            const url = `/admin/inventory/${productId}/archive`;
-            
+    $('#editInventoryForm').on('submit', function (e) {
+        e.preventDefault(); 
+
+        $.ajax({
+            url: $(this).attr('action'), // Use the action from the form
+            type: 'POST',
+            data: $(this).serialize(), 
+            success: function (response) {
+                // Show success alert
+                Swal.fire({
+                    icon: 'success',
+                    title: response.message,
+                    text: `New Stock Quantity`,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload(); 
+                });
+            },
+            error: function (xhr) {
+                // Show error alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: xhr.responseJSON.message || 'Failed to update inventory.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.archive-btn').click(function() {
+            var product_id = $(this).data('product-id'); 
+            var row = $(this).closest('tr');
+
             Swal.fire({
-                title: 'Are you sure?',
-                text: 'You won’t be able to revert this!',
+                title: 'Inventory Archiving',
+                text: 'Are you sure you want to archive this product?',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, archive it!'
+                confirmButtonText: 'Archive',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: url,
+                        url: `{{ url('/admin/inventory/') }}/${product_id}/archive`, 
                         data: {
                             '_token': '{{ csrf_token() }}',
                         },
-                        success: function (data) {
-                            button.closest('tr').remove();
-                            Swal.fire('Archived', 'Product archived successfully', 'success');
+                        success: function(data) {
+                            row.remove(); 
+                            Swal.fire('Archived', 'Archived successfully', 'success');
                         },
-                        error: function (data) {
+                        error: function(data) {
+                            console.error(data);
                             Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
                         }
                     });
@@ -298,5 +314,7 @@
             });
         });
     });
+
+
 </script>
 @endsection

@@ -41,13 +41,13 @@ Route::controller(adminaccess::class)->group(function(){
     Route::post('/admin/supplier/{id}/update', 'updateSupplier')->name('updateSupplier');
 
     Route::get('/admin/service/{id}/editServices', 'editService')->name('editService');
-    Route::post('/admin/service/{id}/update', 'updateService')->name('updateService');
-
-    Route::get('/admin/inventory/{product_id}/edit', 'editProduct')->name('editProduct');
-    Route::post('/admin/inventory/{product_id}/archive', 'archiveInventory')->name('archiveInventory');
-    Route::post('/admin/inventory/{product_id}/update', 'updateInventory')->name('updateInventory');    
+    Route::post('/admin/service/{id}/update', 'updateService')->name('updateService');   
 });
 //for posting
+Route::get('/admin/inventory/{productID}/edit', [adminaccess::class, 'editProduct'])->name('editProduct');
+Route::post('/admin/inventory/{productID}/archive', [adminaccess::class, 'archiveInventory'])->name('archiveInventory');
+Route::post('/admin/inventory/{productID}/update', [adminaccess::class, 'updateInventory'])->name('updateInventory');
+
 Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeProduct','storeProduct')->name('storeProduct');
     Route::post('/storeClient','storeClient')->name('storeClient');

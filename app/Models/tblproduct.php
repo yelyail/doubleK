@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class tblproduct extends Model
 {
     use HasFactory;
-    protected $table = 'tblproduct';
-    protected $primaryKey = 'product_id';
+
+    protected $table = 'tblproduct'; // Table name
+    protected $primaryKey = 'product_id'; // Primary key
     protected $fillable = [
         'inventory_ID',
         'category_id',
@@ -26,8 +27,10 @@ class tblproduct extends Model
     {
         return $this->belongsTo(tblcategory::class, 'category_id', 'category_id');
     }
-    public function inventory() {
-        return $this->hasOne(tblinventory::class, 'inventory_ID');
+
+    public function inventory()
+    {
+        return $this->hasOne(tblinventory::class, 'inventory_ID', 'inventory_ID'); // Ensure 'inventory_ID' is correct
     }
 
     public function orderReceipts()
@@ -35,9 +38,9 @@ class tblproduct extends Model
         return $this->hasMany(tblorderreceipt::class, 'product_id', 'product_id');
     }
 
+    // Relationship with returns
     public function returns()
     {
         return $this->hasMany(tblreturn::class, 'product_id', 'product_id');
     }
 }
-
