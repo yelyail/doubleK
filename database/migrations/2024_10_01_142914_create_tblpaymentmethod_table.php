@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tblcategory', function (Blueprint $table) {
-            $table->id('category_id');
-            $table->string('categoryName');
-            $table->string('categoryStatus');
+        Schema::create('tblpaymentmethod', function (Blueprint $table) {
+            $table->id("payment_id");
+            $table->string('payment_type')->nullable();
+            $table->string('reference_num')->nullable();
+            $table->double('payment')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tblcategory');
+        Schema::dropIfExists('tblpaymentmethod');
     }
 };

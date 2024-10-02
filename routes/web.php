@@ -3,7 +3,9 @@
 use App\Http\Controllers\adminaccess;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\dashboardController;
+use App\Http\Controllers\orderReceipt;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\receiptPrintController; 
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -41,7 +43,8 @@ Route::controller(adminaccess::class)->group(function(){
     Route::post('/admin/supplier/{id}/update', 'updateSupplier')->name('updateSupplier');
 
     Route::get('/admin/service/{id}/editServices', 'editService')->name('editService');
-    Route::post('/admin/service/{id}/update', 'updateService')->name('updateService');   
+    Route::post('/admin/service/{id}/update', 'updateService')->name('updateService'); 
+    Route::post('/admin/service/{serviceID}/archive', 'archiveService')->name('archiveService');
 });
 //for posting
 Route::get('/admin/inventory/{productID}/edit', [adminaccess::class, 'editProduct'])->name('editProduct');
@@ -55,15 +58,10 @@ Route::controller(adminaccess::class)->group(function(){
     Route::post('/storeService','storeService')->name('storeService');
     Route::post('/storeSupplier','storeSupplier')->name('storeSupplier');
     Route::post('/storeCustomerInfor','storeCustomerInfor')->name('storeCustomerInfor');
-    Route::post('/storeOrder','storeOrder')->name('storeOrder');
-
-    
     Route::post('/addProduct','addProduct')->name('addProduct');
     Route::post('/addService','addService')->name('addService');
 });
-
-
-//Char rani
+Route::post('/admin/confirm/storeReceipt', [orderReceipt::class, 'storeReceipt'])->name('storeReceipt');
 
 //for the user
 Route::controller(dashboardController::class)->group(function() {
@@ -72,4 +70,8 @@ Route::controller(dashboardController::class)->group(function() {
     Route::get('/user/reservation','reservation')->name('userReservation');
     Route::get('/user/service','service')->name('userService');
 });
+
+// for printing receipt
+Route::get('orderReceipt',[receiptPrintController::class, 'orderReceipt']);
+Route::get('receipt',[receiptPrintController::class, 'receipt']);
 //require __DIR__.'/auth.php';

@@ -42,10 +42,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($products as $product)
-                            @if($product->archived == 0) 
+                        @if($products->isEmpty())
+                            <tr>
+                                <td colspan="11" class="text-center">No Products Available.</td>
+                            </tr>
+                        @else
+                            @foreach ($products as $product)
                                 <tr>
-                                     <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
+                                    <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
                                     <td>{{ ucwords(strtolower($product->product_name)) }}</td> 
                                     <td>{{ ucwords(strtolower($product->supplier_name ?? 'N/A')) }}</td>
                                     <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
@@ -71,22 +75,23 @@
                                     <td>{{ $product->nextRestockDate ?? 'N/A' }}</td>
                                     <td>
                                         <div style="display: flex; align-items: center;">
-                                            <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
-                                                <i class="bi bi-archive"></i>
-                                            </button>
-
+                                            @if($product->archived == 0)
+                                                <!-- Active Product: Show Edit and Archive buttons -->
+                                                <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
+                                                    <i class="bi bi-archive"></i>
+                                                </button>
+                                            @else
+                                                <span class="badge bg-danger">Inactive</span>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
-                            @endif
-                        @empty
-                            <tr>
-                                <td colspan="11" class="text-center">No Inventory available.</td>
-                            </tr>
-                        @endforelse
+                            @endforeach
+                        @endif
+
                     </tbody>
                 </table>
             </div>
@@ -173,7 +178,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editInventoryForm" method="POST" action="{{ route('updateInventory', ['productID' => $product->product_id]) }}">
+                <form id="editInventoryForm" method="POST" action="">
                 @csrf
                     <input type="hidden" name="productID" id="editInventoryID">
                     <div class="mb-3">
@@ -224,6 +229,7 @@
         </div>
     </div>
 </div>
+
 <!-- for editing -->
 <script>
     function editInventory(productID) {
@@ -314,7 +320,33 @@
             });
         });
     });
+</script>
+<script>
+    $('#warrantyUnit').on('click', function () {
+        var warrantyPeriod = parseFloat($('#warrantyPeriod').val()); 
+        var selectedUnit = $(this).val();
 
+        if (isNaN(warrantyPeriod) || warrantyPeriod <= 0) {
+            return;
+        }
+        switch (selectedUnit) {
+            case 'weeks':
+                 $('#warrantyPeriod').val((warrantyPeriod * 7));
+                break;
+            case 'months':
+                $('#warrantyPeriod').val((warrantyPeriod * 30));
+                break;
+            case 'days':
+                if ($('#warrantyUnit').data('prevUnit') === 'weeks') {
+                    $('#warrantyPeriod').val((warrantyPeriod * 7));
+                } else if ($('#warrantyUnit').data('prevUnit') === 'months') {
+                    $('#warrantyPeriod').val((warrantyPeriod * 30)); 
+                }
+                break;
+        }
+        $('#warrantyUnit').data('prevUnit', selectedUnit);
+    });
 
 </script>
+
 @endsection

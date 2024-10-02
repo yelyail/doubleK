@@ -40,7 +40,7 @@
                                 <span class="order-peso" id="orderTotal">₱0.00</span>
                                 
 
-                                <form action="{{ route('storeOrder') }}" method="POST">
+                                <form action="{{ route('storeReceipt') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="customer_id" id="customer_id" value="">
                                     <input type="hidden" name="service_ID" id="service_ID" value="">
@@ -141,8 +141,6 @@
         </div>
     </div>
 </div>
-
-
 <!-- Progress Section -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -177,7 +175,7 @@
         setProgressLine();
     });
 </script>
-<!-- this is for displaying the stored data from different pages-->
+<!-- display here the information -->
 <script>
     function toProperCase(str) {
         return str
@@ -194,32 +192,29 @@
             return; // Exit if customerInfo is not found
         }
 
+        // Displaying the existing customer information
         document.getElementById('displayCustName').textContent = toProperCase(String(customerInfo.custName || "N/A"));
-        // Display Address
         document.getElementById('displayAddress').textContent = toProperCase(customerInfo.address || "N/A");
-        
+
         const deliveryMethod = customerInfo.deliveryMethod === 'deliver' ? 'Home Delivery' : 'In-store Pickup';
         document.getElementById('displayDeliveryMethod').textContent = toProperCase(deliveryMethod);
-        
-        // Get Current Date
+
         const currentDate = new Date().toISOString().split('T')[0];
-        
-        // Set Delivery Date
+
         if (customerInfo.deliveryMethod === 'deliver') {
             document.getElementById('displayDeliveryDate').textContent = toProperCase(customerInfo.deliveryDate || "N/A");
-            document.getElementById('delivery_date').value = customerInfo.deliveryDate || '2024-09-30'; 
+            document.getElementById('delivery_date').value = customerInfo.deliveryDate || currentDate;
         } else {
             document.getElementById('displayDeliveryDate').textContent = toProperCase(currentDate);
-            document.getElementById('delivery_date').value = currentDate; 
+            document.getElementById('delivery_date').value = currentDate;
         }
 
         document.getElementById('displayBillingDate').textContent = toProperCase(customerInfo.orderDate || currentDate);
         document.getElementById('order_date').value = currentDate;
 
         const paymentMethod = toProperCase(customerInfo.paymentMethod || "N/A");
-        document.getElementById('displayPaymentMethod').textContent = paymentMethod; 
+        document.getElementById('displayPaymentMethod').textContent = paymentMethod;
 
-        // Prepare Payment Details
         let paymentDetails = "";
         if (paymentMethod === 'Cash') {
             paymentDetails = `Cash Payment: ₱${customerInfo.paymentDetails?.cashPayment ? toProperCase(String(customerInfo.paymentDetails.cashPayment)) : 'N/A'}`;
@@ -236,7 +231,7 @@
         }
 
         document.getElementById('displayPaymentDetails').innerHTML = toProperCase(String(paymentDetails || "N/A"));
-        document.getElementById('displayBillingAddress').textContent = toProperCase(String(customerInfo.address || "N/A")); 
+        document.getElementById('displayBillingAddress').textContent = toProperCase(String(customerInfo.address || "N/A"));
 
         document.getElementById('customer_id').value = customerInfo.customerId || '';
         document.getElementById('service_ID').value = customerInfo.serviceID || '';
@@ -245,12 +240,27 @@
         document.getElementById('qty_order').value = customerInfo.orderQuantity || '1';
         document.getElementById('total_price').value = customerInfo.totalPrice || '0';
 
-        // Display Order Total
-        const orderTotal = localStorage.getItem('orderTotal') || "0.00"; 
+        const orderTotal = localStorage.getItem('orderTotal') || "0.00";
         document.getElementById('orderTotal').textContent = `₱${parseFloat(orderTotal).toFixed(2)}`;
-    });
 
+        // Now, we set the displayed data back to localStorage
+        localStorage.setItem('customerInfo', JSON.stringify({
+            custName: document.getElementById('displayCustName').textContent,
+            address: document.getElementById('displayAddress').textContent,
+            deliveryMethod: document.getElementById('displayDeliveryMethod').textContent.toLowerCase() === 'home delivery' ? 'deliver' : 'pickup',
+            deliveryDate: document.getElementById('delivery_date').value,
+            orderDate: document.getElementById('order_date').value,
+            paymentMethod: document.getElementById('displayPaymentMethod').textContent,
+            paymentDetails: customerInfo.paymentDetails,
+            totalPrice: document.getElementById('total_price').value,
+            customerId: document.getElementById('customer_id').value,
+            serviceID: document.getElementById('service_ID').value,
+            userId: document.getElementById('user_ID').value,
+            orderQuantity: document.getElementById('qty_order').value
+        }));
+    });
 </script>
+
 <!-- Order Summary -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -272,129 +282,27 @@
 </script>
 <!-- for receipt -->
 <script>
-    function submitOrder() {
-        const orderDetails = {
-            customer_id: document.getElementById('customer_id').value,
-            service_id: document.getElementById('service_ID').value,
-            payment_id: document.getElementById('payment_id').value,
-            product_id: document.getElementById('product_id').value, 
-            quantity: document.getElementById('qty_order').value,
-            total_price: document.getElementById('total_price').value,
-            order_date: document.getElementById('order_date').value,
-            delivery_date: document.getElementById('delivery_date').value,
-        };
-
-        fetch('/storeOrder', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // Include CSRF token
-            },
-            body: JSON.stringify(orderDetails),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
-        const placeOrderButton = document.querySelector('.place-btn');
-        const confirmOrderButton = document.getElementById('confirmOrderBtn'); 
-        const orderForm = document.querySelector('form');
+        const placeOrderBtn = document.querySelector('.place-btn');
+        
+        placeOrderBtn.addEventListener('click', function (e) {
+            e.preventDefault(); 
 
-        // Function to show SweetAlert confirmation dialog
-        function showConfirmationDialog() {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to confirm this order?",
+                title: 'Confirm Order',
+                text: "Are you sure you want to place this order?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, place order!',
-                cancelButtonText: 'No, cancel!',
-                reverseButtons: true
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, confirmed!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    submitOrder();
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire(
-                        'Cancelled',
-                        'Your order was not placed',
-                        'error'
-                    );
+                    // If confirmed, submit the form
+                    this.closest('form').submit();
                 }
             });
-        }
-        function submitOrder() {
-            const orderDetails = {
-                customer_id: document.getElementById('customer_id').value,
-                service_id: document.getElementById('service_ID').value,
-                payment_id: document.getElementById('payment_id').value,
-                product_id: document.getElementById('product_id')?.value || '', // Ensure you have a product ID
-                quantity: document.getElementById('qty_order').value,
-                total_price: document.getElementById('total_price').value,
-                order_date: document.getElementById('order_date').value,
-                delivery_date: document.getElementById('delivery_date').value,
-            };
-
-            // Submit order to the backend
-            fetch('/storeOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // Include CSRF token
-                },
-                body: JSON.stringify(orderDetails),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-
-                // Clear localStorage after successful order submission
-                localStorage.clear();
-
-                // Redirect or show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Order Confirmed!',
-                    text: 'Your order has been placed successfully!',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    // Redirect to another page after confirmation
-                    window.location.href = '/order-success'; // Redirect to a success page or any other route
-                });
-
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-
-                // Show error message
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Order Failed',
-                    text: 'There was an issue placing your order. Please try again.',
-                    confirmButtonText: 'OK'
-                });
-            });
-        }
-
-        // Event listener for the Place Order button
-        placeOrderButton.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent form from submitting immediately
-            showConfirmationDialog(); // Show confirmation dialog
-        });
-
-        // Confirmation for printing receipt
-        confirmOrderButton.addEventListener('click', function() {
-            submitOrder();  // Call submitOrder when confirming
         });
     });
-
-
 </script>
-
-
 @endsection

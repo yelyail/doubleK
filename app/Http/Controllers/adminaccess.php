@@ -6,6 +6,7 @@ use App\Models\tblcategory;
 use App\Models\tblinventory;
 use App\Models\User;
 use App\Models\tblcustomer;
+use App\Models\tblorderitems;
 use App\Models\tblproduct;
 use App\Models\tblservice;
 use App\Models\tblsupplier;
@@ -53,6 +54,7 @@ class adminaccess extends Controller
 
         return view('admin.inventory', compact('products', 'suppliers', 'categories'));
     }
+    
 
     public function adminOrder(){ 
         $products = tblproduct::all();
@@ -117,11 +119,12 @@ class adminaccess extends Controller
     // for storing customer inforamtion
     public function storeCustomer(Request $request)
     {
+        // Validation
         $request->validate([
             'custName' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
             'deliveryMethod' => 'required|string|in:deliver,pick-up',
-            'deliveryDate' => 'required_if:deliveryMethod,deliver|date|nullable',
+            'deliveryDate' => 'required_if:deliveryMethod,deliver|nullable|date',
             'paymentType' => 'required|string|in:cash,gcash,banktransfer',
 
             'cashPayment' => 'required_if:paymentType,cash|nullable|numeric',
@@ -137,12 +140,13 @@ class adminaccess extends Controller
             'bankReferenceNum' => 'required_if:paymentType,banktransfer|nullable|string|max:255',
         ]);
 
+        // Create or Update Customer
         $customer = tblcustomer::updateOrCreate(
             ['customer_name' => $request->custName],
-            ['address' => $request->address, 'transaction_date' => $request->bankTransactionDate]
+            ['address' => $request->address]
         );
 
-        // Create payment method
+        // Create Payment Method
         $payment = new tblpaymentmethod();
         if ($request->paymentType == 'cash') {
             $payment->payment_type = 'cash';
@@ -155,55 +159,25 @@ class adminaccess extends Controller
             $payment->payment_type = 'banktransfer';
             $payment->payment = $request->bankPayment;
             $payment->reference_num = $request->bankReferenceNum;
+            $payment->transaction_date = $request->bankTransactionDate; // Bank transfer specific
         }
         $payment->save();
 
+        // Create Order Receipt (assuming relationships exist between customer, payment, and order)
         $order = tblorderreceipt::create([
             'customer_id' => $customer->customer_id,
             'payment_id' => $payment->payment_id,
             'order_date' => now(),
             'delivery_date' => $request->deliveryDate,
-            'order_status' => 'Pending',
         ]);
+
+        // Redirect with success message 
         return redirect()->route('adminConfirm')->with('success', 'Order placed successfully!');
     }
-
-    //mag add ug order sa
-    public function storeOrder(Request $request)
-    {
-        // Validate the incoming request data
-        $validatedData = $request->validate([
-            'customer_id' => 'required',
-            'service_ID' => 'required',
-            'payment_id' => 'required',
-            'product_id' => 'required',
-            'qty_order' => 'required|integer',
-            'total_price' => 'required|numeric',
-            'delivery_date' => 'nullable|date',
-            'order_date' => 'nullable|date',
-            'payment_method' => 'required|string',
-        ]);
-
-        // Create a new order in the database
-        $order = new tblorderreceipt(); // Replace 'Order' with your actual Order model
-        $order->customer_id = $validatedData['customer_id'];
-        $order->service_ID = $validatedData['service_ID'];
-        $order->payment_id = $validatedData['payment_id'];
-        $order->product_id = $validatedData['product_id'];
-        $order->qty_order = $validatedData['qty_order'];
-        $order->total_price = $validatedData['total_price'];
-        $order->order_date = $validatedData['order_date'];
-        $order->delivery_date = $validatedData['delivery_date'];
-        $order->save();
-
-        // Return a response
-        return response()->json(['success' => true, 'order' => $order]);
-    }
-
-
     //for posting 
     public function storeProduct(Request $request)
     {
+        // oy si feeling 
         $request->validate([
             'categoryName' => 'required|string',
             'productName' => 'required|string',
@@ -233,7 +207,7 @@ class adminaccess extends Controller
 
             $inventory = tblinventory::create([
                 'supplier_ID' => $request->supplierName,
-                'stock_qty' => $request->Stocks,
+                'stock_qty' => $request->stocks,
             ]);
 
             // Link product to inventory
@@ -277,6 +251,7 @@ class adminaccess extends Controller
         $service->service_name = $request->serviceName;
         $service->description = $request->description;
         $service->service_fee = $request->serviceFee;
+        $service->service_status = 0;
         $service->save();
         return redirect()->back();
     }
@@ -298,11 +273,11 @@ class adminaccess extends Controller
         $supplier->supplier_landline = $request->supplier_landline;
         $supplier->supplier_address = $request->supplier_address;
         $supplier->user_ID = $request->representative;
+        $supplier->archived =0;
         $supplier->save();
 
         return redirect()->back()->with('success', 'Supplier added successfully!');
     }
-
     // --------------------------------------------------
     //for the progress \
     public function addProduct(Request $request)
@@ -329,6 +304,7 @@ class adminaccess extends Controller
         $validatedData = $request->validate([
             'service_id' => 'required|exists:tblservice,service_id',
             'qty_order' => 'required|integer|min:1',
+
         ]);
 
         $service = tblservice::findOrFail($validatedData['service_id']);
@@ -431,6 +407,17 @@ class adminaccess extends Controller
             return response()->json(['error' => 'Supplier not found!'], 404);
         }
     }
+    // services
+    public function archiveService($id)
+    {
+        $service = tblservice::find($id); 
+        if ($service) {
+            $service->service_status = 0;  
+            $service->save();
+            return response()->json(['message' => 'Service archived successfully.']);
+        }
+        return response()->json(['message' => 'Service not found.'], 404);
+    }
     public function updateService(Request $request)
     {
         $request->validate([
@@ -529,7 +516,7 @@ class adminaccess extends Controller
     {
         $product = tblproduct::find($product_id); 
         if ($product) {
-            $product->archived = true;
+            $product->archived = 0;
             $product->save();
             return response()->json(['message' => 'Product archived successfully.']);
         }

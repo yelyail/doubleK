@@ -46,12 +46,12 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Product Name</th>
-                                    <th>Quantity</th>
-                                    <th>Purchase Date</th>
-                                    <th>Category Name</th>
-                                    <th>Helper Name</th>
                                     <th>Stock In</th>
-                                    <th>Stock Out</th>
+                                    <th>Quantity Sold</th>
+                                    <th>Last Restock Date</th>
+                                    <th>Return</th>
+                                    <th>Damage</th>
+                                    <th>Supplier Name</th>
                                     <th>Print</th>
                                 </tr>
                             </thead>

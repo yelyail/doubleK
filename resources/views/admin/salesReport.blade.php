@@ -45,12 +45,15 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Product Name</th>
-                                    <th>Category Name</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
-                                    <th>Purchase Date</th>
+                                    <th>Particulars</th>
+                                    <th>Quantity Sold</th>
+                                    <th>Unit Price</th>
+                                    <th>Total Sales</th>
+                                    <th>Transaction Date</th>
+                                    <th>Payment Method</th>
+                                    <th>Customer Name</th>
+                                    <th>Sales Recipient</th>
+                                    <th>Print</th>
                                 </tr>
                             </thead>
                         </table>

@@ -37,24 +37,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                @if($services->isEmpty())
-                    <td colspan="8" class="text-center">No Services Available.</td>
+                    @if($services->isEmpty())
+                        <td colspan="8" class="text-center">No Services Available.</td>
                     @else
-                    @foreach ($services as $service)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{  ucwords(strtolower($service->service_name)) }}</td>
-                            <td>{{  ucwords(strtolower($service->description)) }}</td>
-                            <td>₱ {{ number_format($service->service_fee,2) }}</td>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <button class="btn btn-success btn-sm" onclick="editService(' {{$service->service_ID }} ')"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-danger btn-sm"><i class="bi bi-archive"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                @endif
+                        @foreach ($services as $service)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ ucwords(strtolower($service->service_name)) }}</td>
+                                <td>{{ ucwords(strtolower($service->description)) }}</td>
+                                <td>₱ {{ number_format($service->service_fee,2) }}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        @if($service->service_status == 0) 
+                                                <button class="btn btn-success btn-sm" onclick="editService('{{$service->service_ID}}')">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-sm archive-btn" data-serviceID="{{ $service->service_ID }}">
+                                                    <i class="bi bi-archive"></i>
+                                                </button>
+                                            @else
+                                                <span class="badge bg-danger">Inactive</span>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -145,5 +153,40 @@
             }
         });
     }
+</script>
+<script>
+    $(document).ready(function() {
+        $('.archive-btn').click(function() {
+            var serviceID = $(this).data('serviceid'); 
+            var row = $(this).closest('tr');
+
+            Swal.fire({
+                title: 'Services Archiving',
+                text: 'Are you sure to archive this service?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Archive',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: `{{ url('/admin/service/') }}/${serviceID}/archive`,  // Corrected URL to use 'serviceID'
+                        data: {
+                            '_token': '{{ csrf_token() }}',
+                        },
+                        success: function(data) {
+                            row.remove();
+                            Swal.fire('Archived', 'Archived successfully', 'success');
+                        },
+                        error: function(data) {
+                            console.error(data);
+                            Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
 </script>
 @endsection

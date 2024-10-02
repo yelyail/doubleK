@@ -55,7 +55,7 @@
                                         <select class="form-control" id="deliveryMethod" name="deliveryMethod" required>
                                             <option value="" disabled selected>Choose a delivery option</option>
                                             <option value="deliver">Home delivery</option>
-                                            <option value="pick-up">In-store pickup</option>
+                                            <option value="pick-up">Walk-In</option>
                                         </select>
                                         <div id="deliverDate" style="display: none;">
                                             <label for="deliveryDate" class="form-label">Delivery Date</label>
@@ -124,129 +124,111 @@
 <!-- for the customer information -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    const orderForm = document.getElementById('orderForm');
-    if (!orderForm) {
-        console.error("Order form not found!");
-        return;
-    }
-    orderForm.addEventListener('submit', function (event) {
-        event.preventDefault();  
-        const custName = document.getElementById('custName').value || null;
-        const address = document.getElementById('address').value;
-        const deliveryMethod = document.getElementById('deliveryMethod').value;
-        const deliveryDate = document.getElementById('deliveryDate').value || null;
-        const paymentMethod = document.getElementById('paymentMethod').value;
+        const orderForm = document.getElementById('orderForm');
 
-        if (!address || !deliveryMethod || !paymentMethod) {
-            console.error("Required fields are missing!");
-            alert("Please fill in all required fields (Address, Delivery Method, and Payment Method).");
+        if (!orderForm) {
+            console.error("Order form not found!");
             return;
         }
 
-        let paymentDetails = {};
-        if (paymentMethod === 'cash') {
-            const cashPayment = document.getElementById('cashAmount').value || null;
-            paymentDetails = { cashPayment };
-            if (!cashPayment) {
-                alert("Please enter the cash amount.");
-                return;
-            }
-        } else if (paymentMethod === 'gcash') {
-            const senderName = document.getElementById('senderName').value || null;
-            const gcashAmount = document.getElementById('gcashAmount').value || null;
-            const gcashReferenceNum = document.getElementById('referenceNum').value || null;
-            paymentDetails = { senderName, gcashAmount, gcashReferenceNum };
-            if (!senderName || !gcashAmount || !gcashReferenceNum) {
-                alert("Please fill in all GCash payment details.");
-                return;
-            }
-        } else if (paymentMethod === 'banktransfer') {
-            const bankName = document.getElementById('bankName').value || null;
-            const accHold = document.getElementById('accHold').value || null;
-            const bankPayment = document.getElementById('amount').value || null;
-            const bankTransactionDate = document.getElementById('transactDate').value || null;
-            const bankReferenceNum = document.getElementById('transactRef').value || null;
-            paymentDetails = { bankName, accHold, bankPayment, bankTransactionDate, bankReferenceNum };
-            if (!bankName || !accHold || !bankPayment || !bankTransactionDate || !bankReferenceNum) {
-                alert("Please fill in all Bank Transfer payment details.");
-                return;
-            }
-        }
+        // Populate form fields from localStorage on page load
+        function populateForm() {
+            const fields = [
+                'custName', 
+                'address', 
+                'deliveryMethod', 
+                'deliveryDate', 
+                'paymentMethod',
+                'cashPayment',
+                'gcashCustomerName',
+                'gcashPayment',
+                'gcashReferenceNum',
+                'bankPaymentType',
+                'bankCustomerName',
+                'bankPayment',
+                'bankTransactionDate',
+                'bankReferenceNum'
+            ];
 
-        const customerInfo = {
-            custName,
-            address,
-            deliveryMethod,
-            deliveryDate,
-            paymentMethod,
-            paymentDetails
-        };
-        try {
-            localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
-            console.log("Stored customer info:", localStorage.getItem('customerInfo'));
-        } catch (error) {
-            console.error("Error storing customer info:", error);
-            return;
-        }
-        window.location.href = "{{ route('adminConfirm') }}"; 
-    });
-
-    document.getElementById('deliveryMethod').addEventListener('change', function () {
-        const deliverDateContainer = document.getElementById('deliverDate');
-        deliverDateContainer.style.display = (this.value === 'deliver') ? 'block' : 'none';
-    });
-
-    document.getElementById('paymentMethod').addEventListener('change', function () {
-        const cashInput = document.getElementById('cashAmountInput');
-        const gcashInput = document.getElementById('gcashDetailsInput');
-        const bankTransferInput = document.getElementById('bankTransferDetails');
-
-        cashInput.style.display = 'none';
-        gcashInput.style.display = 'none';
-        bankTransferInput.style.display = 'none';
-
-        if (this.value === 'cash') {
-            cashInput.style.display = 'block';
-        } else if (this.value === 'gcash') {
-            gcashInput.style.display = 'block';
-        } else if (this.value === 'banktransfer') {
-            bankTransferInput.style.display = 'block';
-        }
-    });
-});
-</script>
-<!-- for progress -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const progressLine = document.getElementById('progressLine');
-        const steps = document.querySelectorAll('.progress-step');
-
-        function setProgressLine() {
-            let activeCount = 0;
-
-            steps.forEach((step) => {
-                if (step.classList.contains('active')) {
-                    activeCount++;
+            fields.forEach(field => {
+                const value = localStorage.getItem(field);
+                if (value) {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        element.value = value;
+                    }
                 }
             });
-            progressLine.style.width = `${(activeCount / steps.length) * 100}%`;
-            progressLine.style.left = `0%`;
+
+            // Show delivery date if applicable
+            if (localStorage.getItem('deliveryMethod') === 'deliver') {
+                document.getElementById('deliverDate').style.display = 'block';
+            }
+
+            // Show payment details based on payment method
+            const paymentMethod = localStorage.getItem('paymentMethod');
+            if (paymentMethod) {
+                document.getElementById('paymentMethod').value = paymentMethod;
+                showPaymentDetails(paymentMethod);
+            }
         }
 
-        window.navigateTo = function(page, index) {
-            progressLine.style.width = `${((index + 1) / steps.length) * 100}%`;
-            window.location.href = page;
-        };
+        function showPaymentDetails(paymentMethod) {
+            document.getElementById('cashAmountInput').style.display = 'none';
+            document.getElementById('gcashDetailsInput').style.display = 'none';
+            document.getElementById('bankTransferDetails').style.display = 'none';
 
-        steps.forEach((step, index) => {
-            step.onclick = function() {
-                if (!step.classList.contains('active')) {
-                    navigateTo(step.dataset.route, index);
-                }
-            };
+            if (paymentMethod === 'cash') {
+                document.getElementById('cashAmountInput').style.display = 'block';
+            } else if (paymentMethod === 'gcash') {
+                document.getElementById('gcashDetailsInput').style.display = 'block';
+            } else if (paymentMethod === 'banktransfer') {
+                document.getElementById('bankTransferDetails').style.display = 'block';
+            }
+        }
+
+        orderForm.addEventListener('submit', function (event) {
+            // Prevent default form submission
+            event.preventDefault();
+
+            // Save form data to localStorage
+            localStorage.setItem('custName', document.getElementById('custName').value);
+            localStorage.setItem('address', document.getElementById('address').value);
+            localStorage.setItem('deliveryMethod', document.getElementById('deliveryMethod').value);
+            localStorage.setItem('deliveryDate', document.getElementById('deliveryDate').value || '');
+
+            // Get and store the payment method
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            localStorage.setItem('paymentMethod', paymentMethod); // Ensure payment method is saved here
+
+            // Store payment details based on selected payment method
+            if (paymentMethod === 'cash') {
+                localStorage.setItem('cashPayment', document.getElementById('cashAmount').value || '');
+            } else if (paymentMethod === 'gcash') {
+                localStorage.setItem('gcashCustomerName', document.getElementById('senderName').value || '');
+                localStorage.setItem('gcashPayment', document.getElementById('gcashAmount').value || '');
+                localStorage.setItem('gcashReferenceNum', document.getElementById('referenceNum').value || '');
+            } else if (paymentMethod === 'banktransfer') {
+                localStorage.setItem('bankPaymentType', document.getElementById('bankName').value || '');
+                localStorage.setItem('bankCustomerName', document.getElementById('accHold').value || '');
+                localStorage.setItem('bankPayment', document.getElementById('amount').value || '');
+                localStorage.setItem('bankTransactionDate', document.getElementById('transactDate').value || '');
+                localStorage.setItem('bankReferenceNum', document.getElementById('transactRef').value || '');
+            }
+            window.location.href = "{{ route('adminConfirm') }}";
         });
 
-        setProgressLine(); // Set initial progress line on page load
+        document.getElementById('deliveryMethod').addEventListener('change', function () {
+            const deliverDateContainer = document.getElementById('deliverDate');
+            deliverDateContainer.style.display = (this.value === 'deliver') ? 'block' : 'none';
+        });
+
+        document.getElementById('paymentMethod').addEventListener('change', function () {
+            showPaymentDetails(this.value);
+        });
+
+        populateForm(); 
     });
 </script>
+
 @endsection

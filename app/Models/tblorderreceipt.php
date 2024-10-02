@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\tblreserve;
 
 class tblorderreceipt extends Model
 {
@@ -11,13 +12,10 @@ class tblorderreceipt extends Model
     protected $table = 'tblorderreceipt';
     protected $primaryKey = 'ordDet_ID';
     protected $fillable = [
-        'service_ID',
+        'orderitems_id',
         'customer_id',
         'payment_id',
-        'product_id',
         'reserve_id',
-        'qty_order',
-        'total_price',
         'delivery_date',
         'order_date',
     ];
@@ -43,5 +41,6 @@ class tblorderreceipt extends Model
     {
         return $this->belongsTo(tblservice::class, 'service_ID', 'service_ID');
     }
+    
 }
 

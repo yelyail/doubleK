@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tblpaymentmethod', function (Blueprint $table) {
-            $table->id("payment_id");
-            $table->string('payment_type')->nullable();
-            $table->string('reference_num')->nullable();
-            $table->double('payment')->nullable();
+        Schema::create('tblreturn', function (Blueprint $table) {
+            $table->id('return_id');
+            $table->unsignedBigInteger('product_id')->nullable();
+            $table->date('returnDate');
+            $table->string('returnReason')->nullable();
+            $table->string('return_status')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tblpaymentmethod');
+        Schema::dropIfExists('tblreturn');
     }
 };

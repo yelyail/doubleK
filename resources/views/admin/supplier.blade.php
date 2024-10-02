@@ -46,27 +46,29 @@
                     @else
                     <!-- Loop through suppliers -->
                     @foreach($suppliers as $supplier)
-                        @if($supplier->archived == 0) 
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ ucwords(strtolower($supplier->supplier_name)) }}</td>
-                                <td>{{ $supplier->supplier_email }}</td>
-                                <td>{{ '+63 ' . substr($supplier->supplier_contact, 0, 3) . ' ' . substr($supplier->supplier_contact, 3, 3) . ' ' . substr($supplier->supplier_contact, 6) }}</td>
-                                <td>{{ substr($supplier->supplier_landline, 0, 3) . ' ' . substr($supplier->supplier_landline, 3, 3) . ' ' . substr($supplier->supplier_landline, 6) }}</td>
-                                <td>{{ $supplier->supplier_address }}</td>
-                                <td>{{ ucwords(strtolower($supplier->user->fullname ?? 'N/A')) }}</td>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ ucwords(strtolower($supplier->supplier_name)) }}</td>
+                            <td>{{ $supplier->supplier_email }}</td>
+                            <td>{{ '+63 ' . substr($supplier->supplier_contact, 0, 3) . ' ' . substr($supplier->supplier_contact, 3, 3) . ' ' . substr($supplier->supplier_contact, 6) }}</td>
+                            <td>{{ substr($supplier->supplier_landline, 0, 3) . ' ' . substr($supplier->supplier_landline, 3, 3) . ' ' . substr($supplier->supplier_landline, 6) }}</td>
+                            <td>{{ $supplier->supplier_address }}</td>
+                            <td>{{ ucwords(strtolower($supplier->user->fullname ?? 'N/A')) }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    @if($supplier->archived == 0) 
                                         <button class="btn btn-success btn-sm" onclick="editSupplier('{{ $supplier->supplier_ID }}')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button type="button" class="btn btn-danger btn-sm archive-btn" data-supplierID="{{ $supplier->supplier_ID }}">
-                                            <i class="bi bi-archive"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endif
+                                            <button type="button" class="btn btn-danger btn-sm archive-btn" data-supplierID="{{ $supplier->supplier_ID }}">
+                                                <i class="bi bi-archive"></i>
+                                            </button>
+                                        @else
+                                            <span class="badge bg-danger">Inactive</span>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
                     @endforeach
                 @endif
                 </tbody>

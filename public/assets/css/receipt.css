@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+body{
+    font-family: 'Arial', sans-serif;
+}
+h1{
+    font-size: 35px; margin: left 30%;
+}
+p{
+    text-align: left;
+    font-size: 20px;
+    font-weight: bold;
+}
+table{
+    width: 100%;
+    border: 2px solid #544f43;
+}
+th{
+    border: 2px solid #544f43;
+    width: 16.5%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+}
+td{
+    text-align: center;
+    font-weight: light;
+    font-size: 12px;
+}
