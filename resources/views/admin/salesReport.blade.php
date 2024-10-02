@@ -44,7 +44,6 @@
                     <table class="table table-striped custom-table">
                             <thead>
                                 <tr>
-                                    <th>#</th>
                                     <th>Particulars</th>
                                     <th>Quantity Sold</th>
                                     <th>Unit Price</th>
@@ -53,8 +52,7 @@
                                     <th>Payment Method</th>
                                     <th>Customer Name</th>
                                     <th>Sales Recipient</th>
-                                    <th>Print</th>
-                                </tr>
+                                 </tr>
                             </thead>
                         </table>
                     </div>

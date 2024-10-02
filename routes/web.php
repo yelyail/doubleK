@@ -20,7 +20,6 @@ Route::controller(AuthController::class)->group(function() {
 });
 
 //for the admin
-//for getting
 Route::controller(adminaccess::class)->group(function(){
     Route::get('/admin/dashboard','adminDashboard')->name('adminDashboard');
     Route::get('/admin/employee','adminEmployee')->name('adminEmployee');

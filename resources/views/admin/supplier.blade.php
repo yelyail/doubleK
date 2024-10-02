@@ -60,11 +60,11 @@
                                         <button class="btn btn-success btn-sm" onclick="editSupplier('{{ $supplier->supplier_ID }}')">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                            <button type="button" class="btn btn-danger btn-sm archive-btn" data-supplierID="{{ $supplier->supplier_ID }}">
+                                            <button type="button" class="btn btn-secondary btn-sm archive-btn" data-supplierID="{{ $supplier->supplier_ID }}">
                                                 <i class="bi bi-archive"></i>
                                             </button>
                                         @else
-                                            <span class="badge bg-danger">Inactive</span>
+                                        <span class="badge bg-secondary text-light">Inactive</span>
                                     @endif
                                 </div>
                             </td>

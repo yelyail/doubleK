@@ -80,11 +80,11 @@
                                                 <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
+                                                <button type="button" class="btn btn-secondary btn-sm archive-btn" data-product-id="{{ $product->product_id }}">
                                                     <i class="bi bi-archive"></i>
                                                 </button>
                                             @else
-                                                <span class="badge bg-danger">Inactive</span>
+                                                <span class="badge bg-light text-secondary">Inactive</span>
                                             @endif
                                         </div>
                                     </td>

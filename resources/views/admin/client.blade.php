@@ -53,7 +53,7 @@
                                             <button class="btn btn-success btn-sm" onclick="editClient('{{ $client->user_ID }}')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button type="button" class="btn btn-danger btn-sm archive-btn" data-employeeid="{{ $client->user_ID }}">
+                                            <button type="button" class="btn btn-secondary btn-sm archive-btn" data-employeeid="{{ $client->user_ID }}">
                                                 <i class="bi bi-archive"></i>
                                             </button>
                                         </div>

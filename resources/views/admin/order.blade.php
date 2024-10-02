@@ -47,11 +47,9 @@
             </div>
 
             <div class="row">
-                <!-- Products/Services Table -->
                 <div class="col-md-7">
                     <div class="card card-cstm-bt mt-4">
                         <div id="productTable">
-                            <!-- Product Table Content -->
                             <table class="table table-striped custom-table">
                                 <thead>
                                     <tr>
@@ -151,7 +149,7 @@
                                         <th>Quantity</th>
                                         <th>Price</th>
                                         <th>Total</th>
-                                        <th>Action</th>
+                                        <th>Void</th>
                                     </tr>
                                 </thead>
                                 <tbody id="orderSummaryBody">
@@ -251,8 +249,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button id="backToOrder" type="button" class="btn btn-secondary btn-medium" style="width:100px;">Back</button>
-                        <button id="confirmPay" class="btn btn-success">Confirm Payment</button>                    </div>
+                        <button id="backToOrder" type="button" class="btn btn-secondary btn-medium" style=" width:100px; margin-right: 10px;">Back to Product</button>
+                        <button id="confirmPay" class="btn btn-success btn-medium" style="width:100px;">Confirm Payment</button>                    
+                    </div>
                 </form>
             </div>
         </div>
@@ -264,11 +263,7 @@
                     <div class="order-details mt-4">
                         <div class="grand-total-container">
                             <span class="order-total">Grand Total:</span>
-                            <span class="order-peso" id="orderTotal">₱0.00</span>
-                        </div>
-                        <div class="payment-info-container">
-                            <p class="orderinfo" id="displayPaymentMethod"></p>
-                            <p class="orderinfo" id="displayPaymentDetails"></p>
+                            <span class="order-peso" id="totalConfirmation">₱0.00</span>
                         </div>
                         <div class="buttons">
                             <button type="submit" class="place-btn">Place Order</button>
@@ -276,18 +271,18 @@
                         </div>
                     </div>
                     <div class="modal-body">
-                            <div class="row mt-4">
-                                <div class="col-md-6">
-                                    <h3><b>Customer Information</b></h3>
-                                    <p class="orderinfo" id="displayCustName"><b>Customer Name</b></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h3><b>Delivery Address</b></h3>
-                                    <p class="orderinfo" id="displayAddress"></p>
-                                    <p class="orderinfo" id="displayDeliveryMethod"></p>
-                                    <p class="orderinfo" id="displayDeliveryDate"></p>
-                                </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h3><b>Customer Information</b></h3>
+                                <p class="orderinfo" id="finalCustomerName"><b>Customer Name</b></p>
                             </div>
+                            <div class="col-md-6">
+                                <h3><b>Delivery Address</b></h3>
+                                <p class="orderinfo" id="displayAddress"></p>
+                                <p class="orderinfo" id="displayDeliveryMethod"></p>
+                                <p class="orderinfo" id="displayDeliveryDate"></p>
+                            </div>
+                        </div>
                             <div class="row mt-4">
                                 <div class="col-md-6">
                                     <h3><b>Payment Method</b></h3>
@@ -302,7 +297,7 @@
                             </div>
 
                             <div class="text-end mt-4">
-                                <a href="{{ route('adminCustInfo') }}" class="btn btn-secondary" style="width:100px;">Back</a>
+                                <button id="backToCustomerInfo" type="button" class="btn btn-secondary btn-medium" style="width:100px;">Back</button>
                             </div>
                         </div>
                     </div>
@@ -495,7 +490,9 @@
         });
         // step 2 --> step 3
         document.getElementById('confirmPay').addEventListener('click', function() {
+            event.preventDefault();
             showStep(3);
+            populateConfirmation();
         });
         // step 3 --> step 2
         document.getElementById('backToCustomerInfo').addEventListener('click', function() {
@@ -595,18 +592,14 @@
                     total: parseFloat(row.cells[3].innerText.replace('₱ ', ''))
                 });
             }
-
             const customerInfo = {
                 name: document.getElementById('customerName').value,
                 address: document.getElementById('customerAddress').value,
                 phone: document.getElementById('customerPhone').value,
                 email: document.getElementById('customerEmail').value
             };
-
-            // Send data to the server via AJAX or a form submission
-            // Example using AJAX (requires jQuery)
             $.ajax({
-                url: "{{ route('adminConfirm') }}",
+                url: "{{ route('storeReceipt') }}",
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -615,7 +608,6 @@
                 },
                 success: function(response) {
                     alert('Order placed successfully!');
-                    // Optionally, redirect or reset the form
                     window.location.reload();
                 },
                 error: function(xhr) {
@@ -629,6 +621,4 @@
     });
 </script>
 
-<!-- Include Order.js if necessary -->
-<script src="{{ asset('assets/js/order.js') }}"></script>
 @endsection

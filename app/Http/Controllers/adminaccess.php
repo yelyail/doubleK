@@ -55,7 +55,7 @@ class adminaccess extends Controller
         return view('admin.inventory', compact('products', 'suppliers', 'categories'));
     }
     
-
+    
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
