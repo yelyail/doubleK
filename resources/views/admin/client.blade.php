@@ -46,7 +46,17 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ ucwords(strtolower($client->fullname)) }}</td>
                                     <td>{{ $client->username }}</td>
-                                    <td>{{ ucwords(strtolower($client->jobtitle))  }}</td>
+                                    <td>
+                                        @if ($client->jobtitle === 0)
+                                            {{ 'Admin' }}
+                                        @elseif ($client->jobtitle === 1)
+                                            {{ 'Helper' }}
+                                        @elseif ($client->jobtitle === 2)
+                                            {{ 'Staff' }}
+                                        @else
+                                            {{ 'Unknown' }} <!-- Optional fallback for other cases -->
+                                        @endif
+                                    </td>
                                     <td>{{ '+63 ' . substr($client->user_contact, 0, 3) . ' ' . substr($client->user_contact, 3, length: 3) . ' ' . substr($client->user_contact, 6) }}</td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 5px;">
@@ -91,8 +101,8 @@
                         <label for="jobRole" class="form-label">Job Role</label>
                         <select class="form-control" name="jobtitle" required>
                             <option value="" disabled selected hidden>Job Role</option>
-                            <option value="staff">Staff</option>
-                            <option value="helper">Helper</option>
+                            <option value="1">Staff</option>
+                            <option value="2">Helper</option>
                         </select>  
                     </div>
                     <div class="row mb-3">

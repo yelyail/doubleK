@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id("user_ID");
             $table->string('fullname')->nullable();
             $table->string('username')->nullable();
-            $table->string('jobtitle')->nullable();
-            $table->string('user_contact')->nullable();
+            $table->tinyInteger("jobtitle")->default(0);            $table->string('user_contact')->nullable();
             $table->boolean('archived')->default(false);
             $table->string('password')->nullable();
             $table->timestamps();

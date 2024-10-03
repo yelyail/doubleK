@@ -46,8 +46,6 @@ class AuthController extends Controller
             return redirect()->back();
         }
     }
-
-
     public function login()
     {
         return view('auth/login');
@@ -56,26 +54,41 @@ class AuthController extends Controller
     public function loginSave(Request $request)
     {
         try {
+            // Validate the incoming request
             $request->validate([
                 'username' => ['required', 'string'],
                 'password' => ['required', 'min:8'],
             ]);
 
+            // Find the user by username
             $user = User::where('username', $request->username)->first();
 
+            // Check if the user exists
+            if (!$user) {
+                $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
+                return back();
+            }
+
+            // Check if the password matches
             if (!Hash::check($request->password, $user->password)) {
                 $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
                 return back();
             }
-            $jobtitle = $user->jobtitle;
 
-            if ($jobtitle === 'admin') {
-                return redirect()->route('adminDashboard');
-            } elseif ($jobtitle === 'helper' || $jobtitle === 'staff') {
-                return redirect()->route('userDashboard');
-            } else {
-                $this->showAlert('error', 'Error!', 'Unauthorized access.');
-                return back();
+            // Log in the user
+            Auth::login($user);
+            session(['userID' => $user->user_ID]);
+
+            // Redirect based on job title
+            switch ($user->jobtitle) {
+                case 0:
+                    return redirect()->route('adminDashboard');
+                case 1:
+                case 2:
+                    return redirect()->route('userDashboard');
+                default:
+                    $this->showAlert('error', 'Error!', 'Unauthorized access.');
+                    return back();
             }
         } catch (\Exception $e) {
             Log::error("Login Error", [
@@ -85,15 +98,22 @@ class AuthController extends Controller
             $this->showAlert('error', 'Error!', 'An unexpected error occurred. Please try again later.');
             return back();
         }
-}
-
-    public function logout(){
-
-        if(Session::has('user_ID')){
-            Session::pull('user_ID');
-        }
-        return redirect()->route('login');
     }
+
+
+
+    public function logout()
+    {
+        // Check if userID exists in the session
+        if (Session::has('userID')) {
+            Session::pull('userID'); // Remove userID from session
+        }
+        
+        Auth::logout(); // Log out the user
+
+        return redirect()->route('login'); // Redirect to login
+    }
+
     public static function showAlert($icon, $title, $text) {
         Session::flash('alertShow', true);
         Session::flash('icon', $icon);

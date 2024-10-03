@@ -49,7 +49,7 @@
                 </li>
             </ul>
             <div class="sidebar-footer">
-                <a href="{{ route('logout')}}" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+                <a href="{{ route('signout')}}" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
             </div>
         </aside>
 

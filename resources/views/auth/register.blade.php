@@ -16,7 +16,7 @@
     </a>   
     <div class="card-body-register">
         <div class="row justify-content-center">
-            <form id="registrationForm" action="{{ route('register.save') }}" class="form-control" method="POST">
+            <form id="registrationForm" action="{{ route('registerSave') }}" class="form-control" method="POST">
                 @csrf
                 <div class="Container-date">
                     <div class="row">
@@ -37,9 +37,9 @@
                         <i class="fas fa-users"></i>
                         <select class="select-field" name="jobtitle" required> 
                             <option value="" disabled selected hidden>Job Type</option>
-                            <option value="admin">Admin</option>
-                            <option value="helper">Helper</option>
-                            <option value="staff">Staff</option>
+                            <option value="0">Admin</option>
+                            <option value="1">Helper</option>
+                            <option value="2">Staff</option>
                         </select>  
                     </div>
                     <div class="input-body">

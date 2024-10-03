@@ -20,9 +20,6 @@ use Illuminate\Support\Facades\Log;
 
 class adminaccess extends Controller
 {
-    public function adminDashboard(){ 
-        return view('admin.dashboard');
-    }
     public function adminEmployee() {
         $clients = User::all();
         return view('admin.client', compact('clients'));
@@ -54,8 +51,6 @@ class adminaccess extends Controller
 
         return view('admin.inventory', compact('products', 'suppliers', 'categories'));
     }
-    
-    
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();

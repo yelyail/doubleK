@@ -16,14 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('orderitems_id');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('payment_id');
-            $table->unsignedBigInteger(column: 'reserve_id');
             $table->integer('qty_order')->nullable();
             $table->date('delivery_date');
             $table->date('order_date');
             $table->foreign('orderitems_id')->references('orderitems_id')->on('tblorderitems')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('customer_id')->references('customer_id')->on('tblcustomer')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('payment_id')->references('payment_id')->on('tblpaymentmethod')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('reserve_id')->references('reserve_id')->on('tblreserve')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

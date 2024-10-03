@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
-    use HasFactory;
-    protected $table = 'user';
-    protected $primaryKey = 'user_ID';
+    use HasFactory, Notifiable, HasApiTokens; // Added Notifiable for notifications if needed
+
+    protected $table = 'user'; // Ensure this matches your database
+    protected $primaryKey = 'user_ID'; // Ensure this is the correct primary key
     protected $fillable = [
         'fullname',
         'username',
@@ -27,5 +28,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(tblsupplier::class, 'user_ID', 'user_ID');
     }
-}
 
+}
