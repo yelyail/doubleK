@@ -24,7 +24,7 @@
 .btn-custom{
     background-color: #2F4760;
     color: #FDFDFC;
-    max-height: 300px; 
+    max-height: 550px; 
     overflow-y: hidden;
     overflow: auto; 
 }
@@ -322,4 +322,7 @@ h4, h5, h6{
     font-size: 20px;
     color: #050912;
     
+}
+.ttl{
+    font-weight: bold;
 }

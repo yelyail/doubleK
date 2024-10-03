@@ -1,90 +1,126 @@
-@extends('user.side')
+@extends('admin.side')
 
-@section('title', 'Dashboard')
+@section('title', 'Double-K Computer')
 
 @section('content')
 <div class="main p-3">
     <div class="row mb-4 align-items-center">
         <div class="col-md-9">
-            <h1>Dashboard</h1>
+            <h1 class="prod_title">Dashboard</h1>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-4 col-md-6">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Daily Sales</h5>
-                    <h2 class="card-text" id="dailySales">₱0.00</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Sales</h5>
-                    <h2 class="card-text" id="totalSales">₱0.00</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Product Sold</h5>
-                    <h2 class="card-text" id="productSold">0</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-5 col-md-8">
-            <div class="card bg-light mb-4">
-                <div class="card-body btn-custom">
-                    <h3 class="card-title"><b>Inventory Details</b></h3>
-                    <div class="order-det">
-                        <h5 class="order-item">Available Stocks</h5>
-                        <h6>800</h6>
-                    </div>
-                    <div class="order-det">
-                        <h5 class="order-item">Low Stocks Item</h5>
-                        <h6>800</h6>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-striped cstm-tbl">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Services Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>John Doe</td>
-                    <td>john@example.com</td>
-                    <td>Admin</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jane Smith</td>
-                    <td>jane@example.com</td>
-                    <td>User</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Michael Johnson</td>
-                    <td>michael@example.com</td>
-                    <td>Moderator</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     
-    
+    <div class="row">
+    <!-- Inventory Status Column -->
+    <div class="col-lg-6 col-md-6">
+        <div class="card mb-4">
+            <div class="card-body btn-custom">
+                <h3 class="card-title"><b>Inventory Status</b></h3>
+                    <div class="inventory-status">
+                        <table class="table cstm-tbl">
+                            <tbody>
+                                <tr>
+                                    <td class="ttl">Total Available Stock</td>
+                                    <td>{{ $totalStock }} Stock/s</td>
+                                </tr>
+                                <tr>
+                                    <td class="ttl">Low Stock Items</td>
+                                    <td>{{ $lowStockItems }} Item/s</td>
+                                </tr>
+                                <tr>
+                                    <td class="ttl">Out of Stock Items</td>
+                                    <td>{{ $outOfStockItems }} Item/s</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Display Low Stock Products -->
+                        <h3>Low Stock Products</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Product Name</th>
+                                    <th scope="col">Stock Left</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (count($lowStockProducts) > 0)
+                                    @foreach ($lowStockProducts as $productName)
+                                        @php
+                                            // Find the product by name
+                                            $product = $products->where('product_name', $productName)->first();
+                                        @endphp
+
+                                        <tr>
+                                            <td>{{ $productName }}</td>  
+                                            <td>{{ $product->inventory->stock_qty ?? 'N/A' }}</td> <!-- Display stock_qty from the associated inventory -->
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="2">No low stock items.</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+
+                        <!-- Display Out of Stock Products -->
+                        <h3>Out of Stock Products</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Product Name</th>
+                                    <th scope="col">Stock Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (count($outOfStockProducts) > 0)
+                                    @foreach ($outOfStockProducts as $product)
+                                        <tr>
+                                            <td>{{ $product }}</td> 
+                                            <td>Out of Stock</td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="2">No out of stock items.</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Best Sellers Column -->
+    <div class="col-lg-6 col-md-6">
+        <div class="card1 mb-4">
+            <h1 class="card-title1">Best Sellers</h1>
+            <div class="table-responsive">
+                <table class="table table-striped cstm-tbl">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Product</th>
+                            <th>Units Sold</th>
+                            <th>Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Product A</td>
+                            <td>500</td>
+                            <td>Php 10,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
