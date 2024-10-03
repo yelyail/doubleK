@@ -15,7 +15,7 @@ class dashboardController extends Controller
     public function reservation(){ 
         return view('user.reservation');
     }
-    public function service(){ 
-        return view('user.service');
+    public function reports(){ 
+        return view('user.reports');
     }
 }

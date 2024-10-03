@@ -16,4 +16,16 @@ class tblorderitems extends Model
         'qty_order',
         'total_price',
     ];
+    public function orderreceipt()
+    {
+        return $this->belongsTo(tblorderreceipt::class, 'orderreceipt_id', 'orderreceipt_id');
+    }
+    public function product()
+    {
+        return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
+    }
+    public function service()
+    {
+        return $this->belongsTo(tblservice::class, 'service_ID', 'service_ID');
+    }
 }

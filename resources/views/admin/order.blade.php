@@ -266,8 +266,8 @@
                             <span class="order-peso" id="totalConfirmation">₱0.00</span>
                         </div>
                         <div class="buttons">
-                            <button type="submit" class="place-btn">Place Order</button>
-                            <button class="place-btn-1">Make Reservation</button>
+                            <button type="submit" id="placeOrderButton" class="place-btn">Place Order</button>
+                            <button type="submit" id="reservationButton" class="place-btn-1">Make Reservation</button>
                         </div>
                     </div>
                     <div class="modal-body">
@@ -580,41 +580,114 @@
         }
 
         // Handle Confirm Order Button
-        document.getElementById('confirmOrderButton').addEventListener('click', function() {
-            // Gather all data to submit
+        document.getElementById('placeOrderButton').addEventListener('click', function() {
             const orderItems = [];
             const orderSummaryBody = document.getElementById('orderSummaryBody');
+            
+            // Collect order items from the order summary table
             for (let row of orderSummaryBody.rows) {
+                const productId = row.getAttribute('data-product-id');  // Product ID
+                const serviceId = row.getAttribute('data-service-id');  // Service ID (if any)
+                const quantity = row.cells[1].innerText;                // Quantity
+                const price = row.cells[2].innerText.replace('₱ ', ''); // Price (remove currency symbol)
+                const total = row.cells[3].innerText.replace('₱ ', ''); // Total price
+
                 orderItems.push({
-                    name: row.cells[0].innerText,
-                    quantity: row.cells[1].innerText,
-                    price: parseFloat(row.cells[2].innerText.replace('₱ ', '')),
-                    total: parseFloat(row.cells[3].innerText.replace('₱ ', ''))
+                    product_id: productId ? parseInt(productId) : null,
+                    service_ID: serviceId ? parseInt(serviceId) : null,
+                    quantity: parseInt(quantity),
+                    total: parseFloat(total)
                 });
             }
+
+            // Collect customer and order details
             const customerInfo = {
-                name: document.getElementById('customerName').value,
-                address: document.getElementById('customerAddress').value,
-                phone: document.getElementById('customerPhone').value,
-                email: document.getElementById('customerEmail').value
+                name: document.getElementById('finalCustomerName').innerText,
+                address: document.getElementById('displayAddress').innerText,
+                phone: '09123456789', // Replace this with the actual phone if available
+                email: 'customer@example.com', // Replace this with the actual email if available
             };
+            
+            const paymentMethod = document.getElementById('displayPaymentMethod').innerText;
+            const finalTotal = document.getElementById('totalConfirmation').innerText.replace('₱ ', '');
+
+            // Submit order data via AJAX
             $.ajax({
-                url: "{{ route('storeReceipt') }}",
+                url: "{{ route('storeReceipt') }}", // Your route for storing the order
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
                     orderItems: orderItems,
-                    customerInfo: customerInfo
+                    customerInfo: customerInfo,
+                    finalTotal: finalTotal,
+                    paymentMethod: paymentMethod
                 },
                 success: function(response) {
                     alert('Order placed successfully!');
-                    window.location.reload();
+                    window.location.reload(); // Optionally, you can redirect to another page after success
                 },
                 error: function(xhr) {
                     alert('An error occurred while placing the order.');
                 }
             });
         });
+
+
+        //for reservation
+        document.getElementById('reservationButton').addEventListener('click', function() {
+            const reservationItems = [];
+            const orderSummaryBody = document.getElementById('orderSummaryBody');
+            
+            // Collect order items from the order summary table (for reservation)
+            for (let row of orderSummaryBody.rows) {
+                const productId = row.getAttribute('data-product-id');  // Product ID
+                const serviceId = row.getAttribute('data-service-id');  // Service ID (if any)
+                const quantity = row.cells[1].innerText;                // Quantity
+                const price = row.cells[2].innerText.replace('₱ ', ''); // Price (remove currency symbol)
+                const total = row.cells[3].innerText.replace('₱ ', ''); // Total price
+
+                reservationItems.push({
+                    product_id: productId ? parseInt(productId) : null,
+                    service_ID: serviceId ? parseInt(serviceId) : null,
+                    quantity: parseInt(quantity),
+                    total: parseFloat(total)
+                });
+            }
+
+            // Collect customer and reservation details
+            const customerInfo = {
+                name: document.getElementById('finalCustomerName').innerText,
+                address: document.getElementById('displayAddress').innerText,
+                phone: '09123456789', // Replace this with the actual phone if available
+                email: 'customer@example.com', // Replace this with the actual email if available
+            };
+            
+            const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
+            const deliveryDate = document.getElementById('displayDeliveryDate').innerText;
+            const finalTotal = document.getElementById('totalConfirmation').innerText.replace('₱ ', '');
+
+            // Submit reservation data via AJAX
+            $.ajax({
+                url: "{{ route('storeReservation') }}", // Your route for storing the reservation
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    reservationItems: reservationItems,
+                    customerInfo: customerInfo,
+                    deliveryMethod: deliveryMethod,
+                    deliveryDate: deliveryDate,
+                    finalTotal: finalTotal
+                },
+                success: function(response) {
+                    alert('Reservation made successfully!');
+                    window.location.reload(); // Optionally, redirect to another page after success
+                },
+                error: function(xhr) {
+                    alert('An error occurred while making the reservation.');
+                }
+            });
+        });
+
 
         // Initial Setup
         toggleNextButton();

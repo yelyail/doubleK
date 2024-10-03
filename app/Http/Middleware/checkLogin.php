@@ -30,9 +30,9 @@ class checkLogin
             if ($user->jobtitle === 0) { // Admin
                 return redirect()->route('adminDashboard');
             } elseif ($user->jobtitle === 1) { // Helper
-                return redirect()->route('helperDashboard'); 
+                return redirect()->route('userDashboard'); 
             } elseif ($user->jobtitle === 2) { // Staff
-                return redirect()->route('staffDashboard');
+                return redirect()->route('userDashboard');
             }
         }
         return $next($request);

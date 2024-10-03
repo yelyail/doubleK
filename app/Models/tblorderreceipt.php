@@ -15,7 +15,6 @@ class tblorderreceipt extends Model
         'orderitems_id',
         'customer_id',
         'payment_id',
-        'reserve_id',
         'delivery_date',
         'order_date',
     ];
@@ -27,19 +26,9 @@ class tblorderreceipt extends Model
     {
         return $this->belongsTo(tblpaymentmethod::class, 'payment_id', 'payment_id');
     }
-    public function product()
+    public function orderitems()
     {
-        return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
-    }
-
-    public function reservation()
-    {
-        return $this->belongsTo(tblreserve::class, 'reserve_id', 'reserve_id');
-    }
-
-    public function service()
-    {
-        return $this->belongsTo(tblservice::class, 'service_ID', 'service_ID');
+        return $this->hasMany(tblorderitems::class, 'orderitems_id', 'orderitems_id');
     }
     
 }

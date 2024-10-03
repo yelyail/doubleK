@@ -219,25 +219,22 @@ h4, h5, h6{
     margin-right: 10px;
 }
 .place-btn-1{
-    background-color: #7c877c;
+    background-color: #2196F3;
     color: white;
     padding: 10px 20px;
     margin-left: 5px;
     border: none;
+    border-radius: 10px;
     cursor: pointer;
 }
 .place-btn {
-    background-color: #105b13;
+    background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     margin-left: 5px;
     border: none;
+    border-radius: 10px;
     cursor: pointer;
-}
-.place-btn-1,
-.place-btn:hover{
-    background-color: #18721b;
-    color: white;
 }
 
 .form-row {

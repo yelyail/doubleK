@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>@yield('title', 'Double-K Computer Parts')</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sidebar.css') }}">
@@ -22,15 +23,15 @@
                     <img src="{{ asset('assets/images/logo.jpg') }}" alt="Logo" width="85" class="pic">
                 </a>
             </div>
-            <ul class="sidebar-nav">
-                <li class="sidebar-item"><a href="{{ route('userDashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('userOrder') }}" class="sidebar-link"><i class="bi bi-cart"></i><span>Order</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('userService') }}" class="sidebar-link"><i class="bi bi-gear"></i><span>Services</span></a></li>
-                <li class="sidebar-item"><a href="{{ route('userReservation') }}" class="sidebar-link"><i class="bi bi-file-earmark-text"></i><span>Reservation</span></a></li>
-            </ul>
-            <div class="sidebar-footer">
-                <a href="{{ route('signout')}}" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
-            </div>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-item"><a href="{{ route('userDashboard') }}" class="sidebar-link"><i class="bi bi-house"></i><span>Dashboard</span></a></li>
+                    <li class="sidebar-item"><a href="{{ route('userOrder') }}" class="sidebar-link"><i class="bi bi-pc-display"></i><span>Sales Transaction</span></a></li>
+                    <li class="sidebar-item"><a href="{{ route('userReservation') }}" class="sidebar-link"><i class="bi bi-bookmark-check"></i> <span>Booking</span></a></li>
+                    <li class="sidebar-item"><a href="{{ route('userReports') }}" class="sidebar-link"><i class="bi bi-file-earmark-text"></i> <span>Inventory Reports</span></a></li>
+                </ul>
+                <div class="sidebar-footer">
+                    <a href="{{ route('signout')}}" class="sidebar-link"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+                </div>
         </aside>
 
         <!-- Main content -->
