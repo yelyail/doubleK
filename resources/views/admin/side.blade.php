@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>@yield('title', 'Double-K Computer Parts')</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sidebar.css') }}">
@@ -34,7 +36,7 @@
                         <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-boxes"></i> Inventory</a></li>
                         <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-person-lines-fill"></i> Supplier</a></li>
                         <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-gear"></i> Services</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-bookmark-check"></i> Booking</a></li>
+                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-bookmark-check"></i> Reservation</a></li>
                     </ul>
                 </li>
                 <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>User Information</span></a></li>

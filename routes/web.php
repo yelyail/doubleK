@@ -72,11 +72,10 @@ Route::middleware(['auth','userAccess:0'])->prefix('admin')->group(function() {
 // for order
 Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
     Route::controller(orderReceipt::class)->group(function() {
-        Route::post('/admin/confirm/storeReceipt', 'storeReceipt')->name('storeReceipt');
+        Route::post('/admin/storeOrderReceipt', 'storeReceipt')->name('storeReceipt');
         Route::post('/admin/confirm/storeReservation', 'storeReservation')->name('storeReservation');
+    });
 });
-});
-
 
 // User Routes
 Route::middleware(['auth','userAccess:1,2'])->group(function() {
@@ -91,6 +90,5 @@ Route::middleware(['auth','userAccess:1,2'])->group(function() {
 // Printing Receipt Routes
 Route::get('orderReceipt', [receiptPrintController::class, 'orderReceipt']);
 Route::get('receipt', [receiptPrintController::class, 'receipt']);
-Route::post('/admin/confirm/storeReceipt', [orderReceipt::class, 'storeReceipt'])->name('storeReceipt');
 
 //require __DIR__.'/auth.php';

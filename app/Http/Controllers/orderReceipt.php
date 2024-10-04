@@ -7,57 +7,119 @@ use App\Models\tblcustomer;
 use App\Models\tblpaymentmethod;
 use App\Models\tblorderitems;
 use App\Models\tblorderreceipt;
+use App\Models\tblinventory;
 use Barryvdh\DomPDF\Facade\Pdf; // Import PDF library
 use Illuminate\Support\Facades\DB; // For transaction handling
 use App\Models\tblproduct; // Import tblproduct model
+use Symfony\Contracts\Service\Attribute\Required;
+use Illuminate\Support\Facades\Log; // Import Log facade
 
 class orderReceipt extends Controller
 {
     public function storeReceipt(Request $request)
     {
-        // Step 1: Store customer information
-        $customer = tblcustomer::create([
-            'customer_name' => $request->customerInfo['name'],
-            'customer_address' => $request->customerInfo['address'],
-            'customer_phone' => $request->customerInfo['phone'],
-            'customer_email' => $request->customerInfo['email'],
-        ]);
+        Log::info('Received request data:', $request->all());
 
-        // Step 2: Store payment information
-        $payment = tblpaymentmethod::create([
-            'payment_type' => 'Cash', // This could be dynamic based on input
-            'reference_num' => null,  // Optional
-            'payment' => $request->finalTotal, // Total amount paid
+        // Validate incoming data
+        $validatedData = $request->validate([
+            'customerName' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'deliveryDate' => 'required|date',
+            'paymentMethod' => 'required|string',
+            'referenceNum' => 'nullable|string', // Allow null for cash payments
+            'payment' => 'required|numeric',
+            'billingDate' => 'required|date',
+            'totalAmount' => 'required|numeric',
+            'orderItems' => 'required|array',
+            'orderItems.*.type' => 'required|in:product,service',
+            'orderItems.*.id' => 'required_if:orderItems.*.type,product|integer',
+            'orderItems.*.quantity' => 'required|integer',
+            'orderItems.*.price' => 'required|numeric',
+            'orderItems.*.total' => 'required|numeric'
         ]);
-
-        // Step 3: Create the order receipt
-        $orderReceipt = tblorderreceipt::create([
-            'customer_id' => $customer->customer_id,
-            'payment_id' => $payment->payment_id,
-            'delivery_date' => now()->addDays(3), // Assuming a delivery date of 3 days after
-            'order_date' => now(),
-        ]);
-
-        // Step 4: Loop through each order item and save it
-        foreach ($request->orderItems as $item) {
-            tblorderitems::create([
-                'orderreceipt_id' => $orderReceipt->ordDet_ID,
-                'product_id' => $item['product_id'] ?? null,
-                'service_ID' => $item['service_ID'] ?? null,
-                'qty_order' => $item['quantity'],
-                'total_price' => $item['total'],
+        dd($request->all());
+        try {   
+            Log::info('Attempting to create customer...');
+            // Create the customer
+            $customer = tblcustomer::create([
+                'customer_name' => $validatedData['customerName'],
+                'address' => $validatedData['address'],
+                'transaction_date' => $validatedData['deliveryDate'],
             ]);
+            Log::info('Customer created:', $customer->toArray());
 
-            // Step 5: Update the product quantity if a product is involved
-            if (isset($item['product_id'])) {
-                $product = tblproduct::find($item['product_id']);
-                $product->updatedQty -= $item['quantity']; // Decrease product quantity
-                $product->save();
+            Log::info('Attempting to create payment method...');
+            // Create the payment method
+            $payment = tblpaymentmethod::create([
+                'payment_type' => $validatedData['paymentMethod'],
+                'reference_num' => $validatedData['referenceNum'], 
+                'payment' => $validatedData['payment'],
+            ]);
+            Log::info('Payment method created:', $payment->toArray());
+
+            // Create the order items first and collect their IDs
+            $orderItemsIds = [];
+
+            if (empty($validatedData['orderItems'])) {
+                Log::warning('No order items found in the validated data.');
             }
-        }
 
-        return response()->json(['success' => true, 'message' => 'Order placed successfully']);
+            foreach ($validatedData['orderItems'] as $item) {
+                Log::info('Processing item:', $item);
+
+                if ($item['type'] === 'product') {
+                    // Create order item for product
+                    $orderItem = tblorderitems::create([
+                        'product_id' => $item['id'],
+                        'qty_order' => $item['quantity'],
+                        'total_price' => $item['total'],
+                    ]);
+                    Log::info('Order item created:', $orderItem->toArray());
+                    $orderItemsIds[] = $orderItem->orderitems_id;
+
+                    // Update stock quantity
+                    $inventory = tblinventory::where('product_id', $item['id'])->first();
+                    if ($inventory) {
+                        $inventory->stock_qty -= $item['quantity'];
+                        $inventory->save();
+                        Log::info('Inventory updated for product ID ' . $item['id'] . ': ' . $inventory->stock_qty);
+                    }
+                } elseif ($item['type'] === 'service') {
+                    // Create order item for service
+                    $orderItem = tblorderitems::create([
+                        'service_ID' => $item['id'],
+                        'qty_order' => $item['quantity'],
+                        'total_price' => $item['total'],
+                    ]);
+                    Log::info('Order item created:', $orderItem->toArray());
+                    $orderItemsIds[] = $orderItem->orderitems_id;
+                }
+            }
+
+            foreach ($orderItemsIds as $orderitems_id) {
+                $orderReceipt = tblorderreceipt::create([
+                    'orderitems_id' => $orderitems_id, 
+                    'customer_id' => $customer->customer_id,
+                    'payment_id' => $payment->payment_id,
+                    'delivery_date' => $validatedData['deliveryDate'],
+                    'order_date' => $validatedData['billingDate'],
+                ]);
+                Log::info('Order receipt created:', $orderReceipt->toArray());
+            }
+
+            Log::info('All operations completed successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Order has been placed successfully!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Database operation failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Database operation failed: ' . $e->getMessage()], 500);
+        }
     }
+
+
+
 
     public function storeReservation(Request $request){
     }

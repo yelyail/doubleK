@@ -3,7 +3,7 @@
 @section('content')
 <div class="main p-3">
     <div class="text">
-        <h1 class="prod_title">Booking</h1>
+        <h1 class="prod_title">Reservation</h1>
     </div>
     <div class="container mt-5">
         <div class="row mb-4 align-items-center">
@@ -16,11 +16,11 @@
                     <button class="btn custom-btn" type="button" onclick="filterTable()">Search</button>
                 </div>
             </div>
-            <div class="col-md-4 text-end">
+            <!-- <div class="col-md-4 text-end">
                 <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                     <i class="bi bi-plus"></i> Reserve
                 </button>
-            </div>
+            </div> -->
         </div>
         <div class="table-responsive">
             <table class="table table-striped custom-table">

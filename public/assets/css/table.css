@@ -210,28 +210,29 @@ h4, h5, h6{
 .order-details {
     display: flex;
     text-align: end;
-    margin-left:55%;
+    margin-left:51%;
+}
+.grand-total-container{
+    color: #050912;
 }
 .order-peso{
     font-weight: bold;
     margin-left: 5px;
-    font-size: 30px;
-    margin-right: 10px;
+    font-size: 25px;
+    margin-right: 4px;
 }
 .place-btn-1{
-    background-color: #2196F3;
+    background-color: #1182df;
     color: white;
-    padding: 10px 20px;
-    margin-left: 5px;
+    padding: 5px 10px;
     border: none;
     border-radius: 10px;
     cursor: pointer;
 }
 .place-btn {
-    background-color: #4CAF50;
+    background-color: #229b26;
     color: white;
-    padding: 10px 20px;
-    margin-left: 5px;
+    padding: 5px 10px;
     border: none;
     border-radius: 10px;
     cursor: pointer;

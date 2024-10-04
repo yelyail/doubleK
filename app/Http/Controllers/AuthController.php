@@ -62,8 +62,6 @@ class AuthController extends Controller
 
             // Find the user by username
             $user = User::where('username', $request->username)->first();
-
-            // Check if the user exists
             if (!$user) {
                 $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
                 return back();
@@ -99,9 +97,6 @@ class AuthController extends Controller
             return back();
         }
     }
-
-
-
     public function logout()
     {
         // Check if userID exists in the session
