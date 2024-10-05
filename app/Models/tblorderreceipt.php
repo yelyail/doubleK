@@ -18,6 +18,8 @@ class tblorderreceipt extends Model
         'delivery_date',
         'order_date',
     ];
+
+    public $timestamps = false;
     public function customer()
     {
         return $this->belongsTo(tblcustomer::class, 'customer_id', 'customer_id');

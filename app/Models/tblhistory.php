@@ -17,6 +17,8 @@ class tblhistory extends Model
         'total_sale',
     ];
 
+    public $timestamp = false;
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_ID', 'user_ID');

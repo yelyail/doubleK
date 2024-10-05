@@ -16,6 +16,8 @@ class tblcustomer extends Model
         'address',
     ];
 
+    public $timestamp = false;
+
     public function orderReceipts()
     {
         return $this->hasMany(tblorderreceipt::class, 'customer_id', 'customer_id');

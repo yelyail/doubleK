@@ -19,6 +19,8 @@ class tblsupplier extends Model
         'supplier_email',
     ];
 
+    public $timestamp = false;
+
     public function inventories()
     {
         return $this->hasMany(tblinventory::class, 'supplier_ID', 'supplier_ID');

@@ -15,6 +15,8 @@ class tblcategory extends Model
         'categoryStatus',
     ];
 
+    public $timestamp = false;
+
     public function products()
     {
         return $this->hasMany(tblproduct::class, 'category_id', 'category_id');

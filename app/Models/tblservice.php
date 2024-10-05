@@ -17,6 +17,8 @@ class tblservice extends Model
         'service_status',
     ];
 
+    public $timestamp = false;
+
     // A service has many order receipts
     public function orderReceipts()
     {

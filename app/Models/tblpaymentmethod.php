@@ -16,6 +16,8 @@ class tblpaymentmethod extends Model
         'payment',
     ];
 
+    public $timestamp = false;
+
     // A payment method has many order receipts
     public function orderReceipts()
     {

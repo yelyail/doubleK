@@ -17,6 +17,8 @@ class tblreturn extends Model
         'return_status',
     ];
 
+    public $timestamp = false;
+
     // A return belongs to a product
     public function product()
     {

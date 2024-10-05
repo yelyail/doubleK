@@ -16,6 +16,9 @@ class tblorderitems extends Model
         'qty_order',
         'total_price',
     ];
+
+    public $timestamp = false;
+
     public function product()
     {
         return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');

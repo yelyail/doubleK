@@ -1,6 +1,6 @@
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle Category Filtering
-        window.filterCategory = function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle Category Filtering
+    window.filterCategory = function() {
             const category = document.getElementById('categoryfilter').value;
             document.getElementById('productTable').style.display = category === 'product' ? 'block' : 'none';
             document.getElementById('serviceInput').style.display = category === 'services' ? 'block' : 'none';
@@ -10,25 +10,25 @@
         // Handle Product Modal Population
         $('#productModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
-            var productId = button.data('id'); 
-            var productName = button.data('name');
-            var productCategory = button.data('category');
-            var productDesc = button.data('desc');
-            var productPrice = button.data('price');
-
+            var productId = button.attr('data-item-id');
+            var productName = button.attr('data-name');
+            var productCategory = button.attr('data-category');
+            var productDesc = button.attr('data-desc');
+            var productPrice = button.attr('data-price'); // Retrieve using .attr()
+        
             var modal = $(this);
             modal.find('#modalProductName').text(productName);
             modal.find('#modalProductCategory').text(productCategory);
             modal.find('#modalProductDesc').text(productDesc);
             modal.find('#modalProductPrice').text(parseFloat(productPrice).toFixed(2));
-            modal.find('#product_id').val(productId);
+            modal.find('#modalProductId').val(productId); 
         });
         // Add Product to Order Summary
         $('#addProductButton').on('click', function() {
-            const productName = $('#modalProductName').text();
+            const productName = $('#modalProductName').text().trim(); // Trim whitespace
             const productPrice = parseFloat($('#modalProductPrice').text());
             const quantity = parseInt($('#quantity').val());
-
+            const productId = $('#modalProductId').val(); 
             if (isNaN(quantity) || quantity < 1) {
                 alert("Please enter a valid quantity.");
                 return;
@@ -36,21 +36,21 @@
 
             const totalPrice = productPrice * quantity;
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
-
-            // Check if the product already exists in the order summary
             let existingRow = Array.from(orderSummaryBody.rows).find(row => 
                 row.cells[0].innerText === productName &&
-                parseFloat(row.cells[2].innerText.replace('₱ ', '')) === productPrice
+                parseFloat(row.cells[2].innerText.replace('₱ ', '').replace(',', '')) === productPrice
             );
 
             if (existingRow) {
-                // If the row exists, update the quantity and total
+                // Update the existing row
                 let existingQuantity = parseInt(existingRow.cells[1].innerText);
                 existingRow.cells[1].innerText = existingQuantity + quantity;
                 existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + totalPrice).toFixed(2)}`;
             } else {
-                // Create a new row
                 const newRow = orderSummaryBody.insertRow();
+                newRow.setAttribute('data-item-id', productId);  
+                newRow.setAttribute('data-item-type', 'product');
+
                 newRow.innerHTML = `
                     <td>${productName}</td>
                     <td class="text-center">${quantity}</td>
@@ -58,13 +58,11 @@
                     <td>₱ ${totalPrice.toFixed(2)}</td>
                     <td><button class="btn btn-danger btn-sm remove-product"><i class="bi bi-x-circle"></i></button></td>
                 `;
-
                 newRow.querySelector('.remove-product').addEventListener('click', function() {
-                    orderSummaryBody.deleteRow(newRow.rowIndex - 1); 
+                    orderSummaryBody.deleteRow(newRow.rowIndex - 1);
                     updateTotalAmount(); 
                 });
             }
-
             updateTotalAmount();
             toggleNextButton();
             $('#productModal').modal('hide');
@@ -74,22 +72,24 @@
             button.addEventListener('click', function() {
                 const serviceName = button.getAttribute('data-name');
                 const serviceFee = parseFloat(button.getAttribute('data-fee')).toFixed(2);
-
+                const serviceId = button.getAttribute('data-item-id'); 
                 const orderSummaryBody = document.getElementById('orderSummaryBody1');
-
+        
                 // Check if the service already exists in the order summary
                 let existingRow = Array.from(orderSummaryBody.rows).find(row =>
                     row.cells[0].innerText === serviceName &&
                     row.cells[2].innerText === '₱ ' + serviceFee
                 );
-                
+        
                 if (existingRow) {
                     let existingQuantity = parseInt(existingRow.cells[1].innerText);
                     existingRow.cells[1].innerText = existingQuantity + 1;
                     existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + parseFloat(serviceFee)).toFixed(2)}`;
                 } else {
-                    // Create a new row
                     const newRow = orderSummaryBody.insertRow();
+                    newRow.setAttribute('data-item-id', serviceId);  
+                    newRow.setAttribute('data-item-type', 'service');
+        
                     newRow.innerHTML = `
                         <td>${serviceName}</td>
                         <td class="text-center">1</td>
@@ -106,7 +106,6 @@
                 toggleNextButton();
             });
         });
-
         // Function to Update Total Amount
         function updateTotalAmount() {
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
@@ -116,23 +115,19 @@
             }
             document.getElementById('totalAmount').innerText = '₱ ' + overallTotal.toFixed(2);
         }
-
         function toggleNextButton() {
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
             const nextButton = document.getElementById('nextToCustomerInfo');
             nextButton.disabled = orderSummaryBody.rows.length === 0;
         }
-
         // Steps step 1--> step2
         document.getElementById('nextToCustomerInfo').addEventListener('click', function() {
             showStep(2);
         });
-
         // step 2 --> step1
         document.getElementById('backToOrder').addEventListener('click', function() {
             showStep(1);
         });
-
         // step 3 --> step 2
         document.getElementById('backToCustomerInfo').addEventListener('click', function() {
             showStep(2);
@@ -148,7 +143,7 @@
 
             const currentStep = document.querySelector('.step-' + stepNumber);
             if (currentStep) {
-                currentStep.classList.add('active');
+            currentStep.classList.add('active');
                 currentStep.style.display = 'block'; 
             }
             updateProgressBar(stepNumber);
@@ -203,6 +198,12 @@
             document.getElementById('displayDeliveryDate').innerText = deliveryMethodSelect.value === 'deliver' ? deliveryDateInput : currentDate; 
             document.getElementById('displayPaymentMethod').innerText = capitalizeWords(paymentMethod);
             document.getElementById('displayBillingAddress').innerText = capitalizeWords(addressInput);
+
+            const currentDat1 = new Date();
+
+    // Format the date as MM/DD/YYYY
+    const formattedDate = (currentDate.getMonth() + 1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear();
+
             document.getElementById('displayBillingDate').innerText = currentDate;
 
             let paymentDetails = '';
@@ -217,12 +218,6 @@
                 paymentDetails = `Sender Name: ${senderName}
                     Amount: ${formattedGcashAmount}
                     Reference: ${referenceNum}`;
-
-                    console.log('Payment Type:', paymentMethod);  // Should log "gcash"
-                    console.log('Gcash CustTRYTUomer Name:', document.getElementById('senderName').value);
-                    console.log('Gcash Payment:', document.getElementById('gcashAmount').value);
-                    console.log('Gcash Reference Number:', document.getElementById('referenceNum').value);
-
             } else if (paymentMethodSelect.value === 'banktransfer') {
                 const bankName = capitalizeWords(document.getElementById('bankName').value || 'N/A');
                 const accHold = capitalizeWords(document.getElementById('accHold').value || 'N/A');
@@ -235,11 +230,6 @@
                     Amount: ${formattedAmount}
                     Transaction Date: ${transactDate}
                     Transaction Reference: ${transactRef}`;
-
-                    console.log('Payment Type:', paymentMethod);  // Should log "gcash"
-                    console.log('Gcash Customer Name:', document.getElementById('accHold').value);
-                    console.log('Gcash Payment:', document.getElementById('amount').value);
-                    console.log('Gcash Reference Number:', document.getElementById('transactRef').value);
             } else {
             paymentDetails = 'Payment method not recognized.';
             }
@@ -252,30 +242,29 @@
             e.preventDefault(); // Prevent the form from submitting immediately
 
             Swal.fire({
-                title: 'Are you sure you want to place this order?',
+                title: 'Are you sure you want to confirm this order?',
                 text: "Make sure all your information is correct!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, place order!'
+                confirmButtonText: 'Yes, confirm order!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     populateConfirmation();
                     updateConfirmationSummary();
-                    sendOrderToDatabase(); 
+                     sendOrderToDatabase(); 
 
                 } else {
                     Swal.fire({
                         title: 'Error!',
-                        text: 'Failed to place the order.',
+                        text: 'Failed to confirm the order.',
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
                 }
             });
         });
-
         // Handle Reservation Button
         document.getElementById('reservationButton').addEventListener('click', function() {
             const reservationItems = [];
@@ -294,6 +283,7 @@
                     quantity: parseInt(quantity),
                     total: parseFloat(total)
                 });
+                
             }
 
             const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
@@ -321,7 +311,6 @@
             // Show the reservation table
             document.getElementById('reserve').style.display = 'block';
 
-            // Submit reservation data via AJAX (optional if you want to store it on the server)
             $.ajax({
                 url: "{{ route('storeReservation') }}", 
                 method: 'POST',
@@ -337,12 +326,11 @@
                     // Optional: You can refresh the table here or handle the response as needed
                 },
                 error: function(xhr) {
+                    console.log(reservationItems);
                     alert('An error occurred while making the reservation.');
                 }
             });
         });
-
-
         // For the table
         function updateConfirmationSummary() {
             const orderSummaryBody1 = document.getElementById('orderSummaryBody1'); // Step 1 table
@@ -387,6 +375,7 @@
         });
         
         // storing of data
+        // error
         function sendOrderToDatabase() {
             const customerName = document.getElementById('finalCustomerName').innerText;
             const address = document.getElementById('displayAddress').innerText;
@@ -418,32 +407,45 @@
             } else {
                 paymentDetails = 'Payment method not recognized.';
             }
-
-            console.log('Payment Details:', paymentDetails);  
-            console.log('Final Payload Reference Number:', referenceNum);  
-
             // Collect order items data
-            const orderItems = [];
-            const orderSummaryBody = document.getElementById('orderSummaryBody1');
+            let orderItems = [];
+            const orderSummaryBody1 = document.querySelector('#orderSummaryBody1'); // Assuming this is the correct tbody
 
-            Array.from(orderSummaryBody.rows).forEach(row => {
-                const type = row.getAttribute('data-item-type'); // Get item type
-                const id = row.getAttribute('data-item-id');     // Get item ID
-                const quantity = parseInt(row.cells[1].innerText);
-                const price = parseFloat(row.cells[2].innerText);
-                const total = parseFloat(row.cells[3].innerText);
+            Array.from(orderSummaryBody1.rows).forEach(row => {
+                // Retrieve type and id from row's data attributes
+                let type = row.dataset.itemType;
+                let id = row.dataset.itemId;
 
-                // Ensure type and id are valid
                 if (type && id) {
-                    orderItems.push({
-                        type: type,
-                        id: id,
-                        quantity: quantity,
-                        price: price,
-                        total: total
-                    });
+                    const productName = row.cells[0].innerText;
+                    const quantity = parseInt(row.cells[1].innerText);
+                    const price = parseFloat(row.cells[2].innerText.replace('₱ ', ''));
+                    const total = parseFloat(quantity) * price;
+
+                    if (type === 'service') {
+                        orderItems.push({
+                            type: type, 
+                            id: id,
+                            serviceName: productName,
+                            quantity: quantity,
+                            price: price,
+                            total: total
+                        });
+                    } else if (type === 'product') {
+                        orderItems.push({
+                            type: type, 
+                            id: id,
+                            productName: productName, 
+                            quantity: quantity,
+                            price: price,
+                            total: total
+                        });
+                    }
+                } else {
+                    console.error("Type or ID is missing for this row.");
                 }
             });
+            let totalAmount = orderItems.reduce((sum, item) => sum + item.total, 0);
 
             const payload = {
                 customerName: customerName,
@@ -454,37 +456,39 @@
                 billingDate: billingDate,
                 referenceNum: referenceNum,
                 payment: payment,
-                orderItems: orderItems
+                orderItems: orderItems,
+                totalAmount: totalAmount 
             };
-
-            console.log('Payload:', payload);
-
-            axios.post("{{ route('storeReceipt') }}", payload, {
+            // error 500
+            
+            $.ajax({
+                url: '/admin/confirm/storeOrderReceipt',
+                type: 'POST',
+                contentType: 'application/json',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => {
-                console.log('Success:', response.data);
-            })
-            .catch(error => {
-                if (error.response) {
-                    console.error('HTTP error:', error.response.status);
-                    console.error('Error details:', error.response.data);
-                } else if (error.request) {
-                    console.error('Network error: Please check your internet connection.');
-                } else {
-                    console.error('Error:', error.message);
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: JSON.stringify(payload),
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Confirmed! :)',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/admin/order';
+                    });
+                },
+                error: function(xhr) {
+                    const errorMessage = xhr.responseJSON?.message || 'Something went wrong. Please try again!';            
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something went wrong :(',
+                        text: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
-            console.log("Route: {{ route('storeReceipt') }}");
-            console.log(orderItems);  // Check if orderItems are being collected correctly
-            console.error('Error details:', error.response.data);  // It might give you more specific information.
-
-
-            console.log("CSRF Token:", document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
         }
         toggleNextButton();
     });

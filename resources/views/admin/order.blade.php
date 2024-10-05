@@ -41,7 +41,7 @@
                     <select class="form-control" id="categoryfilter" name="categoryfilter" onchange="filterCategory()">
                         <option value="product" selected>Product</option>
                         <option value="services">Services</option>
-                        <option value="custDebt">Customer Debt</option>
+                        <option value="custDebt">Customer Credit</option>
                     </select>
                 </div>
             </div>
@@ -63,14 +63,14 @@
                                 <tbody>
                                     @foreach ($products as $product)
                                         @if ($product->archived == 0)
-                                            <tr data-item-id="{{ $product->id }}" data-item-type="product">
+                                            <tr data-item-id="{{ $product->product_id }}" data-item-type="product">
                                                 <td>{{ ucwords(strtolower($product->product_name)) }}</td>
                                                 <td>{{ ucwords(strtolower($product->category->categoryName)) }}</td>
-                                                <td style="text-align: justify;">{{ ucwords(strtolower($product->product_desc)) }}</td>
+                                                <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
                                                 <td>₱ {{ number_format($product->unit_price, 2) }}</td>
                                                 <td>
-                                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#productModal"
-                                                            data-id="{{ $product->id }}"
+                                                    <button class="btn btn-success btn-sm add-product" data-bs-toggle="modal" data-bs-target="#productModal"
+                                                            data-item-id="{{ $product->product_id }}" data-item-type="product"
                                                             data-name="{{ ucwords(strtolower($product->product_name)) }}"
                                                             data-category="{{ ucwords(strtolower($product->category->categoryName)) }}"
                                                             data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
@@ -79,6 +79,7 @@
                                                     </button>
                                                 </td>
                                             </tr>
+
                                         @endif
                                     @endforeach
                                 </tbody>
@@ -98,12 +99,13 @@
                                 <tbody>
                                     @foreach ($services as $service)
                                         @if ($service->service_status == 0)
-                                            <tr data-item-id="{{ $service->id }}" data-item-type="service">
+                                            <tr data-item-id="{{ $service->service_ID }}" data-item-type="service">
                                                 <td>{{ ucwords(strtolower($service->service_name)) }}</td>
                                                 <td>{{ ucwords(strtolower($service->description)) }}</td>
                                                 <td>₱ {{ number_format($service->service_fee, 2) }}</td>
                                                 <td>
                                                     <button class="btn btn-success btn-sm add-service" 
+                                                            data-item-id="{{ $service->service_ID }}" data-item-type="service"
                                                             data-name="{{ ucwords(strtolower($service->service_name)) }}" 
                                                             data-fee="{{ $service->service_fee }}">
                                                         <i class="bi bi-plus"></i>
@@ -333,6 +335,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> 
             </div>
             <div class="modal-body">
+                <input type="hidden" id="modalProductId">
                 <h3 class="prod_name" id="modalProductName"></h3>
                 <h5 class="prod_cat" id="modalProductCategory"></h5>
                 <p class="prod_desc" id="modalProductDesc"></p>
@@ -351,5 +354,4 @@
 
 <!-- JavaScript to Handle Steps and Order Functionality -->
 <script src="{{ asset('assets/js/order.js') }}"></script>
-
 @endsection

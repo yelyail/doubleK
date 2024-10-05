@@ -54,30 +54,21 @@ class AuthController extends Controller
     public function loginSave(Request $request)
     {
         try {
-            // Validate the incoming request
             $request->validate([
                 'username' => ['required', 'string'],
                 'password' => ['required', 'min:8'],
             ]);
-
-            // Find the user by username
             $user = User::where('username', $request->username)->first();
             if (!$user) {
                 $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
                 return back();
             }
-
-            // Check if the password matches
             if (!Hash::check($request->password, $user->password)) {
                 $this->showAlert('error', 'Error!', 'Username or password is incorrect. Please try again.');
                 return back();
             }
-
-            // Log in the user
             Auth::login($user);
             session(['userID' => $user->user_ID]);
-
-            // Redirect based on job title
             switch ($user->jobtitle) {
                 case 0:
                     return redirect()->route('adminDashboard');
@@ -99,14 +90,12 @@ class AuthController extends Controller
     }
     public function logout()
     {
-        // Check if userID exists in the session
         if (Session::has('userID')) {
-            Session::pull('userID'); // Remove userID from session
+            Session::pull('userID'); 
         }
-        
-        Auth::logout(); // Log out the user
+        Auth::logout(); 
 
-        return redirect()->route('login'); // Redirect to login
+        return redirect()->route('login'); 
     }
 
     public static function showAlert($icon, $title, $text) {

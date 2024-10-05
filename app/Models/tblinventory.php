@@ -16,6 +16,8 @@ class tblinventory extends Model
         'nextRestockDate',
     ];
 
+    public $timestamp = false;
+
     public function supplier()
     {
         return $this->belongsTo(tblsupplier::class, 'supplier_ID', 'supplier_ID');

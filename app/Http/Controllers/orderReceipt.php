@@ -20,13 +20,12 @@ class orderReceipt extends Controller
     {
         Log::info('Received request data:', $request->all());
 
-        // Validate incoming data
-        $validatedData = $request->validate([
-            'customerName' => 'required|string|max:255',
+        $validatedData= $request->validate([
+            'customerName' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
             'deliveryDate' => 'required|date',
             'paymentMethod' => 'required|string',
-            'referenceNum' => 'nullable|string', // Allow null for cash payments
+            'referenceNum' => 'nullable|string',
             'payment' => 'required|numeric',
             'billingDate' => 'required|date',
             'totalAmount' => 'required|numeric',
@@ -37,10 +36,10 @@ class orderReceipt extends Controller
             'orderItems.*.price' => 'required|numeric',
             'orderItems.*.total' => 'required|numeric'
         ]);
-        dd($request->all());
+        Log::info("log infor", $validatedData);
+
         try {   
             Log::info('Attempting to create customer...');
-            // Create the customer
             $customer = tblcustomer::create([
                 'customer_name' => $validatedData['customerName'],
                 'address' => $validatedData['address'],
@@ -56,8 +55,6 @@ class orderReceipt extends Controller
                 'payment' => $validatedData['payment'],
             ]);
             Log::info('Payment method created:', $payment->toArray());
-
-            // Create the order items first and collect their IDs
             $orderItemsIds = [];
 
             if (empty($validatedData['orderItems'])) {
@@ -68,7 +65,6 @@ class orderReceipt extends Controller
                 Log::info('Processing item:', $item);
 
                 if ($item['type'] === 'product') {
-                    // Create order item for product
                     $orderItem = tblorderitems::create([
                         'product_id' => $item['id'],
                         'qty_order' => $item['quantity'],

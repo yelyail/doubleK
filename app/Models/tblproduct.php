@@ -23,6 +23,8 @@ class tblproduct extends Model
         'archived',
     ];
 
+    public $timestamp = false;
+
     public function category()
     {
         return $this->belongsTo(tblcategory::class, 'category_id', 'category_id');

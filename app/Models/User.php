@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens; // Added Notifiable for notifications if needed
+    use HasFactory, Notifiable, HasApiTokens; 
 
-    protected $table = 'user'; // Ensure this matches your database
-    protected $primaryKey = 'user_ID'; // Ensure this is the correct primary key
+    protected $table = 'user';
+    protected $primaryKey = 'user_ID';
     protected $fillable = [
         'fullname',
         'username',
@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'archived',
     ];
+
+    public $timestamp = false;
 
     public function suppliers()
     {
