@@ -34,7 +34,6 @@
                         <th>Supplier Name</th>
                         <th>Email</th>
                         <th>Phone Number</th>
-                        <th>Landline</th>
                         <th>Address</th>
                         <th>Representative</th>
                         <th>Actions</th>
@@ -51,7 +50,6 @@
                             <td>{{ ucwords(strtolower($supplier->supplier_name)) }}</td>
                             <td>{{ $supplier->supplier_email }}</td>
                             <td>{{ '+63 ' . substr($supplier->supplier_contact, 0, 3) . ' ' . substr($supplier->supplier_contact, 3, 3) . ' ' . substr($supplier->supplier_contact, 6) }}</td>
-                            <td>{{ substr($supplier->supplier_landline, 0, 3) . ' ' . substr($supplier->supplier_landline, 3, 3) . ' ' . substr($supplier->supplier_landline, 6) }}</td>
                             <td>{{ $supplier->supplier_address }}</td>
                             <td>{{ ucwords(strtolower($supplier->user->fullname ?? 'N/A')) }}</td>
                             <td>
@@ -103,14 +101,6 @@
                             pattern="\d{10}" maxlength="10" placeholder="9123456789"
                             title="Phone number should only contain 10 digits (without country code)" required>
                     </div>
-
-                    <!-- Landline Input -->
-                    <div class="mb-3">
-                        <label for="landline" class="form-label">Landline</label>
-                        <input type="tel" class="form-control" id="landline" name="supplier_landline"
-                            pattern="\d{7,8}" maxlength="8" placeholder="0821234567"
-                            title="Landline should only contain 7-8 digits" required>
-                    </div>
                     <div class="mb-3">
                         <label for="address" class="form-label">Address</label>
                         <input type="text" class="form-control" id="address" name="supplier_address" placeholder="Davao City">
@@ -160,12 +150,6 @@
                             title="Phone number should only contain 10 digits (without country code)" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editLandline" class="form-label">Landline</label>
-                        <input type="tel" class="form-control" id="editLandline" name="supplier_landline"
-                            pattern="\d{7,8}" maxlength="8" placeholder="0821234567"
-                            title="Landline should only contain 7-8 digits" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="editAddress" class="form-label">Address</label>
                         <input type="text" class="form-control" id="editAddress" name="supplier_address" placeholder="Davao City">
                     </div>
@@ -200,7 +184,6 @@
                 $('#editSupplierName').val(data.supplier_name);
                 $('#editEmail').val(data.supplier_email);
                 $('#editPhoneNumber').val(data.supplier_contact);
-                $('#editLandline').val(data.supplier_landline);
                 $('#editAddress').val(data.supplier_address);
                 $('#editRepresentative').val(data.representative);
 

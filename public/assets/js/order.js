@@ -175,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Populate confirmation
         function populateConfirmation() {
+            // Get input values
             const custNameInput = document.getElementById('custName').value || 'N/A';
             const addressInput = document.getElementById('address').value || 'N/A';
             const deliveryMethodSelect = document.getElementById('deliveryMethod');
@@ -182,61 +183,64 @@ document.addEventListener('DOMContentLoaded', function() {
             const deliveryDateInput = document.getElementById('deliveryDate').value || 'N/A';
             const paymentMethodSelect = document.getElementById('paymentMethod');
             const paymentMethod = paymentMethodSelect.options[paymentMethodSelect.selectedIndex]?.text || 'N/A';
-            
-            // For the billing date
-            const currentDate = new Date().toLocaleDateString(); 
-            function capitalizeWords(str) {
-            return str
-                .split(' ') 
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(' '); 
+        
+            // Function to get the current date in the desired format (YYYY-MM-DD)
+            function getCurrentDate() {
+                const today = new Date();
+                const day = String(today.getDate()).padStart(2, '0');
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const year = today.getFullYear();
+                return `${year}-${month}-${day}`;
             }
-
+        
+            // Capitalize words function
+            function capitalizeWords(str) {
+                return str
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+        
+            // Set customer name and address
             document.getElementById('finalCustomerName').innerText = capitalizeWords(custNameInput);
             document.getElementById('displayAddress').innerText = capitalizeWords(addressInput);
             document.getElementById('displayDeliveryMethod').innerText = capitalizeWords(deliveryMethod);
-            document.getElementById('displayDeliveryDate').innerText = deliveryMethodSelect.value === 'deliver' ? deliveryDateInput : currentDate; 
-            document.getElementById('displayPaymentMethod').innerText = capitalizeWords(paymentMethod);
             document.getElementById('displayBillingAddress').innerText = capitalizeWords(addressInput);
-
-            const currentDat1 = new Date();
-
-    // Format the date as MM/DD/YYYY
-    const formattedDate = (currentDate.getMonth() + 1) + '/' + currentDate.getDate() + '/' + currentDate.getFullYear();
-
+        
+            // Set delivery date
+            const currentDate = getCurrentDate();
+            document.getElementById('displayDeliveryDate').innerText =
+                deliveryMethodSelect.value === 'pickup' ? currentDate : deliveryDateInput;
+        
+            // Set billing date to current date
             document.getElementById('displayBillingDate').innerText = currentDate;
-
+        
             let paymentDetails = '';
+        
             if (paymentMethodSelect.value === 'cash') {
                 const cashAmount = document.getElementById('cashAmount').value;
                 paymentDetails = `Cash Amount: ₱ ${parseFloat(cashAmount).toFixed(2) || 'N/A'}`;
             } else if (paymentMethodSelect.value === 'gcash') {
                 const senderName = capitalizeWords(document.getElementById('senderName').value || 'N/A');
                 const gcashAmount = document.getElementById('gcashAmount').value;
-                const formattedGcashAmount = `₱ ${parseFloat(gcashAmount).toFixed(2) || 'N/A'}`; 
+                const formattedGcashAmount = `₱ ${parseFloat(gcashAmount).toFixed(2) || 'N/A'}`;
                 const referenceNum = document.getElementById('referenceNum').value || 'N/A';
-                paymentDetails = `Sender Name: ${senderName}
-                    Amount: ${formattedGcashAmount}
-                    Reference: ${referenceNum}`;
+                paymentDetails = `Sender Name: ${senderName}\nAmount: ${formattedGcashAmount}\nReference: ${referenceNum}`;
             } else if (paymentMethodSelect.value === 'banktransfer') {
                 const bankName = capitalizeWords(document.getElementById('bankName').value || 'N/A');
                 const accHold = capitalizeWords(document.getElementById('accHold').value || 'N/A');
                 const amount = document.getElementById('amount').value;
-                const formattedAmount = `₱ ${parseFloat(amount).toFixed(2) || 'N/A'}`; 
+                const formattedAmount = `₱ ${parseFloat(amount).toFixed(2) || 'N/A'}`;
                 const transactDate = document.getElementById('transactDate').value || 'N/A';
                 const transactRef = document.getElementById('transactRef').value || 'N/A';
-                paymentDetails = `Bank: ${bankName}
-                    Account Holder: ${accHold}
-                    Amount: ${formattedAmount}
-                    Transaction Date: ${transactDate}
-                    Transaction Reference: ${transactRef}`;
+                paymentDetails = `Bank: ${bankName}\nAccount Holder: ${accHold}\nAmount: ${formattedAmount}\nTransaction Date: ${transactDate}\nTransaction Reference: ${transactRef}`;
             } else {
-            paymentDetails = 'Payment method not recognized.';
+                paymentDetails = 'Payment method not recognized.';
             }
-
+        
+            // Display payment details
             document.getElementById('displayPaymentDetails').innerText = paymentDetails || 'N/A';
-        }
-
+        }        
         // Handle Confirm Order Button
         document.getElementById('placeOrderButton').addEventListener('click', function(e) {
             e.preventDefault(); // Prevent the form from submitting immediately
@@ -380,24 +384,55 @@ document.addEventListener('DOMContentLoaded', function() {
             const customerName = document.getElementById('finalCustomerName').innerText;
             const address = document.getElementById('displayAddress').innerText;
             const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
-            const deliveryDate = document.getElementById('displayDeliveryDate').innerText;
-            const paymentMethod = document.getElementById('displayPaymentMethod').innerText;
-            const billingDate = document.getElementById('displayBillingDate').innerText;
-
+            const paymentMethodSelect = document.getElementById('paymentMethod');
+            const paymentMethod = paymentMethodSelect.options[paymentMethodSelect.selectedIndex]?.text || 'N/A';
+            // Initialize deliveryDate and billingDate
+            let deliveryDate = document.getElementById('displayDeliveryDate').innerText;
+            let billingDate = document.getElementById('displayBillingDate').innerText;
+        
+            console.log("Initial Delivery Date:", deliveryDate);
+            console.log("Initial Billing Date:", billingDate);
+        
+            // If the delivery method is "Pickup", set both dates to the current date
+            if (deliveryMethod.trim() === 'Pickup') {
+                const currentDate = new Date();
+                const formattedDate = currentDate.toISOString().slice(0, 10); // Format: YYYY-MM-DD
+                
+                // Update the dates
+                deliveryDate = formattedDate;
+                billingDate = formattedDate;
+        
+                // Update the displayed billing date in the UI
+                document.getElementById('displayBillingDate').innerText = billingDate; 
+        
+                console.log("Updated Delivery Date for Pickup:", deliveryDate);
+                console.log("Updated Billing Date for Pickup:", billingDate);
+            }    
+            if (!deliveryDate || deliveryDate === 'N/A') {
+                deliveryDate = null;
+            }
+            if (!billingDate || billingDate === 'N/A') {
+                billingDate = null;
+            }
+        
+            // Log the final values of deliveryDate and billingDate
+            console.log("Final Delivery Date:", deliveryDate);
+            console.log("Final Billing Date:", billingDate);
+            console.log ("payu met" , paymentMethod);
             let paymentDetails = '';
             let referenceNum = '';
             let payment = 0;
-
-            if (paymentMethod === 'Cash') {
+        
+            if (paymentMethodSelect.value === 'Cash') {
                 payment = parseFloat(document.getElementById('cashAmount').value) || 0;
                 paymentDetails = `Cash Amount: ₱ ${payment.toFixed(2)}`;
                 referenceNum = null; 
-            } else if (paymentMethod === 'Gcash') {
+            } else if (paymentMethodSelect.value === 'Gcash') {
                 const senderName = (document.getElementById('senderName')?.value || 'N/A');
                 payment = parseFloat(document.getElementById('gcashAmount').value) || 0;
                 referenceNum = document.getElementById('referenceNum')?.value || 'N/A';
                 paymentDetails = `Sender Name: ${senderName}, Amount: ₱ ${payment.toFixed(2)}, Reference: ${referenceNum}`;
-            } else if (paymentMethod === 'BankTransfer') {
+            } else if (paymentMethodSelect.value === 'BankTransfer') {
                 const bankName = (document.getElementById('bankName')?.value || 'N/A');
                 const accHold = (document.getElementById('accHold')?.value || 'N/A');
                 payment = parseFloat(document.getElementById('amount').value) || 0;
@@ -407,21 +442,21 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 paymentDetails = 'Payment method not recognized.';
             }
+        
             // Collect order items data
             let orderItems = [];
             const orderSummaryBody1 = document.querySelector('#orderSummaryBody1'); // Assuming this is the correct tbody
-
+        
             Array.from(orderSummaryBody1.rows).forEach(row => {
-                // Retrieve type and id from row's data attributes
                 let type = row.dataset.itemType;
                 let id = row.dataset.itemId;
-
+        
                 if (type && id) {
                     const productName = row.cells[0].innerText;
                     const quantity = parseInt(row.cells[1].innerText);
                     const price = parseFloat(row.cells[2].innerText.replace('₱ ', ''));
                     const total = parseFloat(quantity) * price;
-
+        
                     if (type === 'service') {
                         orderItems.push({
                             type: type, 
@@ -446,7 +481,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             let totalAmount = orderItems.reduce((sum, item) => sum + item.total, 0);
-
+        
+            // Check if deliveryDate is valid
+            if (!deliveryDate || isNaN(Date.parse(deliveryDate))) {
+                console.error('Invalid delivery date:', deliveryDate);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Delivery Date',
+                    text: 'Please provide a valid delivery date.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+        
             const payload = {
                 customerName: customerName,
                 address: address,
@@ -459,8 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 orderItems: orderItems,
                 totalAmount: totalAmount 
             };
-            // error 500
-            
+        
             $.ajax({
                 url: '/admin/confirm/storeOrderReceipt',
                 type: 'POST',
@@ -489,6 +535,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
-        }
+        }        
         toggleNextButton();
     });

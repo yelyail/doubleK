@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('user_ID')->nullable();
             $table->string('supplier_name')->nullable();
             $table->string('supplier_contact')->nullable(); // Store as string for better handling
-            $table->string('supplier_landline')->nullable(); // Store as string for better handling
             $table->string('supplier_address')->nullable();
             $table->string('supplier_email')->nullable();
             $table->boolean('archived')->default(false);

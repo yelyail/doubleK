@@ -14,7 +14,6 @@ class tblsupplier extends Model
         'user_ID',
         'supplier_name',
         'supplier_contact',
-        'supplier_landline',
         'supplier_address',
         'supplier_email',
     ];

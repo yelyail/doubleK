@@ -13,7 +13,7 @@ class tblproduct extends Model
     protected $primaryKey = 'product_id'; // Primary key
     protected $fillable = [
         'inventory_ID',
-        'category_id',
+        'categoryName',
         'product_name',
         'unit_price',
         'updatedQty',
@@ -24,11 +24,6 @@ class tblproduct extends Model
     ];
 
     public $timestamp = false;
-
-    public function category()
-    {
-        return $this->belongsTo(tblcategory::class, 'category_id', 'category_id');
-    }
 
     public function inventory()
     {

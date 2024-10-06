@@ -65,14 +65,14 @@
                                         @if ($product->archived == 0)
                                             <tr data-item-id="{{ $product->product_id }}" data-item-type="product">
                                                 <td>{{ ucwords(strtolower($product->product_name)) }}</td>
-                                                <td>{{ ucwords(strtolower($product->category->categoryName)) }}</td>
+                                                <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
                                                 <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
                                                 <td>₱ {{ number_format($product->unit_price, 2) }}</td>
                                                 <td>
                                                     <button class="btn btn-success btn-sm add-product" data-bs-toggle="modal" data-bs-target="#productModal"
                                                             data-item-id="{{ $product->product_id }}" data-item-type="product"
                                                             data-name="{{ ucwords(strtolower($product->product_name)) }}"
-                                                            data-category="{{ ucwords(strtolower($product->category->categoryName)) }}"
+                                                            data-category="{{ ucwords(strtolower($product->categoryName)) }}"
                                                             data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
                                                             data-price="{{ $product->unit_price }}">
                                                         <i class="bi bi-plus"></i>
@@ -193,7 +193,7 @@
                                 <select class="form-control" id="deliveryMethod" name="deliveryMethod" required>
                                     <option value="" disabled selected>Choose a delivery option</option>
                                     <option value="deliver">Home delivery</option>
-                                    <option value="pick-up">Walk-In</option>
+                                    <option value="pickup">Walk-In</option>
                                 </select>
                                 <div id="deliverDate" style="display: none;">
                                     <label for="deliveryDate" class="form-label">Delivery Date</label>

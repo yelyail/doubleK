@@ -23,7 +23,7 @@ class orderReceipt extends Controller
         $validatedData= $request->validate([
             'customerName' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
-            'deliveryDate' => 'required|date',
+            'deliveryDate' => 'nullable|date',
             'paymentMethod' => 'required|string',
             'referenceNum' => 'nullable|string',
             'payment' => 'required|numeric',
@@ -43,7 +43,6 @@ class orderReceipt extends Controller
             $customer = tblcustomer::create([
                 'customer_name' => $validatedData['customerName'],
                 'address' => $validatedData['address'],
-                'transaction_date' => $validatedData['deliveryDate'],
             ]);
             Log::info('Customer created:', $customer->toArray());
 
@@ -67,6 +66,7 @@ class orderReceipt extends Controller
                 if ($item['type'] === 'product') {
                     $orderItem = tblorderitems::create([
                         'product_id' => $item['id'],
+                        'service_ID' => $item['id'],
                         'qty_order' => $item['quantity'],
                         'total_price' => $item['total'],
                     ]);
@@ -74,7 +74,7 @@ class orderReceipt extends Controller
                     $orderItemsIds[] = $orderItem->orderitems_id;
 
                     // Update stock quantity
-                    $inventory = tblinventory::where('product_id', $item['id'])->first();
+                    $inventory = tblproduct::where('product_id', $item['id'])->first();
                     if ($inventory) {
                         $inventory->stock_qty -= $item['quantity'];
                         $inventory->save();
@@ -98,7 +98,7 @@ class orderReceipt extends Controller
                     'customer_id' => $customer->customer_id,
                     'payment_id' => $payment->payment_id,
                     'delivery_date' => $validatedData['deliveryDate'],
-                    'order_date' => $validatedData['billingDate'],
+                    'order_date' => $validatedData['deliveryDate'],
                 ]);
                 Log::info('Order receipt created:', $orderReceipt->toArray());
             }

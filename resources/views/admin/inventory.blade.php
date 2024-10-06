@@ -188,7 +188,7 @@
                         <h4 class="prod_cat"><b>Category:</b> <span id="editCategoryNameDisplay"></span></h4>
                     </div>
                     <div class="mb-3">
-                        <h4 class="prod_cat"><b>Supplier:</b> <span id="editSupplierNameDisplay"></span></h4>
+                        <h4 class="prod_cat"><span id="editProductDescriptionDisplay"></span></h4>
                     </div>
                     <div class="mb-3">
                         <label for="editStocks" class="form-label">Updated Stocks</label>
@@ -203,21 +203,6 @@
                         <div class="col-md-6">
                             <label for="editItemDate" class="form-label">Restock Date</label>
                             <input type="date" class="form-control" id="editItemDate" name="editRestockAdded">
-                        </div>
-                    </div>
-                        
-                    <div class="row mb-3">
-                        <label for="editWarranty" class="form-label">Warranty</label>
-                        <div class="col-md-6">
-                            <input type="number" class="form-control" id="editWarrantyPeriod" name="editWarrantyPeriod" placeholder="Enter warranty period">
-                        </div>
-                        <div class="col-md-6">
-                            <select class="form-select" id="editWarrantyUnit" name="editWarrantyUnit" required>
-                                <option value="" disabled selected>Warranty Units</option>
-                                <option value="days">Days</option>
-                                <option value="weeks">Weeks</option>
-                                <option value="months">Months</option>
-                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -239,12 +224,11 @@
             success: function (data) {
                 $('#editInventoryID').val(data.product_id);  
                 $('#editProductNameDisplay').text(data.product_name); 
-                $('#editCategoryNameDisplay').text(data.categoryName); 
-                $('#editSupplierNameDisplay').text(data.supplier_name);
+                $('#editCategoryNameDisplay').text(data.categoryName);
+                $('#editProductDescriptionDisplay').text(data.product_desc); 
                 $('#editStocks').val(data.updatedQty); 
                 $('#editPricePerUnit').val(data.unit_price); 
                 $('#editItemDate').val(data.nextRestockDate);
-                $('#editWarrantyPeriod').val(data.warranty); 
                 
                 $('#editInventoryForm').attr('action', '/admin/inventory/' + productID + '/update');
                 $('#editInventoryModal').modal('show');

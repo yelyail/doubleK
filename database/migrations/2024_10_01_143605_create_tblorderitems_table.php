@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('service_ID');
             $table->integer('qty_order')->nullable();
             $table->decimal('total_price', 10, 2);
+            $table->foreign('product_id')->references('product_id')->on('tblproduct')->onDelete('cascade');
+            $table->foreign('service_ID')->references('service_ID')->on('tblservice')->onDelete('cascade');
             $table->timestamps();
         });
     }

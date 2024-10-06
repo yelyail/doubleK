@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\tblcategory;
 use App\Models\tblinventory;
 use App\Models\User;
 use App\Models\tblcustomer;
@@ -14,9 +13,6 @@ use App\Models\tblorderreceipt;
 use App\Models\tblpaymentmethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Facades\Log;
 
 class adminaccess extends Controller
 {
@@ -28,7 +24,7 @@ class adminaccess extends Controller
     {
         $products = tblproduct::select(
             'tblproduct.product_id',
-            'tblcategory.categoryName',
+            'tblproduct.categoryName',
             'tblproduct.product_name',
             'tblsupplier.supplier_name',
             'tblproduct.product_desc',
@@ -40,21 +36,18 @@ class adminaccess extends Controller
             'tblinventory.nextRestockDate',
             'tblproduct.archived' 
         )
-        ->join('tblcategory', 'tblproduct.category_id', '=', 'tblcategory.category_id')
         ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_ID')
         ->join('tblsupplier', 'tblinventory.supplier_ID', '=', 'tblsupplier.supplier_ID')
         ->where('tblproduct.archived', '=', false) 
         ->get();
 
         $suppliers = tblsupplier::all();
-        $categories = tblcategory::all();
 
-        return view('admin.inventory', compact('products', 'suppliers', 'categories'));
+        return view('admin.inventory', compact('products', 'suppliers'));
     }
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
-        $category = tblcategory::all();
         $orderDetails = tblorderreceipt::with('product')->get();
         $orderDetailsData = [];
         $overallTotal = 0;
@@ -69,7 +62,7 @@ class adminaccess extends Controller
 
             $overallTotal += $orderDetail->total_price;
         }
-        return view('admin.order', compact('services', 'products','orderDetails', 'category'));
+        return view('admin.order', compact('services', 'products','orderDetails'));
     }
     public function adminInventoryReports(){ 
         return view('admin.reports');
@@ -185,13 +178,8 @@ class adminaccess extends Controller
         ]);
 
         try {
-            $category = tblcategory::firstOrCreate(
-                ['categoryName' => $request->categoryName],
-                ['categoryStatus' => 'active']
-            );
-
             $product = tblproduct::create([
-                'category_id' => $category->category_id,
+                'categoryName' => $request->categoryName,
                 'product_name' => $request->productName,
                 'product_desc' => $request->productDescription,
                 'unit_price' => $request->pricePerUnit, 
@@ -256,7 +244,6 @@ class adminaccess extends Controller
             'supplier_name' => 'required|string|max:255',
             'supplier_email' => 'required|email',
             'supplier_contact' => 'required|digits:10', // 10 digits for the phone number
-            'supplier_landline' => 'nullable|digits_between:7,8', // 7 or 8 digits for the landline
             'supplier_address' => 'required|string',
             'representative' => 'required|exists:user,user_ID',
         ]);
@@ -265,7 +252,6 @@ class adminaccess extends Controller
         $supplier->supplier_name = $request->supplier_name;
         $supplier->supplier_email = $request->supplier_email;
         $supplier->supplier_contact = $request->supplier_contact;
-        $supplier->supplier_landline = $request->supplier_landline;
         $supplier->supplier_address = $request->supplier_address;
         $supplier->user_ID = $request->representative;
         $supplier->archived =0;
@@ -444,21 +430,19 @@ class adminaccess extends Controller
     //humana litsiii 
     public function editProduct($product_id)
     {
-        $product = tblproduct::with(['category', 'inventory.supplier'])->find($product_id);
+        $product = tblproduct::with(['inventory.supplier'])->find($product_id);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
         return response()->json([
             'product_id' => $product->product_id,
-            'categoryName' => optional($product->category)->categoryName ?? '',
+            'categoryName' => optional($product)->categoryName ?? '',
             'product_name' => $product->product_name,
             'product_desc' => $product->product_desc,
             'stock_qty' => optional($product->inventory)->stock_qty ?? '',
             'unit_price' => $product->unit_price,
             'prod_add' => $product->prod_add,
-            'warranty' => $product->warranty,
-            'warrantyUnit' => $product->warrantyUnit ?? '',
-            'supplier_ID' => optional($product->inventory->supplier)->supplier_name ?? ''
+            'supplier_ID' => optional($product)->supplier_name ?? ''
         ]);
     }
     public function updateInventory(Request $request, $productID)
@@ -466,7 +450,6 @@ class adminaccess extends Controller
         $request->validate([
             'editStocks' => 'required|integer',
             'editRestockAdded' => 'nullable|date',
-            'editWarrantyPeriod' => 'required|numeric', 
             'editPricePerUnit' => 'required|numeric', 
         ]);
         $product = tblproduct::with('inventory')->findOrFail($productID);
@@ -484,9 +467,6 @@ class adminaccess extends Controller
 
         $product->updatedQty = $updatedQty; 
 
-        if ($request->input('editWarrantyPeriod')) {
-            $product->warranty = $request->input('editWarrantyPeriod'); 
-        }
         if ($request->input('editPricePerUnit')) {
             $product->unit_price = $request->input('editPricePerUnit'); 
         }
