@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,12 +12,12 @@ return new class extends Migration
     {
         Schema::create('tblorderitems', function (Blueprint $table) {
             $table->id('orderitems_id');
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('service_ID');
+            $table->unsignedBigInteger('product_id')->nullable(); 
+            $table->unsignedBigInteger('service_ID')->nullable();
             $table->integer('qty_order')->nullable();
             $table->decimal('total_price', 10, 2);
-            $table->foreign('product_id')->references('product_id')->on('tblproduct')->onDelete('cascade');
-            $table->foreign('service_ID')->references('service_ID')->on('tblservice')->onDelete('cascade');
+            $table->foreign('product_id')->references('product_id')->on('tblproduct')->onDelete('set null'); // Set to null on delete
+            $table->foreign('service_ID')->references('service_ID')->on('tblservice')->onDelete('set null'); // Set to null on delete
             $table->timestamps();
         });
     }

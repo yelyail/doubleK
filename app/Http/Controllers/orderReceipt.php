@@ -66,31 +66,42 @@ class orderReceipt extends Controller
                 if ($item['type'] === 'product') {
                     $orderItem = tblorderitems::create([
                         'product_id' => $item['id'],
-                        'service_ID' => $item['id'],
+                        'service_ID' => null, // Set to null for products
                         'qty_order' => $item['quantity'],
                         'total_price' => $item['total'],
                     ]);
                     Log::info('Order item created:', $orderItem->toArray());
                     $orderItemsIds[] = $orderItem->orderitems_id;
 
-                    // Update stock quantity
-                    $inventory = tblproduct::where('product_id', $item['id'])->first();
-                    if ($inventory) {
+                    $product = tblproduct::with('inventory')->find($item['id']);
+
+                    if ($product && $product->inventory) {
+                        $inventory = $product->inventory; 
                         $inventory->stock_qty -= $item['quantity'];
-                        $inventory->save();
-                        Log::info('Inventory updated for product ID ' . $item['id'] . ': ' . $inventory->stock_qty);
+                        
+                        if ($inventory->stock_qty < 0) {
+                            Log::warning('Insufficient stock for product ID ' . $item['id'] . '. Current stock: ' . $inventory->stock_qty);
+                            session()->flash('warning', 'Insufficient stock for product ID ' . $item['id'] . '. Current stock: ' . $inventory->stock_qty);
+                        } else {
+                            $inventory->save();
+                            Log::info('Inventory updated for product ID ' . $item['id'] . ': ' . $inventory->stock_qty);
+                        }
+                    } else {
+                        Log::warning('No inventory found for product ID ' . $item['id']);
                     }
+                    
                 } elseif ($item['type'] === 'service') {
-                    // Create order item for service
                     $orderItem = tblorderitems::create([
+                        'product_id' => null,
                         'service_ID' => $item['id'],
                         'qty_order' => $item['quantity'],
                         'total_price' => $item['total'],
                     ]);
                     Log::info('Order item created:', $orderItem->toArray());
                     $orderItemsIds[] = $orderItem->orderitems_id;
-                }
+                } $orderItemsIds[] = $orderItem->orderitems_id;
             }
+            
 
             foreach ($orderItemsIds as $orderitems_id) {
                 $orderReceipt = tblorderreceipt::create([

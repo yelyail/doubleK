@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
             );
 
             if (existingRow) {
-                // Update the existing row
                 let existingQuantity = parseInt(existingRow.cells[1].innerText);
                 existingRow.cells[1].innerText = existingQuantity + quantity;
                 existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + totalPrice).toFixed(2)}`;
@@ -327,7 +326,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 success: function(response) {
                     alert('Reservation made successfully!');
-                    // Optional: You can refresh the table here or handle the response as needed
                 },
                 error: function(xhr) {
                     console.log(reservationItems);
@@ -379,34 +377,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // storing of data
-        // error
         function sendOrderToDatabase() {
             const customerName = document.getElementById('finalCustomerName').innerText;
             const address = document.getElementById('displayAddress').innerText;
             const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
             const paymentMethodSelect = document.getElementById('paymentMethod');
             const paymentMethod = paymentMethodSelect.options[paymentMethodSelect.selectedIndex]?.text || 'N/A';
-            // Initialize deliveryDate and billingDate
             let deliveryDate = document.getElementById('displayDeliveryDate').innerText;
             let billingDate = document.getElementById('displayBillingDate').innerText;
         
-            console.log("Initial Delivery Date:", deliveryDate);
-            console.log("Initial Billing Date:", billingDate);
-        
-            // If the delivery method is "Pickup", set both dates to the current date
             if (deliveryMethod.trim() === 'Pickup') {
                 const currentDate = new Date();
-                const formattedDate = currentDate.toISOString().slice(0, 10); // Format: YYYY-MM-DD
-                
-                // Update the dates
+                const formattedDate = currentDate.toISOString().slice(0, 10); 
+            
                 deliveryDate = formattedDate;
                 billingDate = formattedDate;
-        
-                // Update the displayed billing date in the UI
+    
                 document.getElementById('displayBillingDate').innerText = billingDate; 
-        
-                console.log("Updated Delivery Date for Pickup:", deliveryDate);
-                console.log("Updated Billing Date for Pickup:", billingDate);
             }    
             if (!deliveryDate || deliveryDate === 'N/A') {
                 deliveryDate = null;
@@ -414,11 +401,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!billingDate || billingDate === 'N/A') {
                 billingDate = null;
             }
-        
-            // Log the final values of deliveryDate and billingDate
-            console.log("Final Delivery Date:", deliveryDate);
-            console.log("Final Billing Date:", billingDate);
-            console.log ("payu met" , paymentMethod);
             let paymentDetails = '';
             let referenceNum = '';
             let payment = 0;
@@ -475,6 +457,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             price: price,
                             total: total
                         });
+                    } else{
+                        orderItems.push({
+                            type: type, 
+                            id: id, 
+                            name: itemName, 
+                            quantity: quantity,
+                            price: price, 
+                            total: total 
+                        });
                     }
                 } else {
                     console.error("Type or ID is missing for this row.");
@@ -482,7 +473,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             let totalAmount = orderItems.reduce((sum, item) => sum + item.total, 0);
         
-            // Check if deliveryDate is valid
             if (!deliveryDate || isNaN(Date.parse(deliveryDate))) {
                 console.error('Invalid delivery date:', deliveryDate);
                 Swal.fire({
@@ -516,14 +506,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 data: JSON.stringify(payload),
                 success: function(response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Order Confirmed! :)',
-                        text: response.message,
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        window.location.href = '/admin/order';
-                    });
+                    // Check for warning messages from the response
+                    if (response.warning) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Warning',
+                            text: response.warning,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/admin/order';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Confirmed! :)',
+                            text: response.message,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/admin/order';
+                        });
+                    }
                 },
                 error: function(xhr) {
                     const errorMessage = xhr.responseJSON?.message || 'Something went wrong. Please try again!';            
@@ -535,6 +537,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
+            
         }        
         toggleNextButton();
+
+        
     });

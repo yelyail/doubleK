@@ -50,11 +50,10 @@ class HomeController extends Controller
         $outOfStockProducts = []; 
 
         foreach ($products as $product) {
-            // Get associated inventory item
             $inventoryItem = $product->inventory;
             if ($inventoryItem) {
                 $totalStock += $inventoryItem->stock_qty;
-                if ($inventoryItem->stock_qty < 10) {
+                if ($inventoryItem->stock_qty < 5) {
                     $lowStockItems++;
                     $lowStockProducts[] = $product->product_name;
                 }

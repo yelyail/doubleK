@@ -48,21 +48,10 @@ class adminaccess extends Controller
     public function adminOrder(){ 
         $products = tblproduct::all();
         $services = tblservice::all();
-        $orderDetails = tblorderreceipt::with('product')->get();
         $orderDetailsData = [];
         $overallTotal = 0;
 
-        foreach ($orderDetails as $orderDetail) {
-            $orderDetailsData[] = [
-                'product_name' => $orderDetail->product->product_name,
-                'qty_order' => $orderDetail->qty_order,
-                'unit_price' => $orderDetail->product->unit_price,
-                'total_price' => $orderDetail->total_price,
-            ];
-
-            $overallTotal += $orderDetail->total_price;
-        }
-        return view('admin.order', compact('services', 'products','orderDetails'));
+        return view('admin.order', compact('services', 'products'));
     }
     public function adminInventoryReports(){ 
         return view('admin.reports');

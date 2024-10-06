@@ -29,7 +29,6 @@
             <table class="table table-striped custom-table">
                 <thead>
                     <tr>
-                        <th>#</th>
                         <th>Service Name</th>
                         <th>Description</th>
                         <th>Service Fee</th>
@@ -42,7 +41,6 @@
                     @else
                         @foreach ($services as $service)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ ucwords(strtolower($service->service_name)) }}</td>
                                 <td>{{ ucwords(strtolower($service->description)) }}</td>
                                 <td>₱ {{ number_format($service->service_fee,2) }}</td>
