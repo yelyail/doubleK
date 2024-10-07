@@ -1,4 +1,4 @@
-@extends('user.side')
+@extends('admin.side')
 
 @section('title', 'Double-K Computer')
 
@@ -62,7 +62,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($products as $product)
-                                        @if ($product->archived == 0)
+                                        @if ($product->archived == 0 && $product->inventory->stock_qty > 0)
                                             <tr data-item-id="{{ $product->product_id }}" data-item-type="product">
                                                 <td>{{ ucwords(strtolower($product->product_name)) }}</td>
                                                 <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
@@ -215,7 +215,7 @@
                             <!-- Cash -->
                             <div id="cashAmountInput" style="display: none;">
                                 <label for="cashAmount" class="form-label">Cash Amount</label>
-                                <input type="number" class="form-control" id="cashAmount" name="cashPayment" placeholder="Enter the total amount">
+                                <input type="number" class="form-control" id="cashAmount" name="cashPayment" placeholder="Enter the total amount" required>
                             </div>
 
                             <!-- GCash Transfer -->
@@ -224,10 +224,10 @@
                                 <input type="text" class="form-control" id="senderName" name="gcashCustomerName" placeholder="Enter the Sender Name">
                                 
                                 <label for="gcashAmount" class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="gcashAmount" name="gcashPayment" placeholder="Enter the GCash amount">
+                                <input type="number" class="form-control" id="gcashAmount" name="gcashPayment" placeholder="Enter the GCash amount" required>
 
                                 <label for="referenceNum" class="form-label">Reference Number</label>
-                                <input type="text" class="form-control" id="referenceNum" name="gcashReferenceNum" placeholder="Enter the GCash reference number">
+                                <input type="number" class="form-control" id="referenceNum" name="gcashReferenceNum" placeholder="Enter the GCash reference number" required>
                             </div>
 
                             <!-- Bank Transfer -->
@@ -239,13 +239,13 @@
                                 <input type="text" class="form-control" id="accHold" name="bankCustomerName" placeholder="Enter the Account Name">
                                 
                                 <label for="amount" class="form-label">Transaction Amount</label>
-                                <input type="number" class="form-control" id="amount" name="bankPayment">
+                                <input type="number" class="form-control" id="amount" name="bankPayment" required>
                                 
                                 <label for="transactDate" class="form-label">Transaction Date</label>
                                 <input type="date" class="form-control" id="transactDate" name="bankTransactionDate">
 
                                 <label for="transactRef" class="form-label">Transaction Reference</label>
-                                <input type="text" class="form-control" id="transactRef" name="bankReferenceNum" placeholder="Enter the Transaction Reference">
+                                <input type="number" class="form-control" id="transactRef" name="bankReferenceNum" placeholder="Enter the Transaction Reference" required>
                             </div>
                         </div>
                     </div>
@@ -290,6 +290,7 @@
                                     <h3><b>Payment Method</b></h3>
                                     <p class="orderinfo" id="displayPaymentMethod"></p>
                                     <p class="orderinfo" id="displayPaymentDetails"></p>
+                                    <p class="orderinfo" id="displayChange"></p>
                                 </div>
                                 <div class="col-md-6">
                                     <h3><b>Billing Address</b></h3>

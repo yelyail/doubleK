@@ -21,7 +21,7 @@
                             <tbody>
                                 <tr>
                                     <td class="ttl">Total Available Stock</td>
-                                    <td>{{ $totalStock }} Stock/s</td>
+                                    <td>{{ $totalStock ?? 0 }} Stock/s</td>
                                 </tr>
                                 <tr>
                                     <td class="ttl">Low Stock Items</td>
@@ -33,8 +33,6 @@
                                 </tr>
                             </tbody>
                         </table>
-
-                        <!-- Display Low Stock Products -->
                         <h3>Low Stock Products</h3>
                         <table class="table">
                             <thead>
@@ -63,8 +61,6 @@
                                 @endif
                             </tbody>
                         </table>
-
-                        <!-- Display Out of Stock Products -->
                         <h3>Out of Stock Products</h3>
                         <table class="table">
                             <thead>
@@ -114,7 +110,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $bestSeller['product_name'] }}</td>
                                 <td>{{ $bestSeller['units_sold'] }}</td>
-                                <td>Php {{ number_format($bestSeller['revenue'], 2) }}</td> <!-- Format revenue -->
+                                <td>₱ {{ number_format($bestSeller['revenue'], 2) }}</td> <!-- Format revenue -->
                             </tr>
                         @endforeach
                     </tbody>

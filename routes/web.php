@@ -79,7 +79,6 @@ Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
 // User Routes
 Route::middleware(['auth','userAccess:1,2'])->group(function() {
     Route::controller(dashboardController::class)->group(function() {
-        Route::get('/user/dashboard', 'dashboard')->name('userDashboard');
         Route::get('/user/order', 'order')->name('userOrder');
         Route::get('/user/reservation', 'reservation')->name('userReservation');
         Route::get('/user/reports', 'reports')->name('userReports');

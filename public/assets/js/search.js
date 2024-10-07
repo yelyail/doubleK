@@ -10,9 +10,8 @@ function filterTable() {
         let td = tr[i].getElementsByTagName('td');
         let found = false;
 
-        if (td[1] && td[2].textContent.toLowerCase().indexOf(filter) > -1) {
-            found = true;
-        } else if (td[3] && td[3].textContent.toLowerCase().indexOf(filter) > -1) {
+        if ((td[0] && td[0].textContent.toLowerCase().indexOf(filter) > -1) || 
+            (td[1] && td[1].textContent.toLowerCase().indexOf(filter) > -1)) {
             found = true;
         }
 

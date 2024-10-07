@@ -22,28 +22,28 @@
                         <span class="input-group-text" id="basic-addon1" style="cursor: pointer; font-size:20px" onclick="toggleFilter()">
                             <i class="bi bi-filter-left"></i>
                         </span>
-                        
-                        <select name="payment_method" class="form-select me-2" id="payment_method_filter" style="display: none;">
-                            <option value="">Filter Payment</option>
+                        <select name="payment_method" class="form-select me-2" id="payment_method_filter" onchange="filterByPaymentMethod()">
+                            <option value="">All Payment</option>
                             <option value="cash">Cash</option>
                             <option value="gcash">GCash</option>
-                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="banktransfer">Bank Transfer</option>
                         </select>
                         <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search">
                         <button class="btn custom-btn" type="button" onclick="filterTable()">Search</button>
                     </div>
                 </div>
 
-                <!-- Filter by Date -->
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="date_filter"><b>Filter by Date:</b></label>
-                        <form method="get">
-                            <div class="input-group mb-3">
+            <!-- Filter by Date -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="date_filter"><b>Filter by Date:</b></label>
+                        <form id="dateFilterForm">
+                            <div class="input-group md-3">
                                 <span class="input-group-text"><b>From</b></span>
-                                <input type="date" name="from_date" class="form-control me-2" placeholder="From Date">
+                                <input type="date" id="from_date" name="from_date" class="form-control me-2" placeholder="From Date">
                                 <span class="input-group-text"><b>To</b></span>
-                                <input type="date" name="to_date" class="form-control" placeholder="To Date">
+                                <input type="date" id="to_date" name="to_date" class="form-control" placeholder="To Date">
+                                <button type="submit" class="btn btn-custom">Filter</button>
                             </div>
                         </form>
                     </div>
@@ -95,15 +95,5 @@
         </div>
     </div>
 
-<script>
-    function toggleFilter() {
-        var filterDropdown = document.getElementById("payment_method_filter");
-        // Toggle between 'none' and 'block' to show or hide the dropdown
-        if (filterDropdown.style.display === "none" || filterDropdown.style.display === "") {
-            filterDropdown.style.display = "block";
-        } else {
-            filterDropdown.style.display = "none";
-        }
-    }
-</script>
+    <script src="{{ asset('assets/js/salesReport.js') }}"></script>
 @endsection

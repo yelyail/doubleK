@@ -28,7 +28,6 @@
             <table class="table table-striped custom-table">
                 <thead>
                     <tr>
-                        <th>#</th>
                         <th>Employee Name</th>
                         <th>Username</th>
                         <th>Job Role</th>
@@ -43,7 +42,6 @@
                         @foreach($clients as $client)
                             @if($client->archived == 0)  
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ ucwords(strtolower($client->fullname)) }}</td>
                                     <td>{{ $client->username }}</td>
                                     <td>
