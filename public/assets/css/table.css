@@ -7,12 +7,17 @@
     background-color: #FDFDFC; 
     border: 1px solid #1F3449;
 }
-.custom-table {
+.custom-table,
+.cstm-tbl  {
     background-color: #FDFDFC;
 }
-.cstm-tbl {
+.cstm-table{
     background-color: #FDFDFC;
+    height: 50px; 
+    max-width: 550px;
+    overflow-x: hidden;
 }
+.cstm-table th,
 .custom-table th,
 .cstm-tbl th {
     background-color: #1F3449; 
@@ -27,6 +32,18 @@
     max-height: 550px; 
     overflow-y: hidden;
     overflow: auto; 
+}
+.btn-repair{
+    background-color: #fdfdfc00;
+    color: #050912;
+    max-height: 100px; 
+    font-size: 14px;
+    overflow-y: hidden;
+    overflow: auto; 
+}
+.btn-repair:hover{
+    background-color: #6c757d;
+    color: #FDFDFC;
 }
 .btn-custom::-webkit-scrollbar {
     display: none;

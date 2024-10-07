@@ -35,7 +35,6 @@
                         <li class="sidebar-item"><a href="{{ route('adminInventory') }}"><i class="bi bi-boxes"></i> Inventory</a></li>
                         <li class="sidebar-item"><a href="{{ route('adminSupplier') }}"><i class="bi bi-person-lines-fill"></i> Supplier</a></li>
                         <li class="sidebar-item"><a href="{{ route('adminService') }}"><i class="bi bi-gear"></i> Services</a></li>
-                        <li class="sidebar-item"><a href="{{ route('adminReservation') }}"><i class="bi bi-bookmark-check"></i> Reservation</a></li>
                     </ul>
                 </li>
                 <li class="sidebar-item"><a href="{{ route('adminEmployee') }}" class="sidebar-link"><i class="bi bi-people"></i><span>User Information</span></a></li>

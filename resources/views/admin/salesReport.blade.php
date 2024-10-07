@@ -29,11 +29,7 @@
                             <option value="gcash">GCash</option>
                             <option value="bank_transfer">Bank Transfer</option>
                         </select>
-
-                        <!-- Search Input -->
                         <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search">
-                        
-                        <!-- Search Button -->
                         <button class="btn custom-btn" type="button" onclick="filterTable()">Search</button>
                     </div>
                 </div>
@@ -54,24 +50,46 @@
                 </div>
             </div>
         </div>
-
-        <!-- Sales Report Table -->
         <div class="table-responsive">
-            <table class="table table-striped custom-table">
+            <table class="table table-striped cstm-table">
                 <thead>
                     <tr>
-                        <th>Particulars</th>
-                        <th>Quantity Sold</th>
-                        <th>Unit Price</th>
-                        <th>Total Sales</th>
-                        <th>Transaction Date</th>
-                        <th>Payment Method</th>
                         <th>Customer Name</th>
+                        <th>Particulars</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Method</th>
+                        <th>Reference Number</th>
+                        <th>Transaction Date</th>
+                        <th>Warranty</th>
                         <th>Sales Recipient</th>
+                        <th>Request Repair</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Data will be populated here -->
+                    @foreach ($orderReceipts as $orderReceipt)
+                        <tr>
+                            <td>{{ ucwords(strtolower($orderReceipt->customer_name ?? 'N/A' ))}}</td>
+                            <td>{{ ucwords(strtolower($orderReceipt->particulars ?? 'N/A')) }}</td>
+                            <td>{{ $orderReceipt->qty_order }}</td>
+                            <td>{{ $orderReceipt->unit_price }}</td>
+                            <td>{{ $orderReceipt->total_price }}</td>
+                            <td>{{ $orderReceipt->payment ?? 'N/A' }}</td>
+                            <td>{{ $orderReceipt->payment_type ?? 'N/A' }}</td>
+                            <td>{{ $orderReceipt->reference_num ?? 'N/A' }}</td>
+                            <td>{{ $orderReceipt->order_date }}</td>
+                            <td>{{ $orderReceipt->warranty ?? 'N/A' }}</td>
+                            <td>{{ $salesRecipient }}</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-secondary btn-repair" 
+                                        {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }}>
+                                    Request Repair
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>

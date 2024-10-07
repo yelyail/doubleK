@@ -34,7 +34,6 @@ Route::middleware(['auth','userAccess:0'])->prefix('admin')->group(function() {
         Route::get('/order', 'adminOrder')->name('adminOrder');
         Route::get('/inventoryReports', 'adminInventoryReports')->name('adminInventoryReports');
         Route::get('/salesReport', 'adminSalesReport')->name('adminSalesReport');
-        Route::get('/reservation', 'adminReservation')->name('adminReservation');
         Route::get('/service', 'adminService')->name('adminService');
         Route::get('/supplier', 'adminSupplier')->name('adminSupplier');
         Route::get('/custInfo', 'adminCustInfo')->name('adminCustInfo');

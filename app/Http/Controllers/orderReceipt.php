@@ -9,18 +9,14 @@ use App\Models\tblorderitems;
 use App\Models\tblorderreceipt;
 use App\Models\tblinventory;
 use Barryvdh\DomPDF\Facade\Pdf; // Import PDF library
-use Illuminate\Support\Facades\DB; // For transaction handling
 use App\Models\tblproduct; // Import tblproduct model
-use Symfony\Contracts\Service\Attribute\Required;
 use Illuminate\Support\Facades\Log; // Import Log facade
 
 class orderReceipt extends Controller
 {
     public function storeReceipt(Request $request)
     {
-        Log::info('Received request data:', $request->all());
-
-        $validatedData= $request->validate([
+        $validatedData = $request->validate([
             'customerName' => 'nullable|string|max:255',
             'address' => 'required|string|max:255',
             'deliveryDate' => 'nullable|date',
@@ -31,90 +27,86 @@ class orderReceipt extends Controller
             'totalAmount' => 'required|numeric',
             'orderItems' => 'required|array',
             'orderItems.*.type' => 'required|in:product,service',
-            'orderItems.*.id' => 'required_if:orderItems.*.type,product|integer',
+            'orderItems.*.id' => 'required|integer',
             'orderItems.*.quantity' => 'required|integer',
             'orderItems.*.price' => 'required|numeric',
             'orderItems.*.total' => 'required|numeric'
         ]);
-        Log::info("log infor", $validatedData);
 
-        try {   
-            Log::info('Attempting to create customer...');
+        try {
+            // Create customer record
             $customer = tblcustomer::create([
                 'customer_name' => $validatedData['customerName'],
                 'address' => $validatedData['address'],
             ]);
-            Log::info('Customer created:', $customer->toArray());
 
-            Log::info('Attempting to create payment method...');
-            // Create the payment method
+            // Create payment record
             $payment = tblpaymentmethod::create([
                 'payment_type' => $validatedData['paymentMethod'],
-                'reference_num' => $validatedData['referenceNum'], 
+                'reference_num' => $validatedData['referenceNum'],
                 'payment' => $validatedData['payment'],
             ]);
-            Log::info('Payment method created:', $payment->toArray());
-            $orderItemsIds = [];
 
-            if (empty($validatedData['orderItems'])) {
-                Log::warning('No order items found in the validated data.');
-            }
+            $orderItemsIds = [];
+            
+            // Initialize an array to hold product IDs for inventory updates
+            $productsToUpdate = [];
 
             foreach ($validatedData['orderItems'] as $item) {
-                Log::info('Processing item:', $item);
+                // Set product ID and service ID based on the item type
+                $productId = $item['type'] === 'product' ? $item['id'] : null;
+                $serviceId = $item['type'] === 'service' ? $item['id'] : null;
 
+                // Create order item with appropriate IDs
+                $orderItem = tblorderitems::create([
+                    'product_id' => $productId,
+                    'service_ID' => $serviceId,
+                    'qty_order' => $item['quantity'],
+                    'total_price' => $item['total'],
+                ]);
+
+                $orderItemsIds[] = $orderItem->orderitems_id;
+
+                // If the item is a product, prepare to update its inventory
                 if ($item['type'] === 'product') {
-                    $orderItem = tblorderitems::create([
-                        'product_id' => $item['id'],
-                        'service_ID' => null, // Set to null for products
-                        'qty_order' => $item['quantity'],
-                        'total_price' => $item['total'],
-                    ]);
-                    Log::info('Order item created:', $orderItem->toArray());
-                    $orderItemsIds[] = $orderItem->orderitems_id;
-
-                    $product = tblproduct::with('inventory')->find($item['id']);
-
-                    if ($product && $product->inventory) {
-                        $inventory = $product->inventory; 
-                        $inventory->stock_qty -= $item['quantity'];
-                        
-                        if ($inventory->stock_qty < 0) {
-                            Log::warning('Insufficient stock for product ID ' . $item['id'] . '. Current stock: ' . $inventory->stock_qty);
-                            session()->flash('warning', 'Insufficient stock for product ID ' . $item['id'] . '. Current stock: ' . $inventory->stock_qty);
-                        } else {
-                            $inventory->save();
-                            Log::info('Inventory updated for product ID ' . $item['id'] . ': ' . $inventory->stock_qty);
-                        }
-                    } else {
-                        Log::warning('No inventory found for product ID ' . $item['id']);
-                    }
-                    
-                } elseif ($item['type'] === 'service') {
-                    $orderItem = tblorderitems::create([
-                        'product_id' => null,
-                        'service_ID' => $item['id'],
-                        'qty_order' => $item['quantity'],
-                        'total_price' => $item['total'],
-                    ]);
-                    Log::info('Order item created:', $orderItem->toArray());
-                    $orderItemsIds[] = $orderItem->orderitems_id;
-                } $orderItemsIds[] = $orderItem->orderitems_id;
+                    $productsToUpdate[] = [
+                        'id' => $item['id'],
+                        'quantity' => $item['quantity']
+                    ];
+                }
             }
-            
 
+            // Update inventory for products
+            foreach ($productsToUpdate as $productUpdate) {
+                $product = tblproduct::with('inventory')->find($productUpdate['id']);
+                if ($product && $product->inventory) {
+                    $inventory = $product->inventory;
+                    $inventory->stock_qty -= $productUpdate['quantity'];
+
+                    // Check if there's sufficient stock
+                    if ($inventory->stock_qty < 0) {
+                        Log::warning('Insufficient stock for product ID ' . $productUpdate['id'] . '. Current stock: ' . $inventory->stock_qty);
+                        session()->flash('warning', 'Insufficient stock for product ID ' . $productUpdate['id'] . '. Current stock: ' . $inventory->stock_qty);
+                    } else {
+                        $inventory->save();
+                        Log::info('Inventory updated for product ID ' . $productUpdate['id'] . ': ' . $inventory->stock_qty);
+                    }
+                } else {
+                    Log::warning('No inventory found for product ID ' . $productUpdate['id']);
+                }
+            }
+
+            // Store order receipts for each order item
             foreach ($orderItemsIds as $orderitems_id) {
-                $orderReceipt = tblorderreceipt::create([
-                    'orderitems_id' => $orderitems_id, 
+                tblorderreceipt::create([
+                    'orderitems_id' => $orderitems_id,
                     'customer_id' => $customer->customer_id,
                     'payment_id' => $payment->payment_id,
                     'delivery_date' => $validatedData['deliveryDate'],
-                    'order_date' => $validatedData['deliveryDate'],
+                    'order_date' => $validatedData['billingDate'],
                 ]);
-                Log::info('Order receipt created:', $orderReceipt->toArray());
             }
 
-            Log::info('All operations completed successfully.');
             return response()->json([
                 'success' => true,
                 'message' => 'Order has been placed successfully!'
@@ -124,8 +116,6 @@ class orderReceipt extends Controller
             return response()->json(['success' => false, 'message' => 'Database operation failed: ' . $e->getMessage()], 500);
         }
     }
-
-
 
 
     public function storeReservation(Request $request){

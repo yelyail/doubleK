@@ -1,4 +1,4 @@
-@extends('admin.side')
+@extends('user.side')
 
 @section('title', 'Double-K Computer')
 
@@ -41,7 +41,7 @@
                     <select class="form-control" id="categoryfilter" name="categoryfilter" onchange="filterCategory()">
                         <option value="product" selected>Product</option>
                         <option value="services">Services</option>
-                        <option value="custDebt">Customer Debt</option>
+                        <option value="custDebt">Customer Credit</option>
                     </select>
                 </div>
             </div>
@@ -63,22 +63,23 @@
                                 <tbody>
                                     @foreach ($products as $product)
                                         @if ($product->archived == 0)
-                                            <tr>
+                                            <tr data-item-id="{{ $product->product_id }}" data-item-type="product">
                                                 <td>{{ ucwords(strtolower($product->product_name)) }}</td>
-                                                <td>{{ ucwords(strtolower($product->category->categoryName)) }}</td>
-                                                <td style="text-align: justify;">{{ ucwords(strtolower($product->product_desc)) }}</td>
+                                                <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
+                                                <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
                                                 <td>₱ {{ number_format($product->unit_price, 2) }}</td>
                                                 <td>
-                                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#productModal"
-                                                        data-id="{{ $product->id }}"
-                                                        data-name="{{ ucwords(strtolower($product->product_name)) }}"
-                                                        data-category="{{ ucwords(strtolower($product->category->categoryName)) }}"
-                                                        data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
-                                                        data-price="{{ $product->unit_price }}">
+                                                    <button class="btn btn-success btn-sm add-product" data-bs-toggle="modal" data-bs-target="#productModal"
+                                                            data-item-id="{{ $product->product_id }}" data-item-type="product"
+                                                            data-name="{{ ucwords(strtolower($product->product_name)) }}"
+                                                            data-category="{{ ucwords(strtolower($product->categoryName)) }}"
+                                                            data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
+                                                            data-price="{{ $product->unit_price }}">
                                                         <i class="bi bi-plus"></i>
                                                     </button>
                                                 </td>
                                             </tr>
+
                                         @endif
                                     @endforeach
                                 </tbody>
@@ -98,12 +99,13 @@
                                 <tbody>
                                     @foreach ($services as $service)
                                         @if ($service->service_status == 0)
-                                            <tr>
+                                            <tr data-item-id="{{ $service->service_ID }}" data-item-type="service">
                                                 <td>{{ ucwords(strtolower($service->service_name)) }}</td>
                                                 <td>{{ ucwords(strtolower($service->description)) }}</td>
                                                 <td>₱ {{ number_format($service->service_fee, 2) }}</td>
                                                 <td>
                                                     <button class="btn btn-success btn-sm add-service" 
+                                                            data-item-id="{{ $service->service_ID }}" data-item-type="service"
                                                             data-name="{{ ucwords(strtolower($service->service_name)) }}" 
                                                             data-fee="{{ $service->service_fee }}">
                                                         <i class="bi bi-plus"></i>
@@ -116,7 +118,7 @@
                             </table>
                         </div>
                         <!-- Customer Debt Table (Initially Hidden) -->
-                        <div id="custDebtInput" style="display: none;">
+                        <div id="reserve" style="display: none;">
                             <table class="table table-striped custom-table">
                                 <thead>
                                     <tr>
@@ -124,8 +126,8 @@
                                         <th>Particulars</th>
                                         <th>Quantity</th>
                                         <th>Price</th>
-                                        <th>Amount</th>
-                                        <th>Date of Product Debt</th>
+                                        <th>Initial Payment</th>
+                                        <th>Reserved Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -152,7 +154,7 @@
                                         <th>Void</th>
                                     </tr>
                                 </thead>
-                                <tbody id="orderSummaryBody">
+                                <tbody id="orderSummaryBody1">
                                     <!-- Order items will be appended here -->
                                 </tbody>
                             </table>
@@ -191,7 +193,7 @@
                                 <select class="form-control" id="deliveryMethod" name="deliveryMethod" required>
                                     <option value="" disabled selected>Choose a delivery option</option>
                                     <option value="deliver">Home delivery</option>
-                                    <option value="pick-up">Walk-In</option>
+                                    <option value="pickup">Walk-In</option>
                                 </select>
                                 <div id="deliverDate" style="display: none;">
                                     <label for="deliveryDate" class="form-label">Delivery Date</label>
@@ -250,7 +252,7 @@
 
                     <div class="modal-footer">
                         <button id="backToOrder" type="button" class="btn btn-secondary btn-medium" style=" width:100px; margin-right: 10px;">Back to Product</button>
-                        <button id="confirmPay" class="btn btn-success btn-medium" style="width:100px;">Confirm Payment</button>                    
+                        <button id="confirmPay"  class="btn btn-success btn-medium" style="width:100px;">Confirm Payment</button>                    
                     </div>
                 </form>
             </div>
@@ -266,8 +268,8 @@
                             <span class="order-peso" id="totalConfirmation">₱0.00</span>
                         </div>
                         <div class="buttons">
-                            <button type="submit" class="place-btn">Place Order</button>
-                            <button class="place-btn-1">Make Reservation</button>
+                            <button type="submit" id="placeOrderButton" class="place-btn">Place Order</button>
+                            <button type="submit" id="reservationButton" class="place-btn-1">Make Reservation</button>
                         </div>
                     </div>
                     <div class="modal-body">
@@ -333,6 +335,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> 
             </div>
             <div class="modal-body">
+                <input type="hidden" id="modalProductId">
                 <h3 class="prod_name" id="modalProductName"></h3>
                 <h5 class="prod_cat" id="modalProductCategory"></h5>
                 <p class="prod_desc" id="modalProductDesc"></p>
@@ -350,275 +353,5 @@
 </div>
 
 <!-- JavaScript to Handle Steps and Order Functionality -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle Category Filtering
-        window.filterCategory = function() {
-            const category = document.getElementById('categoryfilter').value;
-            document.getElementById('productTable').style.display = category === 'product' ? 'block' : 'none';
-            document.getElementById('serviceInput').style.display = category === 'services' ? 'block' : 'none';
-            document.getElementById('custDebtInput').style.display = category === 'custDebt' ? 'block' : 'none';
-        };
-
-        // Initialize Category Filtering
-        filterCategory();
-
-        // Handle Product Modal Population
-        $('#productModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var productId = button.data('id'); 
-            var productName = button.data('name');
-            var productCategory = button.data('category');
-            var productDesc = button.data('desc');
-            var productPrice = button.data('price');
-
-            var modal = $(this);
-            modal.find('#modalProductName').text(productName);
-            modal.find('#modalProductCategory').text(productCategory);
-            modal.find('#modalProductDesc').text(productDesc);
-            modal.find('#modalProductPrice').text(parseFloat(productPrice).toFixed(2));
-            modal.find('#product_id').val(productId);
-        });
-
-        // Add Product to Order Summary
-        $('#addProductButton').on('click', function() {
-            const productName = $('#modalProductName').text();
-            const productPrice = parseFloat($('#modalProductPrice').text());
-            const quantity = parseInt($('#quantity').val());
-
-            if (isNaN(quantity) || quantity < 1) {
-                alert("Please enter a valid quantity.");
-                return;
-            }
-
-            const totalPrice = productPrice * quantity;
-            const orderSummaryBody = document.getElementById('orderSummaryBody');
-
-            // Check if the product already exists in the order summary
-            let existingRow = Array.from(orderSummaryBody.rows).find(row => 
-                row.cells[0].innerText === productName &&
-                parseFloat(row.cells[2].innerText.replace('₱ ', '')) === productPrice
-            );
-
-            if (existingRow) {
-                // If the row exists, update the quantity and total
-                let existingQuantity = parseInt(existingRow.cells[1].innerText);
-                existingRow.cells[1].innerText = existingQuantity + quantity;
-                existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + totalPrice).toFixed(2)}`;
-            } else {
-                // Create a new row
-                const newRow = orderSummaryBody.insertRow();
-                newRow.innerHTML = `
-                    <td>${productName}</td>
-                    <td class="text-center">${quantity}</td>
-                    <td>₱ ${parseFloat(productPrice).toFixed(2)}</td>
-                    <td>₱ ${totalPrice.toFixed(2)}</td>
-                    <td><button class="btn btn-danger btn-sm remove-product"><i class="bi bi-x-circle"></i></button></td>
-                `;
-
-                newRow.querySelector('.remove-product').addEventListener('click', function() {
-                    orderSummaryBody.deleteRow(newRow.rowIndex - 1); 
-                    updateTotalAmount(); 
-                });
-            }
-
-            updateTotalAmount();
-            toggleNextButton();
-            $('#productModal').modal('hide');
-        });
-
-        // Add Service to Order Summary
-        document.querySelectorAll('.add-service').forEach(button => {
-            button.addEventListener('click', function() {
-                const serviceName = button.getAttribute('data-name');
-                const serviceFee = parseFloat(button.getAttribute('data-fee')).toFixed(2);
-
-                const orderSummaryBody = document.getElementById('orderSummaryBody');
-
-                // Check if the service already exists in the order summary
-                let existingRow = Array.from(orderSummaryBody.rows).find(row =>
-                    row.cells[0].innerText === serviceName &&
-                    row.cells[2].innerText === '₱ ' + serviceFee
-                );
-                
-                if (existingRow) {
-                    let existingQuantity = parseInt(existingRow.cells[1].innerText);
-                    existingRow.cells[1].innerText = existingQuantity + quantity;
-                    existingRow.cells[3].innerText = `₱ ${(parseFloat(existingRow.cells[3].innerText.replace('₱ ', '').replace(',', '')) + totalPrice).toFixed(2)}`;
-                } else {
-                    // Create a new row
-                    const newRow = orderSummaryBody.insertRow();
-                    newRow.innerHTML = `
-                        <td>${serviceName}</td>
-                        <td class="text-center">1</td>
-                        <td>₱ ${serviceFee}</td>
-                        <td>₱ ${serviceFee}</td>
-                        <td><button class="btn btn-danger btn-sm remove-product"><i class="bi bi-x-circle"></i></button></td>
-                    `;
-                    newRow.querySelector('.remove-product').addEventListener('click', function() {
-                        orderSummaryBody.deleteRow(newRow.rowIndex - 1);
-                        updateTotalAmount();
-                    });
-                }
-                updateTotalAmount();
-                toggleNextButton();
-            });
-        });
-
-        // Function to Update Total Amount
-        function updateTotalAmount() {
-            const orderSummaryBody = document.getElementById('orderSummaryBody');
-            let overallTotal = 0;
-            for (let row of orderSummaryBody.rows) {
-                overallTotal += parseFloat(row.cells[3].innerText.replace('₱ ', ''));
-            }
-            document.getElementById('totalAmount').innerText = '₱ ' + overallTotal.toFixed(2);
-        }
-
-        function toggleNextButton() {
-            const orderSummaryBody = document.getElementById('orderSummaryBody');
-            const nextButton = document.getElementById('nextToCustomerInfo');
-            nextButton.disabled = orderSummaryBody.rows.length === 0;
-        }
-        //Steps step 1--> step2
-        document.getElementById('nextToCustomerInfo').addEventListener('click', function() {
-            showStep(2);
-        });
-        // step 2 --> step1
-        document.getElementById('backToOrder').addEventListener('click', function() {
-            showStep(1);
-        });
-        // step 2 --> step 3
-        document.getElementById('confirmPay').addEventListener('click', function() {
-            event.preventDefault();
-            showStep(3);
-            populateConfirmation();
-        });
-        // step 3 --> step 2
-        document.getElementById('backToCustomerInfo').addEventListener('click', function() {
-            showStep(2);
-        });
-
-        function showStep(stepNumber) {
-            const steps = document.querySelectorAll('.step');
-            
-            steps.forEach(step => {
-                step.classList.remove('active'); 
-                step.style.display = 'none';
-            });
-
-            const currentStep = document.querySelector('.step-' + stepNumber);
-            if (currentStep) {
-                currentStep.classList.add('active');
-                currentStep.style.display = 'block'; 
-                console.log("Current step added: " + currentStep); 
-            }
-            updateProgressBar(stepNumber);
-        }
-
-        function updateProgressBar(stepNumber) {
-            const progressLine = document.getElementById('progressLine');
-            const progressSteps = document.querySelectorAll('.progress-step');
-            
-            progressSteps.forEach((step, index) => {
-                if (index < stepNumber) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
-            });
-
-            // Calculate and set the width of the progress line
-            const progressWidth = ((stepNumber - 1) / (progressSteps.length - 1)) * 100;
-            progressLine.style.width = progressWidth + '%';
-            console.log("Progress bar width set to: " + progressWidth + "%"); // Debugging line
-        }
-
-        // Function to Update Progress Bar
-        function updateProgressBar(stepNumber) {
-            const progressLine = document.getElementById('progressLine');
-            const progressSteps = document.querySelectorAll('.progress-step');
-            progressSteps.forEach((step, index) => {
-                if (index < stepNumber) {
-                    step.classList.add('active');
-                } else {
-                    step.classList.remove('active');
-                }
-            });
-            const progressWidth = ((stepNumber - 1) / (progressSteps.length - 1)) * 100;
-            progressLine.style.width = progressWidth + '%';
-        }
-
-
-        // Function to Populate Confirmation Section
-        function populateConfirmation() {
-            // Order Summary Details
-            const orderSummaryBody = document.getElementById('orderSummaryBody');
-            const orderSummaryDetails = document.getElementById('orderSummaryDetails');
-            orderSummaryDetails.innerHTML = '';
-            let finalTotal = 0;
-
-            for (let row of orderSummaryBody.rows) {
-                const name = row.cells[0].innerText;
-                const quantity = row.cells[1].innerText;
-                const price = row.cells[2].innerText;
-                const total = row.cells[3].innerText;
-                finalTotal += parseFloat(total.replace('₱ ', ''));
-
-                const listItem = document.createElement('li');
-                listItem.innerText = name + ' - Quantity: ' + quantity + ', Price: ' + price + ', Total: ' + total;
-                orderSummaryDetails.appendChild(listItem);
-            }
-
-            document.getElementById('finalTotalAmount').innerText = '₱ ' + finalTotal.toFixed(2);
-
-            // Customer Information
-            document.getElementById('finalCustomerName').innerText = document.getElementById('customerName').value;
-            document.getElementById('finalCustomerAddress').innerText = document.getElementById('customerAddress').value;
-            document.getElementById('finalCustomerPhone').innerText = document.getElementById('customerPhone').value;
-            document.getElementById('finalCustomerEmail').innerText = document.getElementById('customerEmail').value;
-        }
-
-        // Handle Confirm Order Button
-        document.getElementById('confirmOrderButton').addEventListener('click', function() {
-            // Gather all data to submit
-            const orderItems = [];
-            const orderSummaryBody = document.getElementById('orderSummaryBody');
-            for (let row of orderSummaryBody.rows) {
-                orderItems.push({
-                    name: row.cells[0].innerText,
-                    quantity: row.cells[1].innerText,
-                    price: parseFloat(row.cells[2].innerText.replace('₱ ', '')),
-                    total: parseFloat(row.cells[3].innerText.replace('₱ ', ''))
-                });
-            }
-            const customerInfo = {
-                name: document.getElementById('customerName').value,
-                address: document.getElementById('customerAddress').value,
-                phone: document.getElementById('customerPhone').value,
-                email: document.getElementById('customerEmail').value
-            };
-            $.ajax({
-                url: "{{ route('storeReceipt') }}",
-                method: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    orderItems: orderItems,
-                    customerInfo: customerInfo
-                },
-                success: function(response) {
-                    alert('Order placed successfully!');
-                    window.location.reload();
-                },
-                error: function(xhr) {
-                    alert('An error occurred while placing the order.');
-                }
-            });
-        });
-
-        // Initial Setup
-        toggleNextButton();
-    });
-</script>
-
+<script src="{{ asset('assets/js/order.js') }}"></script>
 @endsection

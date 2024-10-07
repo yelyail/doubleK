@@ -106,9 +106,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         // Function to Update Total Amount
+        let overallTotal = 0;
+
         function updateTotalAmount() {
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
-            let overallTotal = 0;
+            overallTotal = 0; // Reset the overall total
             for (let row of orderSummaryBody.rows) {
                 overallTotal += parseFloat(row.cells[3].innerText.replace('₱ ', ''));
             }
@@ -159,8 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     step.classList.remove('active');
                 }
             });
-
-            // Calculate and set the width of the progress line
             const progressWidth = ((stepNumber - 1) / (progressSteps.length - 1)) * 100;
             progressLine.style.width = progressWidth + '%';
         }
@@ -191,8 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const year = today.getFullYear();
                 return `${year}-${month}-${day}`;
             }
+            let amount = 0; 
         
-            // Capitalize words function
+            // Function to capitalize words
             function capitalizeWords(str) {
                 return str
                     .split(' ')
@@ -205,45 +206,46 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('displayAddress').innerText = capitalizeWords(addressInput);
             document.getElementById('displayDeliveryMethod').innerText = capitalizeWords(deliveryMethod);
             document.getElementById('displayBillingAddress').innerText = capitalizeWords(addressInput);
-        
-            // Set delivery date
             const currentDate = getCurrentDate();
             document.getElementById('displayDeliveryDate').innerText =
                 deliveryMethodSelect.value === 'pickup' ? currentDate : deliveryDateInput;
         
-            // Set billing date to current date
             document.getElementById('displayBillingDate').innerText = currentDate;
-        
             let paymentDetails = '';
         
+            // Handle cash payment method
             if (paymentMethodSelect.value === 'cash') {
-                const cashAmount = document.getElementById('cashAmount').value;
-                paymentDetails = `Cash Amount: ₱ ${parseFloat(cashAmount).toFixed(2) || 'N/A'}`;
-            } else if (paymentMethodSelect.value === 'gcash') {
+                amount = parseFloat(document.getElementById('cashAmount').value) || 0;
+                paymentDetails = `Cash Amount: ₱ ${amount.toFixed(2)}`;
+            } 
+            // Handle GCash payment method
+            else if (paymentMethodSelect.value === 'gcash') {
                 const senderName = capitalizeWords(document.getElementById('senderName').value || 'N/A');
-                const gcashAmount = document.getElementById('gcashAmount').value;
-                const formattedGcashAmount = `₱ ${parseFloat(gcashAmount).toFixed(2) || 'N/A'}`;
+                amount = parseFloat(document.getElementById('gcashAmount').value) || 0;
                 const referenceNum = document.getElementById('referenceNum').value || 'N/A';
-                paymentDetails = `Sender Name: ${senderName}\nAmount: ${formattedGcashAmount}\nReference: ${referenceNum}`;
-            } else if (paymentMethodSelect.value === 'banktransfer') {
+                paymentDetails = `Sender Name: ${senderName}\nAmount: ₱ ${amount.toFixed(2)}\nReference: ${referenceNum}`;
+            } 
+            // Handle bank transfer payment method
+            else if (paymentMethodSelect.value === 'banktransfer') {
                 const bankName = capitalizeWords(document.getElementById('bankName').value || 'N/A');
                 const accHold = capitalizeWords(document.getElementById('accHold').value || 'N/A');
-                const amount = document.getElementById('amount').value;
-                const formattedAmount = `₱ ${parseFloat(amount).toFixed(2) || 'N/A'}`;
+                amount = parseFloat(document.getElementById('amount').value) || 0;
                 const transactDate = document.getElementById('transactDate').value || 'N/A';
                 const transactRef = document.getElementById('transactRef').value || 'N/A';
-                paymentDetails = `Bank: ${bankName}\nAccount Holder: ${accHold}\nAmount: ${formattedAmount}\nTransaction Date: ${transactDate}\nTransaction Reference: ${transactRef}`;
-            } else {
+                paymentDetails = `Bank Name: ${bankName}\nAccount Holder: ${accHold}\nAmount: ₱ ${amount.toFixed(2)}\nTransaction Date: ${transactDate}\nTransaction Reference: ${transactRef}`;
+            } 
+            else {
                 paymentDetails = 'Payment method not recognized.';
             }
-        
-            // Display payment details
+            const change = amount - overallTotal;
+            document.getElementById('displayChange').innerText = change >= 0 ? `Change: ₱ ${change.toFixed(2)}` : `Insufficient payment`;
             document.getElementById('displayPaymentDetails').innerText = paymentDetails || 'N/A';
-        }        
+        }
+          
         // Handle Confirm Order Button
         document.getElementById('placeOrderButton').addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent the form from submitting immediately
-
+            e.preventDefault();
+        
             Swal.fire({
                 title: 'Are you sure you want to confirm this order?',
                 text: "Make sure all your information is correct!",
@@ -254,21 +256,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonText: 'Yes, confirm order!'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    let paymentMethodSelect = document.getElementById('paymentMethod');
+                    let payment = 0;
+        
+                    if (paymentMethodSelect.value === 'cash') {
+                        payment = parseFloat(document.getElementById('cashAmount').value) || 0;
+                    } else if (paymentMethodSelect.value === 'gcash') {
+                        payment = parseFloat(document.getElementById('gcashAmount').value) || 0;
+                    } else if (paymentMethodSelect.value === 'banktransfer') {
+                        payment = parseFloat(document.getElementById('amount').value) || 0;
+                    }
+                    if (payment < overallTotal) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Insufficient Payment!',
+                            text: `Your payment is ₱${payment.toFixed(2)}, but the total amount is ₱${overallTotal.toFixed(2)}.`,
+                            confirmButtonText: 'OK'
+                        });
+                        return; 
+                    }
+                    // Proceed with the order
                     populateConfirmation();
                     updateConfirmationSummary();
-                     sendOrderToDatabase(); 
-
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to confirm the order.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                    sendOrderToDatabase();
                 }
             });
         });
-        // Handle Reservation Button
+
         document.getElementById('reservationButton').addEventListener('click', function() {
             const reservationItems = [];
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
@@ -339,7 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const orderSummaryBody = document.getElementById('orderSummaryBody');   // Step 3 table
             orderSummaryBody.innerHTML = '';
 
-            // Iterate through each row in Step 1's order summary and copy to Step 3
             Array.from(orderSummaryBody1.rows).forEach(row => {
                 const newRow = orderSummaryBody.insertRow();
                 const productCell = newRow.insertCell(0);
@@ -369,8 +382,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 totalAmount += total;
             });
             document.getElementById('totalConfirmation').innerText = `₱ ${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            return totalAmount;    
         }
-
         // Ensure the updateConfirmationSummary function is called when moving to Step 3
         document.getElementById('nextToCustomerInfo').addEventListener('click', function() {
             updateConfirmationSummary();
@@ -405,16 +418,16 @@ document.addEventListener('DOMContentLoaded', function() {
             let referenceNum = '';
             let payment = 0;
         
-            if (paymentMethodSelect.value === 'Cash') {
+            if (paymentMethodSelect.value === 'cash') {
                 payment = parseFloat(document.getElementById('cashAmount').value) || 0;
                 paymentDetails = `Cash Amount: ₱ ${payment.toFixed(2)}`;
                 referenceNum = null; 
-            } else if (paymentMethodSelect.value === 'Gcash') {
+            } else if (paymentMethodSelect.value === 'gcash') {
                 const senderName = (document.getElementById('senderName')?.value || 'N/A');
                 payment = parseFloat(document.getElementById('gcashAmount').value) || 0;
                 referenceNum = document.getElementById('referenceNum')?.value || 'N/A';
                 paymentDetails = `Sender Name: ${senderName}, Amount: ₱ ${payment.toFixed(2)}, Reference: ${referenceNum}`;
-            } else if (paymentMethodSelect.value === 'BankTransfer') {
+            } else if (paymentMethodSelect.value === 'banktransfer') {
                 const bankName = (document.getElementById('bankName')?.value || 'N/A');
                 const accHold = (document.getElementById('accHold')?.value || 'N/A');
                 payment = parseFloat(document.getElementById('amount').value) || 0;
@@ -540,6 +553,4 @@ document.addEventListener('DOMContentLoaded', function() {
             
         }        
         toggleNextButton();
-
-        
     });

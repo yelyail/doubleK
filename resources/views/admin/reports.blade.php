@@ -50,7 +50,6 @@
                                     <th>Quantity Sold</th>
                                     <th>Last Restock Date</th>
                                     <th>Return</th>
-                                    <th>Damage</th>
                                     <th>Supplier Name</th>
                                     <th>Print</th>
                                 </tr>

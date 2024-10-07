@@ -13,6 +13,8 @@ use App\Models\tblorderreceipt;
 use App\Models\tblpaymentmethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class adminaccess extends Controller
 {
@@ -57,10 +59,40 @@ class adminaccess extends Controller
         return view('admin.reports');
     }
     public function adminSalesReport(){ 
-        return view('admin.salesReport');
-    }
-    public function adminReservation(){ 
-        return view('admin.reservation');
+        $orderReceipts = DB::table('tblorderitems')
+            ->select(
+                DB::raw("COALESCE(tblproduct.product_name, tblservice.service_name) AS particulars"), 
+                DB::raw('SUM(tblorderitems.qty_order) AS qty_order'), 
+                DB::raw("COALESCE(tblproduct.unit_price, tblservice.service_fee) AS unit_price"), 
+                DB::raw('SUM(tblorderitems.total_price) AS total_price'), 
+                'tblcustomer.customer_name', 
+                'tblpaymentmethod.payment_type',
+                'tblpaymentmethod.reference_num', 
+                'tblpaymentmethod.payment', 
+                'tblproduct.warranty',
+                'tblorderreceipt.order_date'
+            )
+            ->leftJoin('tblproduct', 'tblorderitems.product_id', '=', 'tblproduct.product_id')
+            ->leftJoin('tblservice', 'tblorderitems.service_ID', '=', 'tblservice.service_ID')
+            ->leftJoin('tblorderreceipt', 'tblorderitems.orderitems_id', '=', 'tblorderreceipt.orderitems_id')
+            ->leftJoin('tblcustomer', 'tblorderreceipt.customer_id', '=', 'tblcustomer.customer_id')
+            ->leftJoin('tblpaymentmethod', 'tblorderreceipt.payment_id', '=', 'tblpaymentmethod.payment_id')
+            ->whereNotNull('tblorderitems.orderitems_id') // Ensure there's a valid order
+            ->groupBy(
+                'tblcustomer.customer_name', 
+                'tblpaymentmethod.payment_type', 
+                'tblpaymentmethod.reference_num', 
+                'tblpaymentmethod.payment', 
+                'tblproduct.product_name',
+                'tblservice.service_name',
+                'tblproduct.unit_price',
+                'tblservice.service_fee',
+                'tblproduct.warranty',
+                'tblorderreceipt.order_date'
+            )
+            ->get();
+        $salesRecipient = Auth::user()->fullname; 
+        return view('admin.salesReport', compact('orderReceipts', 'salesRecipient'));
     }
     public function adminService(){ 
         $services = tblservice::all();
@@ -89,11 +121,8 @@ class adminaccess extends Controller
     {
         $orderDetails = json_decode($request->input('orderDetails'), true);
         $overallTotal = $request->input('overallTotal');
-
-        // Pass data to the view
         return view('admin.custInfo', compact('orderDetails', 'overallTotal'));
     }
-    // for storing customer inforamtion
     public function storeCustomer(Request $request)
     {
         // Validation
@@ -322,7 +351,6 @@ class adminaccess extends Controller
         
         return redirect()->route('adminEmployee')->with('success', 'Employee updated successfully.');
     }
-
     public function archiveClient($id)
     {
         $client = User::find($id); 
