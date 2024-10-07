@@ -6,6 +6,7 @@
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\DB;
     use App\Models\tblorderitems;
+use App\Models\tblservice;
 
     class HomeController extends Controller
     {
@@ -36,9 +37,14 @@
 
         public function userDashboard()
         {
-            return $this->dashboardView('user.dashboard');
+            $products = tblproduct::all();
+            $services = tblservice::all();
+            $orderDetailsData = [];
+            $overallTotal = 0;
+
+            return $this->dashboardView('user.dashboard',compact('services', 'products'));
         }
-        private function dashboardView($view)
+        private function dashboardView($view, $data = [])
         {
             $products = tblproduct::with('inventory')->get();
 
@@ -78,13 +84,14 @@
                     ];
                 });
 
-                return view($view, compact(
+                return view($view, array_merge(compact(
                     'totalStock', 
                     'lowStockItems', 
                     'outOfStockItems', 
                     'lowStockProducts', 
                     'outOfStockProducts',
-                    'bestSellers'
-                ));
+                    'bestSellers',
+                    'products'
+                ), $data));
         }
     }

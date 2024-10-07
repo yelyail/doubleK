@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\tblproduct;
+use App\Models\tblservice;
 
 class dashboardController extends Controller
 {
-    public function dashboard(){ 
-        return view('user.dashboard');
-    }
     public function order(){ 
-        return view('user.order');
-    }
-    public function reservation(){ 
-        return view('user.reservation');
+        $products = tblproduct::all();
+        $services = tblservice::all();
+        $orderDetailsData = [];
+        $overallTotal = 0;
+
+        return view('user.order', compact('services', 'products'));
     }
     public function reports(){ 
         return view('user.reports');

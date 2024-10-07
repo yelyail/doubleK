@@ -73,6 +73,8 @@ Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
     Route::controller(orderReceipt::class)->group(function() {
         Route::post('/admin/confirm/storeOrderReceipt', 'storeReceipt')->name('storeReceipt');
         Route::post('/admin/confirm/storeReservation', 'storeReservation')->name('storeReservation');
+        Route::post('/user/confirm/storeReceipt', 'storeReceipt')->name('storeReceipt1');
+        Route::post('/user/confirm/storeReservation', 'storeReservation')->name('storeReservation1');
     });
 });
 
@@ -80,7 +82,6 @@ Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
 Route::middleware(['auth','userAccess:1,2'])->group(function() {
     Route::controller(dashboardController::class)->group(function() {
         Route::get('/user/order', 'order')->name('userOrder');
-        Route::get('/user/reservation', 'reservation')->name('userReservation');
         Route::get('/user/reports', 'reports')->name('userReports');
     });
 });

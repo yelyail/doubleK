@@ -1,4 +1,4 @@
-@extends('admin.side')
+@extends('user.side')
 
 @section('title', 'Double-K Computer')
 
@@ -354,5 +354,5 @@
 </div>
 
 <!-- JavaScript to Handle Steps and Order Functionality -->
-<script src="{{ asset('assets/js/order.js') }}"></script>
+<script src="{{ asset('assets/js/order1.js') }}"></script>
 @endsection

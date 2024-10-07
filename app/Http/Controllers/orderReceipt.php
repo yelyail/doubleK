@@ -48,8 +48,6 @@ class orderReceipt extends Controller
             ]);
 
             $orderItemsIds = [];
-            
-            // Initialize an array to hold product IDs for inventory updates
             $productsToUpdate = [];
 
             foreach ($validatedData['orderItems'] as $item) {
