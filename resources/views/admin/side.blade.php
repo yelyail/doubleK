@@ -11,9 +11,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>@yield('title', 'Double-K Computer Parts')</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/icon.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/table.css') }}">
     <script src="{{ asset('assets/js/bootstrap.js') }}"></script>
+    <script src="{{ asset('assets/js/sweertalert.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.js') }}"></script>
 </head>
 <body>
     <div class="wrapper">

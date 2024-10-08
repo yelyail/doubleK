@@ -56,12 +56,43 @@ class adminaccess extends Controller
         return view('admin.order', compact('services', 'products'));
     }
     public function adminInventoryReports(){ 
-        return view('admin.reports');
+        $products = tblproduct::select(
+            'tblproduct.product_id',
+            'tblproduct.product_name',
+            'tblproduct.categoryName',
+            'tblsupplier.supplier_name',
+            'tblinventory.stock_qty',
+            DB::raw('SUM(tblorderitems.qty_order) AS total_qty_sold'),
+            'tblproduct.unit_price',
+            'tblproduct.prod_add',
+            'tblinventory.nextRestockDate',
+            'tblreturn.returnDate',
+            'tblreturn.returnReason'
+        )
+        ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_ID')
+        ->join('tblsupplier', 'tblinventory.supplier_ID', '=', 'tblsupplier.supplier_ID')
+        ->leftJoin('tblorderitems', 'tblproduct.product_id', '=', 'tblorderitems.product_id')
+        ->leftJoin('tblreturn', 'tblproduct.product_id', '=', 'tblreturn.product_id')
+        ->where('tblproduct.archived', false)
+        ->groupBy(
+            'tblproduct.product_id', 
+            'tblproduct.product_name',
+            'tblproduct.categoryName',
+            'tblsupplier.supplier_name',
+            'tblinventory.stock_qty',
+            'tblproduct.unit_price',
+            'tblinventory.nextRestockDate',
+            'tblreturn.returnDate',
+            'tblreturn.returnReason'
+        )
+        ->get();
+
+        return view('admin.reports',compact('products'));
     }
-    public function adminSalesReport(){ 
+    public function adminSalesReport() { 
         $orderReceipts = DB::table('tblorderitems')
             ->select(
-                DB::raw("COALESCE(tblproduct.product_name, tblservice.service_name) AS particulars"), 
+                DB::raw("GROUP_CONCAT(COALESCE(tblproduct.product_name, tblservice.service_name) SEPARATOR ', ') AS particulars"), 
                 DB::raw('SUM(tblorderitems.qty_order) AS qty_order'), 
                 DB::raw("COALESCE(tblproduct.unit_price, tblservice.service_fee) AS unit_price"), 
                 DB::raw('SUM(tblorderitems.total_price) AS total_price'), 
@@ -91,7 +122,12 @@ class adminaccess extends Controller
                 'tblorderreceipt.order_date'
             )
             ->get();
+    
         $salesRecipient = Auth::user()->fullname; 
+        foreach ($orderReceipts as $orderReceipt) {
+            $orderReceipt->combined_name = $orderReceipt->particulars;
+        }
+    
         return view('admin.salesReport', compact('orderReceipts', 'salesRecipient'));
     }
     public function adminService(){ 
@@ -238,7 +274,7 @@ class adminaccess extends Controller
             User::create([
                 'fullname' => $request->fullname,
                 'username' => $request->username,
-                'jobtype' => $request->jobtype,
+                'jobtitle' => $request->jobtype,
                 'user_contact' => $request->user_contact,
                 'password' => Hash::make($request->password),
             ]);
@@ -410,11 +446,20 @@ class adminaccess extends Controller
     {
         $service = tblservice::find($id); 
         if ($service) {
-            $service->service_status = 0;  
+            $service->service_status = 1;  
             $service->save();
             return response()->json(['message' => 'Service archived successfully.']);
         }
         return response()->json(['message' => 'Service not found.'], 404);
+    }
+    public function activateService($id) {
+        $service = tblservice::find($id);
+        if ($service) {
+            $service->service_status = 0; // Set status to active
+            $service->save();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Service not found.']);
     }
     public function updateService(Request $request)
     {
@@ -508,7 +553,7 @@ class adminaccess extends Controller
     {
         $product = tblproduct::find($product_id); 
         if ($product) {
-            $product->archived = 0;
+            $product->archived = 1;
             $product->save();
             return response()->json(['message' => 'Product archived successfully.']);
         }

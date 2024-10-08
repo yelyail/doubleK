@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('editEmployeeName').value = client.fullname;
         document.getElementById('editUserName').value = client.username;
         document.getElementById('editPhoneNumber').value = client.user_contact;
-        document.getElementById('editJobRole').value = client.jobtype; // Ensure this matches your job roles
+        document.getElementById('editJobRole').value = client.jobtitle; // Ensure this matches your job roles
     }
 
     function showEditModal(userId) {

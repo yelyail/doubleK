@@ -7,10 +7,11 @@ use App\Models\tblcustomer;
 use App\Models\tblpaymentmethod;
 use App\Models\tblorderitems;
 use App\Models\tblorderreceipt;
-use App\Models\tblinventory;
-use Barryvdh\DomPDF\Facade\Pdf; // Import PDF library
-use App\Models\tblproduct; // Import tblproduct model
-use Illuminate\Support\Facades\Log; // Import Log facade
+use App\Models\tblservice;
+use Dompdf\Dompdf;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\tblproduct; 
+use Illuminate\Support\Facades\Log; 
 
 class orderReceipt extends Controller
 {
@@ -18,7 +19,7 @@ class orderReceipt extends Controller
     {
         $validatedData = $request->validate([
             'customerName' => 'nullable|string|max:255',
-            'address' => 'required|string|max:255',
+            'address' => 'nullable|string|max:255',
             'deliveryDate' => 'nullable|date',
             'paymentMethod' => 'required|string',
             'referenceNum' => 'nullable|string',
@@ -34,13 +35,10 @@ class orderReceipt extends Controller
         ]);
 
         try {
-            // Create customer record
             $customer = tblcustomer::create([
                 'customer_name' => $validatedData['customerName'],
                 'address' => $validatedData['address'],
             ]);
-
-            // Create payment record
             $payment = tblpaymentmethod::create([
                 'payment_type' => $validatedData['paymentMethod'],
                 'reference_num' => $validatedData['referenceNum'],
@@ -51,11 +49,9 @@ class orderReceipt extends Controller
             $productsToUpdate = [];
 
             foreach ($validatedData['orderItems'] as $item) {
-                // Set product ID and service ID based on the item type
                 $productId = $item['type'] === 'product' ? $item['id'] : null;
                 $serviceId = $item['type'] === 'service' ? $item['id'] : null;
 
-                // Create order item with appropriate IDs
                 $orderItem = tblorderitems::create([
                     'product_id' => $productId,
                     'service_ID' => $serviceId,
@@ -64,8 +60,6 @@ class orderReceipt extends Controller
                 ]);
 
                 $orderItemsIds[] = $orderItem->orderitems_id;
-
-                // If the item is a product, prepare to update its inventory
                 if ($item['type'] === 'product') {
                     $productsToUpdate[] = [
                         'id' => $item['id'],
@@ -73,15 +67,11 @@ class orderReceipt extends Controller
                     ];
                 }
             }
-
-            // Update inventory for products
             foreach ($productsToUpdate as $productUpdate) {
                 $product = tblproduct::with('inventory')->find($productUpdate['id']);
                 if ($product && $product->inventory) {
                     $inventory = $product->inventory;
                     $inventory->stock_qty -= $productUpdate['quantity'];
-
-                    // Check if there's sufficient stock
                     if ($inventory->stock_qty < 0) {
                         Log::warning('Insufficient stock for product ID ' . $productUpdate['id'] . '. Current stock: ' . $inventory->stock_qty);
                         session()->flash('warning', 'Insufficient stock for product ID ' . $productUpdate['id'] . '. Current stock: ' . $inventory->stock_qty);
@@ -93,8 +83,6 @@ class orderReceipt extends Controller
                     Log::warning('No inventory found for product ID ' . $productUpdate['id']);
                 }
             }
-
-            // Store order receipts for each order item
             foreach ($orderItemsIds as $orderitems_id) {
                 tblorderreceipt::create([
                     'orderitems_id' => $orderitems_id,
@@ -104,18 +92,116 @@ class orderReceipt extends Controller
                     'order_date' => $validatedData['billingDate'],
                 ]);
             }
-
             return response()->json([
                 'success' => true,
-                'message' => 'Order has been placed successfully!'
+                'message' => 'Order has been placed successfully!',
+                'ordDet_ID' => end($orderItemsIds) // Fix the issue here
             ]);
         } catch (\Exception $e) {
             Log::error('Database operation failed: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Database operation failed: ' . $e->getMessage()], 500);
         }
     }
+    public function generatePdf(Request $request, $ordDet_ID)
+    {
+        $orderReceipt = tblorderreceipt::with('orderitems')->findOrFail($ordDet_ID);
+        $customer = tblcustomer::findOrFail($orderReceipt->customer_id);
+        $payment = tblpaymentmethod::findOrFail($orderReceipt->payment_id);
+
+        $orderItems = $orderReceipt->orderitems; 
+        $reference = uniqid();
+        $representative = auth()->user()->fullname;
+
+        $totalPrice = $orderItems->sum('total_price'); 
+        $amountPaid = $payment->payment;
+        $amountDeducted = $amountPaid - $totalPrice; 
+
+        // Prepare data for the view
+        $items = $orderItems->map(function ($item) {
+            $product = $item->product; 
+            $service = $item->service; 
+
+            return [
+                'product_name' => $product ? $product->product_name : null, 
+                'service_name' => $service ? $service->service_name : null, 
+                'quantity' => $item->qty_order,
+                'total_price' => $item->total_price,
+            ];
+        });
+
+        $data = [
+            'title' => 'Temporary Receipts',
+            'reference' => $reference,
+            'date' => now()->format('m/d/Y H:i:s'),
+            'orderItems' => $items,
+            'customer_name' => $customer->customer_name,
+            'address' => $customer->address,
+            'payment_type' => $payment->payment_type,
+            'total_price' => $totalPrice, 
+            'payment' => $amountPaid,
+            'amount_deducted' => $amountDeducted >= 0 ? $amountDeducted : 0, // Ensure it's non-negative
+            'representative' => $representative,
+        ];
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml(view('orderreceiptPrint', $data));
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('orderReceipt.pdf');
+    }
+    public function tempReceipt()
+    {
+        $reference = uniqid();
+        $orderItems = tblorderitems::all();
+        $customer = tblcustomer::first(); 
+        $payment = tblpaymentmethod::first();
+        
+        $representative = auth()->user()->fullname;
+
+        $items = $orderItems->map(function ($item) {
+            $product = $item->product; 
+            $service = $item->service; 
+
+            return [
+                'product_name' => $product ? $product->name : null, 
+                'service_name' => $service ? $service->name : null, 
+                'quantity' => $item->qty_order,
+                'total_price' => $item->total_price,
+            ];
+        });
+
+        $data = [
+            'title' => 'Temporary Receipts',
+            'reference' => $reference,
+            'date' => now()->format('m/d/Y H:i:s'),
+            'orderItems' => $items, 
+            'customer_name' => $customer->customer_name ?? 'N/A', 
+            'address' => $customer->address ?? 'N/A', 
+            'payment_type' => $payment->payment_type ?? 'N/A', 
+            'representative' => $representative,
+        ];
+
+        return view('admin.order', $data);
+    }
 
 
     public function storeReservation(Request $request){
+        $request->validate([
+            'reservationItems' => 'required|array',
+            'deliveryMethod' => 'required|string',
+            'deliveryDate' => 'required|string',
+            'finalTotal' => 'required|numeric',
+        ]);
+        foreach ($request->reservationItems as $item) {
+            tblorderitems::create([
+                'product_id' => $item['product_id'],
+                'service_ID' => $item['service_id'],
+                'qty_order' => $item['quantity'],
+                'total_price' => $item['total'],
+            ]);
+        }
+
+        // Return a success response
+        return response()->json(['message' => 'Reservation made successfully!']);
     }
 }

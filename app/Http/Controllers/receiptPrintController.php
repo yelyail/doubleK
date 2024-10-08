@@ -32,7 +32,7 @@ class receiptPrintController extends Controller
         ];
 
         $pdf = Pdf::loadView('orderreceiptPrint', $data);
-        $pdf->setPaper('A4', 'landscape');
+        $pdf->setPaper('A4', 'portrait');
 
         // Download or display the PDF
         return $pdf->download('orderReceipt.pdf');

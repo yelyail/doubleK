@@ -47,14 +47,14 @@
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 5px;">
                                         @if($service->service_status == 0) 
-                                                <button class="btn btn-success btn-sm" onclick="editService('{{$service->service_ID}}')">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-secondary btn-sm archive-btn" data-serviceID="{{ $service->service_ID }}">
-                                                    <i class="bi bi-archive"></i>
-                                                </button>
-                                            @else
-                                            <span class="badge bg-secondary text-light">Inactive</span>
+                                            <button class="btn btn-success btn-sm" onclick="editService('{{$service->service_ID}}')">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm archive-btn" data-serviceID="{{ $service->service_ID }}">
+                                                <i class="bi bi-archive"></i>
+                                            </button>
+                                        @else
+                                            <span class="badge bg-secondary text-light" onclick="activateService('{{$service->service_ID}}')">Inactive</span>
                                         @endif
                                     </div>
                                 </td>
@@ -160,7 +160,7 @@
 
             Swal.fire({
                 title: 'Services Archiving',
-                text: 'Are you sure to archive this service?',
+                text: 'Are you sure you want to archive this service?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Archive',
@@ -169,9 +169,9 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: `{{ url('/admin/service/') }}/${serviceID}/archive`,  // Corrected URL to use 'serviceID'
+                        url: `/admin/service/${serviceID}/archive`, 
                         data: {
-                            '_token': '{{ csrf_token() }}',
+                            '_token': '{{ csrf_token() }}', 
                         },
                         success: function(data) {
                             row.remove();
@@ -179,7 +179,7 @@
                         },
                         error: function(data) {
                             console.error(data);
-                            Swal.fire('Error!', data.responseJSON.message || 'There was an error archiving.', 'error');
+                            Swal.fire('Error!', data.responseJSON?.message || 'There was an error archiving.', 'error');
                         }
                     });
                 }

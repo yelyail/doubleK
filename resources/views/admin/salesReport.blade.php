@@ -51,49 +51,64 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-striped cstm-table">
-                <thead>
+        <table class="table table-striped cstm-table">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Particulars</th>
+                    <th>Quantity Ordered</th>
+                    <th>Unit Price</th>
+                    <th>Payment</th>
+                    <th>Payment Type</th>
+                    <th>Reference Number</th>
+                    <th>Order Date</th>
+                    <th>Warranty</th>
+                    <th>Sales Recipient</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($orderReceipts as $orderReceipt)
                     <tr>
-                        <th>Customer Name</th>
-                        <th>Particulars</th>
-                        <th>Quantity</th>
-                        <th>Unit Price</th>
-                        <th>Total Price</th>
-                        <th>Amount Paid</th>
-                        <th>Payment Method</th>
-                        <th>Reference Number</th>
-                        <th>Transaction Date</th>
-                        <th>Warranty</th>
-                        <th>Sales Recipient</th>
-                        <th>Request Repair</th>
+                        <td>{{ ucwords(strtolower($orderReceipt->customer_name ?? 'N/A')) }}</td>
+                        <td>
+                            {{ $orderReceipt->particulars ?? 'N/A' }}
+                        </td>
+                        <td>{{ $orderReceipt->qty_order }}</td>
+                        <td>₱ {{ number_format($orderReceipt->unit_price, 2) }}</td>
+                        <td>₱ {{ number_format($orderReceipt->payment, 2) }}</td>
+                        <td>{{ $orderReceipt->payment_type ?? 'N/A' }}</td>
+                        <td>{{ $orderReceipt->reference_num ?? 'N/A' }}</td>
+                        <td>{{ $orderReceipt->order_date }}</td>
+                        <td>
+                            @php
+                                $warranty = $orderReceipt->warranty;
+                                $warrantyUnit = 'days';
+
+                                if ($warranty >= 30) {
+                                    $warranty = round($warranty / 30, 1);
+                                    $warrantyUnit = 'months';
+                                } elseif ($warranty >= 7) {
+                                    $warranty = round($warranty / 7, 1);
+                                    $warrantyUnit = 'weeks';
+                                }
+                            @endphp
+                            {{ $warranty }} {{ $warrantyUnit }}
+                        </td>
+                        <td>{{ $salesRecipient }}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-secondary btn-repair" 
+                                    {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }}>
+                                Request Repair
+                            </button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach ($orderReceipts as $orderReceipt)
-                        <tr>
-                            <td>{{ ucwords(strtolower($orderReceipt->customer_name ?? 'N/A' ))}}</td>
-                            <td>{{ ucwords(strtolower($orderReceipt->particulars ?? 'N/A')) }}</td>
-                            <td>{{ $orderReceipt->qty_order }}</td>
-                            <td>{{ $orderReceipt->unit_price }}</td>
-                            <td>{{ $orderReceipt->total_price }}</td>
-                            <td>{{ $orderReceipt->payment ?? 'N/A' }}</td>
-                            <td>{{ $orderReceipt->payment_type ?? 'N/A' }}</td>
-                            <td>{{ $orderReceipt->reference_num ?? 'N/A' }}</td>
-                            <td>{{ $orderReceipt->order_date }}</td>
-                            <td>{{ $orderReceipt->warranty ?? 'N/A' }}</td>
-                            <td>{{ $salesRecipient }}</td>
-                            <td>
-                                <button type="button" class="btn btn-outline-secondary btn-repair" 
-                                        {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }}>
-                                    Request Repair
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                @endforeach
+
+            </tbody>
+        </table>
         </div>
     </div>
 
-    <script src="{{ asset('assets/js/salesReport.js') }}"></script>
+<script src="{{ asset('assets/js/salesReport.js') }}"></script>
 @endsection

@@ -27,7 +27,7 @@ use App\Models\tblservice;
          */
         public function index()
         {
-            return view('/login');
+            return view('auth.login');
         }
         
         public function adminDashboard()

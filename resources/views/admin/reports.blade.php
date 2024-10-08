@@ -42,28 +42,38 @@
                     </div>
                 </div>
                     <div class="table-responsive">
-                        <table class="table table-striped custom-table">
+                        <table class="table table-striped cstm-table">
                             <thead>
                                 <tr>
+                                    <th>Product Reference</th>
                                     <th>Product Name</th>
-                                    <th>Stock In</th>
-                                    <th>Quantity Sold</th>
-                                    <th>Last Restock Date</th>
-                                    <th>Return</th>
+                                    <th>Category</th>
                                     <th>Supplier Name</th>
-                                    <th>Print</th>
+                                    <th>Current Stock</th>
+                                    <th>Quantity Sold</th>
+                                    <th>Price</th>
+                                    <th>Date Added</th>
+                                    <th>Restock Date</th>
+                                    <th>Return Date</th>
+                                    <th>Return Reason</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td><button type="submit" class="btn btn-success"><i class="bi bi-printer"></i></button></td>
-                                </tr>
+                                @foreach ($products as $product)
+                                    <tr>
+                                        <td style="text-align:center">{{ ($product->product_id)}}</td>
+                                        <td>{{ (ucwords(strtolower($product->product_name ?? 'N/A')))}}</td>
+                                        <td>{{ (ucwords(strtolower($product->categoryName ?? 'N/A')))}}</td>
+                                        <td>{{ (ucwords(strtolower($product->supplier_name ?? 'N/A')))}}</td>
+                                        <td style="text-align:center">{{ ($product->stock_qty ?? 'N/A')}}</td>
+                                        <td style="text-align:center">{{ ($product->total_qty_sold ?? 'N/A')}}</td>
+                                        <td>₱ {{ number_format($product->unit_price, 2) ?? 'N/A'}}</td>
+                                        <td>{{ $product->prod_add ?? 'N/A' }}</td>
+                                        <td>{{ ($product->nextRestockDate ?? 'N/A')}}</td>
+                                        <td>{{ ($product->returnDate ?? 'N/A')}}</td>
+                                        <td>{{ ($product->returnReason) ?? 'N/A'}}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -71,28 +81,57 @@
             </div>
         </div>
     </div>
+<script>
+    let currentFromDate = null;
+let currentToDate = null;
 
-    <script>
-        document.getElementById('dateFilterForm').addEventListener('submit', function (e) {
-            e.preventDefault(); 
+document.getElementById('dateFilterForm').addEventListener('submit', function (e) {
+    e.preventDefault(); 
 
-            let fromDate = new Date(document.getElementById('from_date').value);
-            let toDate = new Date(document.getElementById('to_date').value);
-            let table = document.querySelector('.custom-table');
-            let tr = table.getElementsByTagName('tr');
+    // Set the from and to dates
+    currentFromDate = new Date(document.getElementById('from_date').value);
+    currentToDate = new Date(document.getElementById('to_date').value);
 
-            for (let i = 1; i < tr.length; i++) {
-                let tdDate = tr[i].getElementsByTagName('td')[6]; 
-                if (tdDate) {
-                    let rowDate = new Date(tdDate.textContent.trim());
+    // Call filterTable to apply filtering
+    filterTable();
+});
 
-                    if ((!isNaN(fromDate.getTime()) && rowDate < fromDate) || (!isNaN(toDate.getTime()) && rowDate > toDate)) {
-                        tr[i].style.display = 'none';
-                    } else {
-                        tr[i].style.display = '';
-                    }
+function filterTable() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const table = document.querySelector('.cstm-table');
+    const tr = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < tr.length; i++) {
+        const row = tr[i];
+        const td = row.getElementsByTagName('td');
+
+        let found = false;
+        let showRow = true;
+        for (let j = 0; j < td.length; j++) {
+            if (td[j] && td[j].textContent.toLowerCase().includes(searchInput)) {
+                found = true;
+                break;
+            }
+        }
+        if (searchInput && !found) {
+            showRow = false;
+        }
+        if (td[8]) { 
+            const rowDate = new Date(td[8].textContent.trim());
+            if (isNaN(rowDate.getTime())) {
+                console.error(`Invalid date in row ${i}: ${td[8].textContent}`);
+                showRow = false; 
+            } else {
+                if ((!isNaN(currentFromDate?.getTime()) && rowDate < currentFromDate) || 
+                    (!isNaN(currentToDate?.getTime()) && rowDate > currentToDate)) {
+                    showRow = false;
                 }
             }
-        });
-    </script>
+        }
+
+        row.style.display = showRow ? '' : 'none';
+    }
+}
+document.getElementById('searchInput').addEventListener('keyup', filterTable);
+</script>
 @endsection

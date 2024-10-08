@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('payment_id');
             $table->date('delivery_date');
             $table->date('order_date');
+            $table->enum('order_status', ['ongoing', 'completed', 'cancel', 'overdue']);      
             $table->foreign('orderitems_id')->references('orderitems_id')->on('tblorderitems')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('customer_id')->references('customer_id')->on('tblcustomer')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('payment_id')->references('payment_id')->on('tblpaymentmethod')->onDelete('cascade')->onUpdate('cascade');

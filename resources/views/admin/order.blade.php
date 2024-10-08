@@ -50,89 +50,99 @@
                 <div class="col-md-7">
                     <div class="card card-cstm-bt mt-4">
                         <div id="productTable">
-                            <table class="table table-striped custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Category Name</th>
-                                        <th>Description</th>
-                                        <th>Price</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($products as $product)
-                                        @if ($product->archived == 0 && $product->inventory->stock_qty > 0)
-                                            <tr data-item-id="{{ $product->product_id }}" data-item-type="product">
-                                                <td>{{ ucwords(strtolower($product->product_name)) }}</td>
-                                                <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
-                                                <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
-                                                <td>₱ {{ number_format($product->unit_price, 2) }}</td>
-                                                <td>
-                                                    <button class="btn btn-success btn-sm add-product" data-bs-toggle="modal" data-bs-target="#productModal"
-                                                            data-item-id="{{ $product->product_id }}" data-item-type="product"
-                                                            data-name="{{ ucwords(strtolower($product->product_name)) }}"
-                                                            data-category="{{ ucwords(strtolower($product->categoryName)) }}"
-                                                            data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
-                                                            data-price="{{ $product->unit_price }}">
-                                                        <i class="bi bi-plus"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                            <div class="table-responsive">
+                                <table class="table table-striped custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Category Name</th>
+                                            <th>Description</th>
+                                            <th>Stocks</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($products as $product)
+                                            @if ($product->archived == 0 && $product->inventory->stock_qty > 0)
+                                                <tr data-item-id="{{ $product->product_id }}" data-item-type="product">
+                                                    <td>{{ ucwords(strtolower($product->product_name)) }}</td>
+                                                    <td>{{ ucwords(strtolower($product->categoryName)) }}</td>
+                                                    <td>{{ ucwords(strtolower($product->product_desc)) }}</td>
+                                                    <td>{{ $product->inventory->stock_qty }}</td>
+                                                    <td>₱ {{ number_format($product->unit_price, 2) }}</td>
+                                                    <td>
+                                                        <button class="btn btn-success btn-sm add-product" data-bs-toggle="modal" data-bs-target="#productModal"
+                                                                data-item-id="{{ $product->product_id }}" data-item-type="product"
+                                                                data-name="{{ ucwords(strtolower($product->product_name)) }}"
+                                                                data-category="{{ ucwords(strtolower($product->categoryName)) }}"
+                                                                data-desc="{{ ucwords(strtolower($product->product_desc)) }}"
+                                                                data-price="{{ $product->unit_price }}">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
 
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <!-- Services Table (Initially Hidden) -->
                         <div id="serviceInput" style="display: none;">
-                            <table class="table table-striped custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Service Name</th>
-                                        <th>Description</th>
-                                        <th>Service Fee</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($services as $service)
-                                        @if ($service->service_status == 0)
-                                            <tr data-item-id="{{ $service->service_ID }}" data-item-type="service">
-                                                <td>{{ ucwords(strtolower($service->service_name)) }}</td>
-                                                <td>{{ ucwords(strtolower($service->description)) }}</td>
-                                                <td>₱ {{ number_format($service->service_fee, 2) }}</td>
-                                                <td>
-                                                    <button class="btn btn-success btn-sm add-service" 
-                                                            data-item-id="{{ $service->service_ID }}" data-item-type="service"
-                                                            data-name="{{ ucwords(strtolower($service->service_name)) }}" 
-                                                            data-fee="{{ $service->service_fee }}">
-                                                        <i class="bi bi-plus"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-striped custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Name</th>
+                                            <th>Description</th>
+                                            <th>Service Fee</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($services as $service)
+                                            @if ($service->service_status == 0)
+                                                <tr data-item-id="{{ $service->service_ID }}" data-item-type="service">
+                                                    <td>{{ ucwords(strtolower($service->service_name)) }}</td>
+                                                    <td>{{ ucwords(strtolower($service->description)) }}</td>
+                                                    <td>₱ {{ number_format($service->service_fee, 2) }}</td>
+                                                    <td>
+                                                        <button class="btn btn-success btn-sm add-service" 
+                                                                data-item-id="{{ $service->service_ID }}" data-item-type="service"
+                                                                data-name="{{ ucwords(strtolower($service->service_name)) }}" 
+                                                                data-fee="{{ $service->service_fee }}">
+                                                            <i class="bi bi-plus"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <!-- Customer Debt Table (Initially Hidden) -->
                         <div id="reserve" style="display: none;">
-                            <table class="table table-striped custom-table">
-                                <thead>
-                                    <tr>
-                                        <th>Customer Name</th>
-                                        <th>Particulars</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Initial Payment</th>
-                                        <th>Reserved Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-striped custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Name</th>
+                                            <th>Particulars</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Initial Payment</th>
+                                            <th>Remaining Balance</th>
+                                            <th>Reserved/Debt Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,10 +191,10 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="custName" class="form-label">Customer Name</label>
-                                <input type="text" class="form-control" id="custName" name="custName" placeholder="(Optional)">
+                                <input type="text" class="form-control" id="custName" name="custName" placeholder="Fullname (Optional)">
                                 
                                 <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" name="address" required>
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Address (Optional)">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -221,22 +231,22 @@
                             <!-- GCash Transfer -->
                             <div id="gcashDetailsInput" style="display: none;">
                                 <label for="senderName" class="form-label">Sender Name</label>
-                                <input type="text" class="form-control" id="senderName" name="gcashCustomerName" placeholder="Enter the Sender Name">
+                                <input type="text" class="form-control" id="senderName" name="gcashCustomerName" placeholder="Full Name">
                                 
                                 <label for="gcashAmount" class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="gcashAmount" name="gcashPayment" placeholder="Enter the GCash amount" required>
+                                <input type="number" class="form-control" id="gcashAmount" name="gcashPayment" placeholder="GCash amount" required>
 
                                 <label for="referenceNum" class="form-label">Reference Number</label>
-                                <input type="number" class="form-control" id="referenceNum" name="gcashReferenceNum" placeholder="Enter the GCash reference number" required>
+                                <input type="number" class="form-control" id="referenceNum" name="gcashReferenceNum" placeholder="GCash reference number" required>
                             </div>
 
                             <!-- Bank Transfer -->
                             <div id="bankTransferDetails" style="display: none;">
                                 <label for="bankName" class="form-label">Bank Name</label>
-                                <input type="text" class="form-control" id="bankName" name="bankPaymentType" placeholder="Enter the Bank Name">
+                                <input type="text" class="form-control" id="bankName" name="bankPaymentType" placeholder="Bank Name">
                                 
                                 <label for="accHold" class="form-label">Account Holder</label>
-                                <input type="text" class="form-control" id="accHold" name="bankCustomerName" placeholder="Enter the Account Name">
+                                <input type="text" class="form-control" id="accHold" name="bankCustomerName" placeholder="Account Name">
                                 
                                 <label for="amount" class="form-label">Transaction Amount</label>
                                 <input type="number" class="form-control" id="amount" name="bankPayment" required>
@@ -245,7 +255,7 @@
                                 <input type="date" class="form-control" id="transactDate" name="bankTransactionDate">
 
                                 <label for="transactRef" class="form-label">Transaction Reference</label>
-                                <input type="number" class="form-control" id="transactRef" name="bankReferenceNum" placeholder="Enter the Transaction Reference" required>
+                                <input type="number" class="form-control" id="transactRef" name="bankReferenceNum" placeholder="Transaction Reference" required>
                             </div>
                         </div>
                     </div>

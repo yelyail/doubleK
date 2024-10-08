@@ -519,7 +519,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 data: JSON.stringify(payload),
                 success: function(response) {
-                    // Check for warning messages from the response
                     if (response.warning) {
                         Swal.fire({
                             icon: 'warning',

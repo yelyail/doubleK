@@ -27,4 +27,12 @@ class tblorderitems extends Model
     {
         return $this->belongsTo(tblservice::class, 'service_ID', 'service_ID');
     }
+
+    public function getCombinedNameAttribute()
+    {
+        $product_name = $this->product ? $this->product->product_name : null;
+        $service_name = $this->service ? $this->service->service_name : null;
+
+        return trim($product_name . ($product_name && $service_name ? ' / ' : '') . $service_name);
+    }
 }

@@ -17,6 +17,7 @@ class tblorderreceipt extends Model
         'payment_id',
         'delivery_date',
         'order_date',
+        'order_status', 
     ];
 
     public $timestamps = false;

@@ -69,16 +69,21 @@ class AuthController extends Controller
             }
             Auth::login($user);
             session(['userID' => $user->user_ID]);
+            Log::info("User jobtitle", ['jobtitle' => $user->jobtitle]);
+
             switch ($user->jobtitle) {
                 case 0:
-                    return redirect()->route('adminDashboard');
-                case 1:
+                    return redirect()->route('adminDashboard')->with('message', 'You are being redirected to your Admin Dashboard.');
+                    case 1:
                 case 2:
-                    return redirect()->route('userDashboard');
+                    Log::info("redirecting to userdashboard");
+
+                    return redirect()->route('userDashboard')->with('message', 'You are being redirected to your User Dashboard.');
                 default:
                     $this->showAlert('error', 'Error!', 'Unauthorized access.');
                     return back();
             }
+            
         } catch (\Exception $e) {
             Log::error("Login Error", [
                 'error' => $e->getMessage(),

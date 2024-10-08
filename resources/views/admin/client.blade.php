@@ -97,7 +97,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="jobRole" class="form-label">Job Role</label>
-                        <select class="form-control" name="jobtitle" required>
+                        <select class="form-control" name="jobtype" required>
                             <option value="" disabled selected hidden>Job Role</option>
                             <option value="1">Staff</option>
                             <option value="2">Helper</option>
@@ -124,8 +124,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" >Close</button>
-                    <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" >Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
                     </div>
                 </form>
             </div>
@@ -141,29 +141,33 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="editEmployeeForm" method="POST">
+                <form id="editEmployeeForm" method="POST" novalidate>
                     @csrf
                     <input type="hidden" id="editEmployeeId" name="id">
                     <div class="mb-3">
                         <label for="editEmployeeName" class="form-label">Employee Name</label>
                         <input type="text" class="form-control" id="editEmployeeName" name="fullname" required>
+                        <div class="invalid-feedback">Please enter the employee's name.</div>
                     </div>
                     <div class="mb-3">
                         <label for="editUserName" class="form-label">Username</label>
                         <input type="text" class="form-control" id="editUserName" name="username" required>
+                        <div class="invalid-feedback">Please enter a username.</div>
                     </div>
                     <div class="mb-3">
                         <label for="editJobRole" class="form-label">Job Role</label>
                         <select class="form-control" name="jobtype" id="editJobRole" required>
-                            <option value="" disabled selected hidden>Job Role</option>
-                            <option value="admin">Admin</option>
-                            <option value="staff">Staff</option>
-                            <option value="helper">Helper</option>
+                            <option value="" disabled selected hidden>Choose Job Role</option>
+                            <option value="0">Admin</option>
+                            <option value="1">Helper</option>
+                            <option value="2">Staff</option>
                         </select>
+                        <div class="invalid-feedback">Please select a job role.</div>
                     </div>
                     <div class="mb-3">
                         <label for="editPhoneNumber" class="form-label">Phone Number</label>
-                        <input type="tel" class="form-control" id="editPhoneNumber" name="user_contact" required>
+                        <input type="tel" class="form-control" id="editPhoneNumber" name="user_contact" pattern="[0-9]{10}" required>
+                        <div class="invalid-feedback">Please enter a valid phone number.</div>
                     </div>
                     <div class="mb-3">
                         <label for="editPassword" class="form-label">Password</label>
@@ -179,6 +183,7 @@
         </div>
     </div>
 </div>
+<script src="{{ asset('assets/js/crud.js') }}"></script>
 <input type="hidden" id="clientData" value='@json($clients)'>
 <script>
     $(document).ready(function() {
@@ -198,7 +203,7 @@
                     $.ajax({
                         type: 'POST',
                         url: `{{ url('/admin/employee/') }}/${employeeID}/archive`,
-                        data: {
+                        data: {         
                             '_token': '{{ csrf_token() }}',
                         },
                         success: function(data) {

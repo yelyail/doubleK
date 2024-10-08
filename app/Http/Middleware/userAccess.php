@@ -26,8 +26,7 @@ class userAccess
                 return $next($request); 
             }
         }
-
-        return response()->json(["You don't have permission to access this page"]);
+        // Redirect back with a session flash message
+        return redirect()->back()->with('error', "You don't have permission to access this page");
     }
-
 }

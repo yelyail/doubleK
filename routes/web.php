@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     return redirect()->route('login');
 })->middleware('checkLogin');
-
 // Authentication Routes
 Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -42,12 +41,15 @@ Route::middleware(['auth','userAccess:0'])->prefix('admin')->group(function() {
         Route::get('/employee/{id}/edit', 'editClient')->name('editEmployee');
         Route::post('/employee/{id}/archive', 'archiveClient')->name('archiveClient');
         Route::post('/employee/{id}/update', 'updateClient')->name('updateClient');
+        
         Route::get('/supplier/{id}/edit', 'editSupplier')->name('editSupplier');
         Route::post('/supplier/{id}/archive', 'archiveSupplier')->name('archiveSupplier');
         Route::post('/supplier/{id}/update', 'updateSupplier')->name('updateSupplier');
+
         Route::get('/service/{id}/editServices', 'editService')->name('editService');
         Route::post('/service/{id}/update', 'updateService')->name('updateService'); 
         Route::post('/service/{serviceID}/archive', 'archiveService')->name('archiveService');
+        Route::get('/service/{serviceID}/activateService', 'activateService')->name('activateService');
     });
     // For posting
     Route::prefix('/inventory')->group(function() {
@@ -73,6 +75,7 @@ Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
     Route::controller(orderReceipt::class)->group(function() {
         Route::post('/admin/confirm/storeOrderReceipt', 'storeReceipt')->name('storeReceipt');
         Route::post('/admin/confirm/storeReservation', 'storeReservation')->name('storeReservation');
+
         Route::post('/user/confirm/storeReceipt', 'storeReceipt')->name('storeReceipt1');
         Route::post('/user/confirm/storeReservation', 'storeReservation')->name('storeReservation1');
     });
@@ -81,12 +84,15 @@ Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
 // User Routes
 Route::middleware(['auth','userAccess:1,2'])->group(function() {
     Route::controller(dashboardController::class)->group(function() {
-        Route::get('/user/order', 'order')->name('userOrder');
-        Route::get('/user/reports', 'reports')->name('userReports');
+        Route::get('/user/order', 'userOrder')->name('userOrder');
+        Route::get('/user/reports', 'userReports')->name('userReports');
     });
 });
 
 // Printing Receipt Routes
+Route::get('/receipt/{ordDet_ID}', [OrderReceipt::class, 'generatePdf'])->name('generateReceipt');
+Route::get('/receipt', [OrderReceipt::class, 'tempReceipt']);
+
 Route::get('orderReceipt', [receiptPrintController::class, 'orderReceipt']);
 Route::get('receipt', [receiptPrintController::class, 'receipt']);
 

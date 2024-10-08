@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var productName = button.attr('data-name');
             var productCategory = button.attr('data-category');
             var productDesc = button.attr('data-desc');
+            
             var productPrice = button.attr('data-price'); // Retrieve using .attr()
         
             var modal = $(this);
@@ -286,32 +287,30 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('reservationButton').addEventListener('click', function() {
             const reservationItems = [];
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
-
+        
             for (let row of orderSummaryBody.rows) {
-                const productId = row.getAttribute('data-product-id');  // Product ID
-                const serviceId = row.getAttribute('data-service-id');  // Service ID (if any)
-                const quantity = row.cells[1].innerText;                // Quantity
-                const price = row.cells[2].innerText.replace('₱ ', ''); // Price
-                const total = row.cells[3].innerText.replace('₱ ', ''); // Total price
-
+                const productId = row.getAttribute('data-product-id');
+                const serviceId = row.getAttribute('data-service-id');
+                const quantity = row.cells[1].innerText;
+                const price = row.cells[2].innerText.replace('₱ ', '');
+                const total = row.cells[3].innerText.replace('₱ ', '');
+        
                 reservationItems.push({
                     product_id: productId ? parseInt(productId) : null,
                     service_id: serviceId ? parseInt(serviceId) : null,
                     quantity: parseInt(quantity),
                     total: parseFloat(total)
                 });
-                
             }
-
+        
             const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
             const deliveryDate = document.getElementById('displayDeliveryDate').innerText;
-            const customerName = document.getElementById('finalCustomerName').innerText; // Get customer name
+            const customerName = document.getElementById('finalCustomerName').innerText;
             const finalTotal = document.getElementById('totalConfirmation').innerText.replace('₱ ', '');
-
-            // Populate the reservation table
+        
             const reserveTableBody = document.querySelector('#reserve tbody');
-            reserveTableBody.innerHTML = ''; // Clear existing rows
-
+            reserveTableBody.innerHTML = '';
+        
             reservationItems.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -324,12 +323,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 reserveTableBody.appendChild(row);
             });
-
-            // Show the reservation table
+        
             document.getElementById('reserve').style.display = 'block';
-
+        
             $.ajax({
-                url: "{{ route('storeReservation') }}", 
+                url: "{{ route('storeReservation') }}",
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -339,14 +337,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     finalTotal: finalTotal
                 },
                 success: function(response) {
-                    alert('Reservation made successfully!');
+                    swal({
+                        title: "Success!",
+                        text: "Reservation made successfully!",
+                        icon: "success",
+                        button: "OK",
+                    });
                 },
                 error: function(xhr) {
                     console.log(reservationItems);
-                    alert('An error occurred while making the reservation.');
+                    swal({
+                        title: "Error!",
+                        text: "An error occurred while making the reservation.",
+                        icon: "error",
+                        button: "OK",
+                    });
                 }
             });
         });
+        
         // For the table
         function updateConfirmationSummary() {
             const orderSummaryBody1 = document.getElementById('orderSummaryBody1'); // Step 1 table
@@ -399,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let deliveryDate = document.getElementById('displayDeliveryDate').innerText;
             let billingDate = document.getElementById('displayBillingDate').innerText;
         
-            if (deliveryMethod.trim() === 'Pickup') {
+            if (deliveryMethod.trim() === 'pickup') {
                 const currentDate = new Date();
                 const formattedDate = currentDate.toISOString().slice(0, 10); 
             
@@ -444,8 +453,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
             Array.from(orderSummaryBody1.rows).forEach(row => {
                 let type = row.dataset.itemType;
-                let id = row.dataset.itemId;
-        
+                let id = row.dataset.itemId; 
+                
                 if (type && id) {
                     const productName = row.cells[0].innerText;
                     const quantity = parseInt(row.cells[1].innerText);
@@ -507,9 +516,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 referenceNum: referenceNum,
                 payment: payment,
                 orderItems: orderItems,
-                totalAmount: totalAmount 
+                totalAmount: totalAmount,
             };
-        
+            
+            console.log(payload);
             $.ajax({
                 url: '/admin/confirm/storeOrderReceipt',
                 type: 'POST',
@@ -519,16 +529,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 data: JSON.stringify(payload),
                 success: function(response) {
-                    // Check for warning messages from the response
                     if (response.warning) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Warning',
-                            text: response.warning,
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            window.location.href = '/admin/order';
-                        });
+                        // Warning handling
                     } else {
                         Swal.fire({
                             icon: 'success',
@@ -536,10 +538,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             text: response.message,
                             confirmButtonText: 'OK'
                         }).then(() => {
+                            window.open(`/receipt/${response.ordDet_ID}`, '_blank'); 
                             window.location.href = '/admin/order';
                         });
                     }
-                },
+                },                
                 error: function(xhr) {
                     const errorMessage = xhr.responseJSON?.message || 'Something went wrong. Please try again!';            
                     Swal.fire({
@@ -550,7 +553,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
-            
         }        
         toggleNextButton();
     });

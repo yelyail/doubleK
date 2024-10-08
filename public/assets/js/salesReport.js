@@ -1,9 +1,8 @@
-// Attach keyup event listener to the search input for filtering the table based on search terms
 document.getElementById('searchInput').addEventListener('keyup', filterTable);
 
 document.getElementById('dateFilterForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    filterTable(); // Trigger the combined filtering function
+    filterTable(); 
 });
 document.getElementById('payment_method_filter').addEventListener('change', filterTable);
 

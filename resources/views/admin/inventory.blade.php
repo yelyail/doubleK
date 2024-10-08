@@ -76,7 +76,6 @@
                                     <td>
                                         <div style="display: flex; align-items: center;">
                                             @if($product->archived == 0)
-                                                <!-- Active Product: Show Edit and Archive buttons -->
                                                 <button class="btn btn-success btn-sm" onclick="editInventory('{{ $product->product_id }}')">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
@@ -287,7 +286,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: 'POST',
-                        url: `{{ url('/admin/inventory/') }}/${product_id}/archive`, 
+                        url: `/admin/inventory/${product_id}/archive`, 
                         data: {
                             '_token': '{{ csrf_token() }}',
                         },
