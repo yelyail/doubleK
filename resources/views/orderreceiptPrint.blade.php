@@ -5,57 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
     <style>
+        @page {
+            size: A4 portrait;
+            margin: 40px;
+
+        }
         body {
             font-family: monospace, sans-serif;
-            margin: 0 auto;
         }
         .container {
             width: 100%;
+            max-width: 800px;
             margin: 0 auto;
+            justify-content: space-between;
         }
         .company-info{
-            text-align: right;
-            width: 45%;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
         }
         .header {
             display: flex;
             justify-content: space-between;
             font-weight: bold;
             align-items: center;
-            margin-bottom: 20px;
         }
         .title-section {
             display: flex;
             flex-direction: column; 
         }
 
-        .header div {
-            width: 45%;
-        }
         .header div:last-child {
             text-align: right;
         }
         .info {
             width: 100%;
-            display: flex;
             justify-content: space-between; 
-            align-items: flex-start; 
-            margin-bottom: 20px; 
+            display: flex;
+            margin-bottom: 5px;
+            align-items: center; 
             flex-wrap: nowrap; 
         }
-        .info {
-            display: flex;
-            justify-content: space-between; 
-            align-items: flex-start; 
-        }
-
         .left, .right {
             flex: 1;
             margin-right: 10px; 
+            display: flex;
+            align-items: centers;
         }
-
+        .info div:last-child {
+            margin: 0;
+            text-align: right;
+        }
         p {
-            margin: 5px 0; 
+            margin: 0; 
+            font-weight:normal;
         }
         .full-line {
             width: 100%;
@@ -75,19 +78,17 @@
             padding: 5px;
             text-align: center;
         }
-        td:first-child {
-            text-align: left;
-        }
-        td:last-child {
-            text-align: center;
-        }
         .footer {
             margin-top: 10px;
             display: flex;
             justify-content: space-between;
         }
-        .summary {
-            margin-top: 20px;
+        .footer div:last-child {
+            margin: 0;
+            text-align: right;
+        }
+        .summary {  
+            margin-bottom: 10px;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
@@ -117,10 +118,9 @@
             </div>
             <div class="company-info">
                 <h2>Double-K Computers</h2>
-                <p>#20 Pag-Asa Street, S.I.R. Matina, Phase 2, Barangay Bucana<br>Davao City, Philippines 8000</p>
+                <p>#20 Pag-Asa Street, S.I.R.<br> Matina, Phase 2, Barangay Bucana<br>Davao City, Philippines 8000</p>
             </div>
         </div>
-
         <hr>
 
         <div class="info">
@@ -130,8 +130,8 @@
                 <p><strong>Contact Person:</strong>{{ucwords(strtolower($customer_name))}}</p>
             </div>
             <div class="right">
+                <p><strong>Transact Ref.:</strong>{{$reference}}</p>
                 <p><strong>Cashier:</strong> {{ucwords(strtolower($representative))}}</p>
-                <p><strong></strong>{{$date}}</p>
             </div>
         </div>
 
@@ -149,10 +149,10 @@
                     <tr>
                         <td>
                             @if($item['product_name'])
-                                {{ $item['product_name'] }}
+                                {{strtoupper($item['product_name'])  }}
                             @endif
                             @if($item['service_name'])
-                                {{ $item['service_name'] }}
+                                {{ strtoupper($item['service_name']) }}
                             @endif
                         </td>
                         <td>{{ $item['quantity'] }}</td>

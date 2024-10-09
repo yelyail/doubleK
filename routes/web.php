@@ -8,6 +8,7 @@ use App\Http\Controllers\orderReceipt;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\receiptPrintController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\salesReceiptController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -92,6 +93,8 @@ Route::middleware(['auth','userAccess:1,2'])->group(function() {
 // Printing Receipt Routes
 Route::get('/receipt/{ordDet_ID}', [OrderReceipt::class, 'generatePdf'])->name('generateReceipt');
 Route::get('/receipt', [OrderReceipt::class, 'tempReceipt']);
+
+Route::get('/salesReport', [salesReceiptController::class, 'salesReceipt'])->name('generateSalesReport');;
 
 Route::get('orderReceipt', [receiptPrintController::class, 'orderReceipt']);
 Route::get('receipt', [receiptPrintController::class, 'receipt']);
