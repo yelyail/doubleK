@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log(payload);
             $.ajax({
-                url: '/admin/confirm/storeOrderReceipt',
+                url: '/confirm/storeOrderReceipt',
                 type: 'POST',
                 contentType: 'application/json',
                 headers: {
@@ -530,7 +530,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: JSON.stringify(payload),
                 success: function(response) {
                     if (response.warning) {
-                        // Warning handling
                     } else {
                         Swal.fire({
                             icon: 'success',
@@ -539,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             confirmButtonText: 'OK'
                         }).then(() => {
                             window.open(`/receipt/${response.ordDet_ID}`, '_blank'); 
-                            window.location.href = '/admin/order';
+                            window.location.reload();
                         });
                     }
                 },                

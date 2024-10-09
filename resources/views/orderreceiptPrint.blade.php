@@ -148,16 +148,17 @@
                 @foreach($orderItems as $item)
                     <tr>
                         <td>
-                            @if($item['product_name'])
-                                {{strtoupper($item['product_name'])  }}
+                            @if(isset($item['product_name']) && $item['product_name'])
+                                {{ strtoupper($item['product_name']) }}
                             @endif
-                            @if($item['service_name'])
+
+                            @if(isset($item['service_name']) && $item['service_name'])
                                 {{ strtoupper($item['service_name']) }}
                             @endif
                         </td>
                         <td>{{ $item['quantity'] }}</td>
-                        <td>Php {{ $item['total_price'] }}</td>
-                        <td>Php {{ number_format($total_price, 2) }}</td>
+                        <td>Php {{ number_format($item['total_price'], 2) }}</td>
+                        <td>Php {{ number_format($item['total_price'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -179,7 +180,7 @@
             <div class="summary">
                 <div>
                     <strong>Total Amount:</strong>
-                    <span>Php {{ number_format($total_price, 2) }}</span>
+                    <span>Php {{ $total_price }}</span>
                 </div>
                 <div>
                     <strong>Payment Method:</strong>
@@ -187,11 +188,11 @@
                 </div>
                 <div>
                     <strong>Amount Paid:</strong>
-                    <span>{{ 'Php' . number_format($payment, 2) }}</span>
+                    <span>Php{{ $payment }}</span>
                 </div>
                 <div>
                     <strong>Change:</strong>
-                    <span>Php {{ number_format($amount_deducted, 2) }}</span>
+                    <span>Php {{$amount_deducted }}</span>
                 </div>
             </div>
         </div>

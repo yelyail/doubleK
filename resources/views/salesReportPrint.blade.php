@@ -74,7 +74,7 @@
         <div class="header">
             <div class="title-section">
                 <h1>{{$title}}</h1>
-                <h4><b>Reporting Period:</b> from date to date</h4>
+                <h4><b>Reporting Period:</b> From: {{ $fromDate ? $fromDate : 'N/A' }} To: {{ $toDate ? $toDate : 'N/A' }}</h4>
                 <h4><b>Total Sales:</b> Php {{$total_sales}}</h4>
                 <h5>{{$order_id}}</h5>
                 <h5>{{$date}}</h5>

@@ -13,7 +13,7 @@
     <div class="row">
     <!-- Inventory Status Column -->
     <div class="col-lg-6 col-md-6">
-        <a href="{{ route('adminInventory') }}" class="text-decoration-none">
+        <a href="{{ route('userReports') }}" class="text-decoration-none">
             <div class="card mb-4">
                 <div class="card-body btn-custom">
                     <h3 class="card-title"><b>Inventory Status</b></h3>

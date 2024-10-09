@@ -3,52 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory</title>
+    <title>{{$title}}</title>
     <style>
+        @page {
+            size: A4 portrait;
+            margin: 20px;
+        }
         body {
             font-family: Arial, sans-serif;
         }
         .container {
-            width: 80%;
-            margin: 20px auto;
-            border: 1px solid black;
-            padding: 20px;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            border: 1px solid black;
-            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            justify-content: space-between;
         }
         .header {
             display: flex;
-            justify-content: space-between; /* Space between items */
-            align-items: center; /* Center vertically */
-            margin-bottom: 20px;
+            justify-content: space-between;
             font-weight: bold;
+            align-items: center;
+        }
+        .header div:last-child {
+            text-align: right;
         }
         .company-info {
-            text-align: right;
-            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .title-section {
+            display: flex;
+            flex-direction: column; 
         }
         table {
             width: 100%;
+            border: 1px;
             border-collapse: collapse;
         }
-        table, th, td {
-            border: 1px solid black;
-        }
         th, td {
-            padding: 8px;
-            text-align: center;
+            border: 1px solid darkgray;
         }
-        .footer {
-            display: flex;
-            justify-content: space-between; /* Space between items */
-            margin-top: 20px;
+        td{
+            font-size: 12px;
+        }
+        thead {
             text-align: center;
+            background-color: #f2f2f2;
         }
         h5{
+            margin: 0;
+            font-weight: normal;
+        }
+        p{
             margin: 0;
             font-weight: normal;
         }
@@ -58,14 +65,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <div>
-                <h1>Inventory Report</h1>
+            <div class="title-selection">
+                <h1>{{ $title }}</h1>
                 <h5>Reporting Period: from date to date</h5>
-                <h5>Transaction Date: date and time</h5>
+                <h5>{{ $date }}</h5>
             </div>
             <div class="company-info">
-                <h2>Your Company Name</h2>
-                <p>1234 Your Address St.<br>Your City, State, ZIP</p>
+                <h2>Double-K Computers</h2>
+                <p>#20 Pag-Asa Street, S.I.R.<br> Matina, Phase 2, Barangay Bucana<br>Davao City, Philippines 8000</p>
             </div>
         </div>
         <hr>
@@ -85,13 +92,26 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Data rows go here -->
+                @foreach($products as $product)
+                    <tr>
+                        <td>{{ $product['product_name'] }}</td>
+                        <td>{{ $product['categoryName'] }}</td>
+                        <td>{{ $product['supplierName'] }}</td>
+                        <td>{{ $product['stock_qty'] }}</td>
+                        <td>{{ number_format($product['unit_price'], 2) }}</td>
+                        <td>{{ $product['warranty'] }}</td>
+                        <td>{{ $product['product_desc'] }}</td>
+                        <td>{{ $product['prod_add'] }}</td>
+                        <td>{{ $product['updatedQty'] }}</td>
+                        <td>{{ $product['nextRestockDate'] }}</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
 
-        <div class="footer">
-            <p><b>Prepared by:__________________________</b></p>
-            <p><b>Validated by:__________________________</b></p>
+        <div class="footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="margin-top: 10px;"><b>Prepared by:</b> <u>{{ $representative }}</u></p>
+            <p style="margin: 0; text-align: right;"><b>Validated by:</b> <u>{{ $adminName }}</u></p> 
         </div>
     </div>
 </body>

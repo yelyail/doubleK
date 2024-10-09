@@ -47,8 +47,8 @@
                 <thead>
                     <tr>
                         <th>Product Reference</th>
-                        <th>Product Name</th>
                         <th>Category</th>
+                        <th>Product Name</th>
                         <th>Supplier Name</th>
                         <th>Current Stock</th>
                         <th>Quantity Sold</th>
@@ -63,8 +63,8 @@
                     @foreach ($products as $product)
                         <tr>
                             <td style="text-align:center">{{ $loop->iteration }}</td>
-                            <td>{{ ucwords(strtolower($product->product_name ?? 'N/A')) }}</td>
                             <td>{{ ucwords(strtolower($product->categoryName ?? 'N/A')) }}</td>
+                            <td>{{ ucwords(strtolower($product->product_name ?? 'N/A')) }}</td>
                             <td>{{ ucwords(strtolower($product->supplier_name ?? 'N/A')) }}</td>
                             <td style="text-align:center">{{ $product->stock_qty ?? 'N/A' }}</td>
                             <td style="text-align:center">{{ $product->total_qty_sold ?? 'N/A' }}</td>
@@ -117,11 +117,12 @@
                         showRow = false;
                     }
                 }
-
-                // Update the display of the row
                 tr[i].style.display = showRow ? '' : 'none';
             }
         }
+    });
+    document.getElementById('plus-button').addEventListener('click', function() {
+        window.location.href = "{{ route('generateInventoryReports') }}"; 
     });
 </script>
 

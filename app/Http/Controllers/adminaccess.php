@@ -92,6 +92,7 @@ class adminaccess extends Controller
     public function adminSalesReport() { 
         $orderReceipts = DB::table('tblorderitems')
             ->select(
+                'tblorderreceipt.ordDet_ID', // Add the order receipt ID here
                 DB::raw("GROUP_CONCAT(COALESCE(tblproduct.product_name, tblservice.service_name) SEPARATOR ', ') AS particulars"), 
                 DB::raw('SUM(tblorderitems.qty_order) AS qty_order'), 
                 DB::raw("COALESCE(tblproduct.unit_price, tblservice.service_fee) AS unit_price"), 
@@ -108,8 +109,9 @@ class adminaccess extends Controller
             ->leftJoin('tblorderreceipt', 'tblorderitems.orderitems_id', '=', 'tblorderreceipt.orderitems_id')
             ->leftJoin('tblcustomer', 'tblorderreceipt.customer_id', '=', 'tblcustomer.customer_id')
             ->leftJoin('tblpaymentmethod', 'tblorderreceipt.payment_id', '=', 'tblpaymentmethod.payment_id')
-            ->whereNotNull('tblorderitems.orderitems_id') // Ensure there's a valid order
+            ->whereNotNull('tblorderitems.orderitems_id') 
             ->groupBy(
+                'tblorderreceipt.ordDet_ID',
                 'tblcustomer.customer_name', 
                 'tblpaymentmethod.payment_type', 
                 'tblpaymentmethod.reference_num', 

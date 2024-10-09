@@ -26,7 +26,7 @@
                             <option value="">All Payment</option>
                             <option value="cash">Cash</option>
                             <option value="gcash">GCash</option>
-                            <option value="banktransfer">Bank Transfer</option>
+                            <option value="bank transfer">Bank Transfer</option>
                         </select>
                         <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search">
                         <button class="btn custom-btn" type="button" id="searchButton">Search</button>
@@ -96,9 +96,9 @@
                             </td>
                             <td>{{ $salesRecipient }}</td>
                             <td>
-                                <button type='button' class='btn btn-outline-secondary btn-repair'{{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }}>
-                                    Request Repair 
-                                     <!-- onclick="showTransferAlert('{{ $orderReceipt->ordDet_ID }}')" -->
+                                <button type='button' class='btn btn-outline-secondary btn-repair' {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }} 
+                                    onclick="showTransferAlert('{{ $orderReceipt->ordDet_ID }}')">
+                                    Request Repair
                                 </button>
                             </td>
                         </tr>
@@ -107,98 +107,5 @@
             </table>
         </div>
     </div>
-
-    <script>
-        function filterSalesReport(event) {
-            event.preventDefault(); 
-            
-            const fromDate = document.getElementById('from_date').value;
-            const toDate = document.getElementById('to_date').value;
-
-            fetch(`{{ route('generateSalesReport') }}?from_date=${fromDate}&to_date=${toDate}`)
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.querySelector('tbody');
-                    tableBody.innerHTML = ''; 
-                    
-                    data.orderReceipts.forEach(orderReceipt => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${orderReceipt.customer_name}</td>
-                            <td>${orderReceipt.particulars}</td>
-                            <td>${orderReceipt.quantity_ordered}</td>
-                            <td>₱ ${parseFloat(orderReceipt.unit_price).toFixed(2)}</td>
-                            <td>₱ ${parseFloat(orderReceipt.payment).toFixed(2)}</td>
-                            <td>${orderReceipt.payment_type || 'N/A'}</td>
-                            <td>${orderReceipt.reference_num || 'N/A'}</td>
-                            <td>${orderReceipt.order_date}</td>
-                            <td>${orderReceipt.warranty}</td>
-                            <td>${orderReceipt.sales_recipient}</td>
-                            <td>
-                                <button type="button" class="btn btn-outline-secondary btn-repair" 
-                                        ${orderReceipt.particulars && orderReceipt.warranty > 0 ? '' : 'disabled'}>
-                                    Request Repair
-                                </button>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching filtered data:', error);
-                });
-        }
-
-        function downloadReport() {
-            const fromDate = document.getElementById('from_date').value;
-            const toDate = document.getElementById('to_date').value;
-
-            window.location.href = `{{ route('generateSalesReport') }}?from_date=${fromDate}&to_date=${toDate}&download=true`;
-        }
-
-        function showTransferAlert(ordDet_ID) {
-                Swal.fire({
-                    title: "Requesting Repair",
-                    showDenyButton: true,
-                    showCancelButton: false,
-                    confirmButtonText: "Yes",
-                    denyButtonText: "No"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'Reasons for Requesting a Repair',
-                            input: 'select',
-                            inputOptions: {
-                                'Defective Hardware Components': 'Defective Hardware Components',
-                                'Incompatibility with Other Components': 'Incompatibility with Other Components',
-                                'Overheating or Performance Degradation': 'Overheating or Performance Degradation',
-                                'Others': 'Others'
-                            },
-                            inputPlaceholder: 'Select reason',
-                            confirmButtonText: 'Confirm',
-                            showCancelButton: true,
-                            cancelButtonText: 'Cancel'
-                        }).then((reason) => {
-                            if (reason.isConfirmed) {
-                                Swal.fire({
-                                    title: "Requesting Repair Confirmed",
-                                    text: "Reason: " + reason.value,
-                                    icon: "success"
-                                }).then(() => {
-                                    document.getElementById('ordDet_ID').value = deceaseId;
-                                    document.getElementById('reason').value = reason.value;
-                                    document.getElementById('transferForm').submit();
-                                });
-                            } else {
-                                Swal.fire("Requesting Repair has been canceled", "", "info");
-                            }
-                        });
-                    } else if (result.isDenied) {
-                        Swal.fire("Requesting Repair has been canceled", "", "info");
-                    }
-                });
-            }
-    </script>
-
     <script src="{{ asset('assets/js/salesReport.js') }}"></script>
 @endsection

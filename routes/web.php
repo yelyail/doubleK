@@ -74,10 +74,8 @@ Route::middleware(['auth','userAccess:0'])->prefix('admin')->group(function() {
 // for order
 Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
     Route::controller(orderReceipt::class)->group(function() {
-        Route::post('/admin/confirm/storeOrderReceipt', 'storeReceipt')->name('storeReceipt');
+        
         Route::post('/admin/confirm/storeReservation', 'storeReservation')->name('storeReservation');
-
-        Route::post('/user/confirm/storeReceipt', 'storeReceipt')->name('storeReceipt1');
         Route::post('/user/confirm/storeReservation', 'storeReservation')->name('storeReservation1');
     });
 });
@@ -93,10 +91,13 @@ Route::middleware(['auth','userAccess:1,2'])->group(function() {
 // Printing Receipt Routes
 Route::get('/receipt/{ordDet_ID}', [OrderReceipt::class, 'generatePdf'])->name('generateReceipt');
 Route::get('/receipt', [OrderReceipt::class, 'tempReceipt']);
+Route::post('/admin/return', [salesReceiptController::class, 'requestRepair'])->name('requestRepair');
+Route::get('/salesReport', [salesReceiptController::class, 'salesReceipt'])->name('generateSalesReport');
+Route::post('/confirm/storeOrderReceipt',[orderReceipt::class, 'storeReceipt'])->name('storeReceipt');
+Route::get('/inventoryReceipt', [salesReceiptController::class, 'inventoryReceipt'])->name('generateInventoryReports');
 
-Route::get('/salesReport', [salesReceiptController::class, 'salesReceipt'])->name('generateSalesReport');;
 
-Route::get('orderReceipt', [receiptPrintController::class, 'orderReceipt']);
+Route::get('orderReceipt', [receiptPrintController::class, 'orderReceipt'])->middleware('userAccess');
 Route::get('receipt', [receiptPrintController::class, 'receipt']);
 
 //require __DIR__.'/auth.php';

@@ -82,7 +82,6 @@
                                                         </button>
                                                     </td>
                                                 </tr>
-
                                             @endif
                                         @endforeach
                                     </tbody>
@@ -363,6 +362,5 @@
     </div>
 </div>
 
-<!-- JavaScript to Handle Steps and Order Functionality -->
 <script src="{{ asset('assets/js/order.js') }}"></script>
 @endsection

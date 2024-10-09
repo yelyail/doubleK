@@ -107,48 +107,61 @@ class orderReceipt extends Controller
         $orderReceipt = tblorderreceipt::with('orderitems')->findOrFail($ordDet_ID);
         $customer = tblcustomer::findOrFail($orderReceipt->customer_id);
         $payment = tblpaymentmethod::findOrFail($orderReceipt->payment_id);
-
-        $orderItems = $orderReceipt->orderitems; 
-        $reference = uniqid();
         $representative = auth()->user()->fullname;
 
-        $totalPrice = $orderItems->sum('total_price'); 
+        $orderReceipts = tblorderreceipt::with('orderitems')
+            ->where('customer_id', $orderReceipt->customer_id)
+            ->where('order_date', $orderReceipt->order_date)
+            ->get();
+
+        $reference = uniqid();
+
+        $orderItems = collect();
+        $totalPrice = 0;
+
+        foreach ($orderReceipts as $receipt) {
+            foreach ($receipt->orderitems as $item) {
+                $product = $item->product;
+                $service = $item->service;
+
+                // Add item to the collection
+                $orderItems->push([
+                    'product_name' => $product ? $product->product_name : null,
+                    'service_name' => $service ? $service->service_name : null,
+                    'quantity' => $item->qty_order,
+                    'total_price' => $item->total_price,
+                ]);
+
+                // Increment total price
+                $totalPrice += $item->total_price;
+            }
+        }
+
         $amountPaid = $payment->payment;
-        $amountDeducted = $amountPaid - $totalPrice; 
+        $amountDeducted = $amountPaid - $totalPrice;
 
         // Prepare data for the view
-        $items = $orderItems->map(function ($item) {
-            $product = $item->product; 
-            $service = $item->service; 
-
-            return [
-                'product_name' => $product ? $product->product_name : null, 
-                'service_name' => $service ? $service->service_name : null, 
-                'quantity' => $item->qty_order,
-                'total_price' => $item->total_price,
-            ];
-        });
-
         $data = [
             'title' => 'Temporary Receipts',
             'reference' => $reference,
             'date' => now()->format('m/d/Y H:i:s'),
-            'orderItems' => $items,
+            'orderItems' => $orderItems,
             'customer_name' => $customer->customer_name,
             'address' => $customer->address,
             'payment_type' => $payment->payment_type,
-            'total_price' => $totalPrice, 
-            'payment' => $amountPaid,
-            'amount_deducted' => $amountDeducted >= 0 ? $amountDeducted : 0, // Ensure it's non-negative
+            'total_price' => number_format($totalPrice, 2),
+            'payment' => number_format($amountPaid, 2),
+            'amount_deducted' => $amountDeducted >= 0 ? number_format($amountDeducted, 2) : '0.00',
             'representative' => $representative,
         ];
 
         $dompdf = new Dompdf();
-        $dompdf->loadHtml(view('orderreceiptPrint', $data));
+        $dompdf->loadHtml(view('orderreceiptPrint', $data)->render());
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        $dompdf->stream('orderReceipt.pdf');
+        return $dompdf->stream('orderReceipt.pdf');
     }
+
     public function tempReceipt()
     {
         $reference = uniqid();
