@@ -67,7 +67,7 @@
         <div class="header">
             <div class="title-selection">
                 <h1>{{ $title }}</h1>
-                <h5>Reporting Period: from date to date</h5>
+                <h4><b>Reporting Period:</b> From: {{ $fromDate ? $fromDate : 'N/A' }} To: {{ $toDate ? $toDate : 'N/A' }}</h4>
                 <h5>{{ $date }}</h5>
             </div>
             <div class="company-info">
@@ -97,9 +97,9 @@
                         <td>{{ $product['product_name'] }}</td>
                         <td>{{ $product['categoryName'] }}</td>
                         <td>{{ $product['supplierName'] }}</td>
-                        <td>{{ $product['stock_qty'] }}</td>
+                        <td style="text-align:center">{{ $product['stock_qty'] }}</td>
                         <td>{{ number_format($product['unit_price'], 2) }}</td>
-                        <td>{{ $product['warranty'] }}</td>
+                        <td style="text-align:center">{{ $product['warranty'] }} days</td>
                         <td>{{ $product['product_desc'] }}</td>
                         <td>{{ $product['prod_add'] }}</td>
                         <td>{{ $product['updatedQty'] }}</td>

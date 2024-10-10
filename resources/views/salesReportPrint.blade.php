@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{$title}}</title>
-    <style>
+    <style> 
         @page {
             size: A4 portrait;
             margin: 20px;

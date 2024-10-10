@@ -22,11 +22,11 @@ class userAccess
             if (is_numeric($jobtitle)) {
                 $jobtitle = (int) $jobtitle;
             }
-            if (Auth::user()->jobtitle == $jobtitle) { 
+            if (Auth::user()->jobtitle == $jobtitle) {
                 return $next($request); 
             }
         }
-        // Redirect back with a session flash message
         return redirect()->back()->with('error', "You don't have permission to access this page");
     }
+
 }

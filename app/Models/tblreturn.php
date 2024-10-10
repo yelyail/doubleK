@@ -11,7 +11,7 @@ class tblreturn extends Model
     protected $table = 'tblreturn';
     protected $primaryKey = 'return_id';
     protected $fillable = [
-        'product_id',
+        'ordDet_ID',
         'returnDate',
         'returnReason',
         'return_status',
@@ -19,9 +19,8 @@ class tblreturn extends Model
 
     public $timestamp = false;
 
-    // A return belongs to a product
-    public function product()
+    public function orderreceipt()
     {
-        return $this->belongsTo(tblproduct::class, 'product_id', 'product_id');
+        return $this->belongsTo(tblorderreceipt::class, 'ordDet_ID', 'ordDet_ID');
     }
 }

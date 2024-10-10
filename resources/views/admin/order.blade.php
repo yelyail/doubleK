@@ -187,6 +187,7 @@
                 <form id="orderForm">
                     @csrf
                     <h3 class="prod_name">Personal Details</h3>
+                    
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -221,7 +222,6 @@
                                     <option value="banktransfer">Bank Transfer</option>
                                 </select>
                             </div>
-
                             <!-- Cash -->
                             <div id="cashAmountInput" style="display: none;">
                                 <label for="cashAmount" class="form-label">Cash Amount</label>
@@ -258,8 +258,8 @@
                                 <input type="number" class="form-control" id="transactRef" name="bankReferenceNum" placeholder="Transaction Reference" required>
                             </div>
                         </div>
+                        <strong>Total Amount:</strong> <span id="totalAmount1">₱ 0.00</span>
                     </div>
-
                     <div class="modal-footer">
                         <button id="backToOrder" type="button" class="btn btn-secondary btn-medium" style=" width:100px; margin-right: 10px;">Back to Product</button>
                         <button id="confirmPay"  class="btn btn-success btn-medium" style="width:100px;">Confirm Payment</button>                    

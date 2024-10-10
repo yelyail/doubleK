@@ -140,9 +140,8 @@ class orderReceipt extends Controller
         $amountPaid = $payment->payment;
         $amountDeducted = $amountPaid - $totalPrice;
 
-        // Prepare data for the view
         $data = [
-            'title' => 'Temporary Receipts',
+            'title' => 'Temporary Receipt',
             'reference' => $reference,
             'date' => now()->format('m/d/Y H:i:s'),
             'orderItems' => $orderItems,

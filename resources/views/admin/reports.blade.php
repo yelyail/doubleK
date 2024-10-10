@@ -9,10 +9,10 @@
                 <h1 class="prod_title">Inventory Reports</h1>
             </div>
             <div class="col-md-3 text-end">
-                <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;">
-                    <i class="bi bi-printer"></i> Generate Reports
-                </button>
-            </div>
+            <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;" onclick="generateInventoryReport()">
+                <i class="bi bi-printer"></i> Generate Inventory Reports
+            </button>
+        </div>
         </div>
 
         <div class="container mt-4">
@@ -28,12 +28,12 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="date_filter"><b>Filter by Date:</b></label>
-                        <form id="dateFilterForm">
+                        <form id="dateFilterForm" onsubmit="filterInventoryReport(event)">
                             <div class="input-group md-3">
                                 <span class="input-group-text"><b>From</b></span>
-                                <input type="date" id="from_date" name="from_date" class="form-control me-2" placeholder="From Date">
+                                <input type="date" id="from_date" name="from_date" class="form-control me-2" placeholder="From Date" required>
                                 <span class="input-group-text"><b>To</b></span>
-                                <input type="date" id="to_date" name="to_date" class="form-control" placeholder="To Date">
+                                <input type="date" id="to_date" name="to_date" class="form-control" placeholder="To Date" required>
                                 <button type="submit" class="btn btn-custom">Filter</button>
                             </div>
                         </form>

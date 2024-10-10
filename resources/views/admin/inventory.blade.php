@@ -181,7 +181,7 @@
                 @csrf
                     <input type="hidden" name="productID" id="editInventoryID">
                     <div class="mb-3">
-                        <h4 class="prod_cat"><b>Product Name:</b> <span id="editProductNameDisplay"></span></h4>
+                        <h4 class="prod_cat"><b>Brand Name:</b> <span id="editProductNameDisplay"></span></h4>
                     </div>
                     <div class="mb-3">
                         <h4 class="prod_cat"><b>Category:</b> <span id="editCategoryNameDisplay"></span></h4>

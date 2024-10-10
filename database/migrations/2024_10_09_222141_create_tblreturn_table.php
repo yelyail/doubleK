@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('tblreturn', function (Blueprint $table) {
             $table->id('return_id');
-            $table->unsignedBigInteger('product_id')->nullable();
+            $table->unsignedBigInteger('ordDet_ID')->nullable();
             $table->date('returnDate');
             $table->string('returnReason')->nullable();
-            $table->string('return_status')->nullable();
+            $table->enum('return_status', ['ongoing', 'completed', 'cancel']);      
+            $table->foreign('ordDet_ID')->references('ordDet_ID')->on('tblorderreceipt');
             $table->timestamps();
         });
     }

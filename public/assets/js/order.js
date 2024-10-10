@@ -111,11 +111,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function updateTotalAmount() {
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
-            overallTotal = 0; // Reset the overall total
+            overallTotal = 0; 
             for (let row of orderSummaryBody.rows) {
                 overallTotal += parseFloat(row.cells[3].innerText.replace('₱ ', ''));
             }
-            document.getElementById('totalAmount').innerText = '₱ ' + overallTotal.toFixed(2);
+            document.getElementById('totalAmount').innerText = '₱ ' + overallTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('totalAmount1').innerText = '₱ ' + overallTotal.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
         function toggleNextButton() {
             const orderSummaryBody = document.getElementById('orderSummaryBody1');
@@ -393,12 +394,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('totalConfirmation').innerText = `₱ ${totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             return totalAmount;    
         }
-        // Ensure the updateConfirmationSummary function is called when moving to Step 3
         document.getElementById('nextToCustomerInfo').addEventListener('click', function() {
             updateConfirmationSummary();
         });
-        
-        // storing of data
         function sendOrderToDatabase() {
             const customerName = document.getElementById('finalCustomerName').innerText;
             const address = document.getElementById('displayAddress').innerText;

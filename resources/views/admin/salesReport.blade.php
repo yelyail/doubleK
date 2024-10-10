@@ -1,3 +1,7 @@
+@php
+    use App\Models\tblreturn;
+@endphp
+
 @extends('admin.side')
 
 @section('title', 'Double-K Computer')
@@ -9,9 +13,9 @@
                 <h1 class="prod_title">Sales Reports</h1>
             </div>
             <div class="col-md-3 text-end">
-                <a href="javascript:void(0);" class="btn btn-custom" id="downloadReport" style="border-radius: 7px; height: 2.3rem; border: none;" onclick="downloadReport()">
-                    <i class="bi bi-printer">Generate Sales Reports</i>
-                </a>
+                <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;">
+                    <i class="bi bi-printer"></i> Generate Sales Reports
+                </button>
             </div>
         </div>
 
@@ -37,12 +41,12 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="date_filter"><b>Filter by Date:</b></label>
-                        <form id="dateFilterForm" method="GET" action="{{ route('generateSalesReport') }}" onsubmit="filterSalesReport(event)">
-                            <div class="input-group md-3">
+                        <form id="dateFilterForm" method="GET" onsubmit="filterSalesReport(event)">
+                            <div class="input-group mb-3">
                                 <span class="input-group-text"><b>From</b></span>
-                                <input type="date" id="from_date" name="from_date" class="form-control me-2">
+                                <input type="date" id="from_date" name="from_date" class="form-control me-2" required>
                                 <span class="input-group-text"><b>To</b></span>
-                                <input type="date" id="to_date" name="to_date" class="form-control">
+                                <input type="date" id="to_date" name="to_date" class="form-control" required>
                                 <button type="submit" class="btn btn-custom" id="filterButton">Filter</button>
                             </div>
                         </form>
@@ -96,10 +100,25 @@
                             </td>
                             <td>{{ $salesRecipient }}</td>
                             <td>
-                                <button type='button' class='btn btn-outline-secondary btn-repair' {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }} 
-                                    onclick="showTransferAlert('{{ $orderReceipt->ordDet_ID }}')">
-                                    Request Repair
-                                </button>
+                                @php
+                                    $return = tblreturn::where('ordDet_ID', $orderReceipt->ordDet_ID)->first();
+                                @endphp
+                                @if($return)
+                                    <button class="btn btn-success ongoing-btn" 
+                                            data-ord-det-id="{{ $return->ordDet_ID }}"
+                                            style="cursor: pointer;" 
+                                            title="Click to confirm">
+                                        Confirm
+                                    </button>
+
+                                    @else
+                                        <button type='button' class='btn btn-outline-secondary btn-repair' 
+                                                {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }} 
+                                                onclick="showTransferAlert('{{ $orderReceipt->ordDet_ID }}')">
+                                            Request Repair
+                                        </button>
+                                    @endif
+
                             </td>
                         </tr>
                     @endforeach
@@ -107,5 +126,55 @@
             </table>
         </div>
     </div>
+
     <script src="{{ asset('assets/js/salesReport.js') }}"></script>
+    
+    <script>
+        function filterSalesReport(event) {
+            event.preventDefault(); 
+
+            const fromDate = document.getElementById('from_date').value;
+            const toDate = document.getElementById('to_date').value;
+            if (!fromDate || !toDate) {
+                alert('Please select both From and To dates.');
+                return;
+            }
+            fetch(`{{ route('generateSalesReport') }}?from_date=${fromDate}&to_date=${toDate}`, {
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('tbody');
+                tableBody.innerHTML = ''; 
+                data.orderReceipts.forEach(orderReceipt => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${orderReceipt.customer_name}</td>
+                        <td>${orderReceipt.particulars}</td>
+                        <td>${orderReceipt.quantity_ordered}</td>
+                        <td>₱ ${parseFloat(orderReceipt.unit_price).toFixed(2)}</td>
+                        <td>₱ ${parseFloat(orderReceipt.payment).toFixed(2)}</td>
+                        <td>${orderReceipt.payment_type || 'N/A'}</td>
+                        <td>${orderReceipt.reference_num || 'N/A'}</td>
+                        <td>${orderReceipt.order_date}</td>
+                        <td>${orderReceipt.warranty}</td>
+                        <td>${orderReceipt.sales_recipient}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-secondary btn-repair" 
+                                    ${orderReceipt.particulars && orderReceipt.warranty > 0 ? '' : 'disabled'}>
+                                Request Repair
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching filtered data:', error);
+            });
+        }
+
+    </script>
 @endsection

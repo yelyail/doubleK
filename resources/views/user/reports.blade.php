@@ -10,7 +10,7 @@
             </div>
             <div class="col-md-3 text-end">
                 <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;">
-                    <i class="bi bi-printer"></i> Generate Reports
+                    <i class="bi bi-printer"></i> Generate Inventory Reports
                 </button>
             </div>
         </div>

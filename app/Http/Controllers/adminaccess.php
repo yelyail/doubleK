@@ -92,7 +92,7 @@ class adminaccess extends Controller
     public function adminSalesReport() { 
         $orderReceipts = DB::table('tblorderitems')
             ->select(
-                'tblorderreceipt.ordDet_ID', // Add the order receipt ID here
+                'tblorderreceipt.ordDet_ID', 
                 DB::raw("GROUP_CONCAT(COALESCE(tblproduct.product_name, tblservice.service_name) SEPARATOR ', ') AS particulars"), 
                 DB::raw('SUM(tblorderitems.qty_order) AS qty_order'), 
                 DB::raw("COALESCE(tblproduct.unit_price, tblservice.service_fee) AS unit_price"), 
@@ -102,13 +102,15 @@ class adminaccess extends Controller
                 'tblpaymentmethod.reference_num', 
                 'tblpaymentmethod.payment', 
                 'tblproduct.warranty',
-                'tblorderreceipt.order_date'
+                'tblorderreceipt.order_date',
+                'tblreturn.return_status' 
             )
             ->leftJoin('tblproduct', 'tblorderitems.product_id', '=', 'tblproduct.product_id')
             ->leftJoin('tblservice', 'tblorderitems.service_ID', '=', 'tblservice.service_ID')
             ->leftJoin('tblorderreceipt', 'tblorderitems.orderitems_id', '=', 'tblorderreceipt.orderitems_id')
             ->leftJoin('tblcustomer', 'tblorderreceipt.customer_id', '=', 'tblcustomer.customer_id')
             ->leftJoin('tblpaymentmethod', 'tblorderreceipt.payment_id', '=', 'tblpaymentmethod.payment_id')
+            ->leftJoin('tblreturn', 'tblorderreceipt.ordDet_ID', '=', 'tblreturn.ordDet_ID')
             ->whereNotNull('tblorderitems.orderitems_id') 
             ->groupBy(
                 'tblorderreceipt.ordDet_ID',
@@ -121,7 +123,8 @@ class adminaccess extends Controller
                 'tblproduct.unit_price',
                 'tblservice.service_fee',
                 'tblproduct.warranty',
-                'tblorderreceipt.order_date'
+                'tblorderreceipt.order_date',
+                'tblreturn.return_status'
             )
             ->get();
     
@@ -132,6 +135,7 @@ class adminaccess extends Controller
     
         return view('admin.salesReport', compact('orderReceipts', 'salesRecipient'));
     }
+    
     public function adminService(){ 
         $services = tblservice::all();
         return view('admin.service', compact('services'));

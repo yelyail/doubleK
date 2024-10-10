@@ -170,7 +170,7 @@
             @endphp
             @foreach($orderItems as $item)
                 @php
-                    $totalQuantity += $item['quantity']; // Use array syntax
+                    $totalQuantity += $item['quantity']; 
                 @endphp
             @endforeach
 
