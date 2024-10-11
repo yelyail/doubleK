@@ -143,31 +143,32 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($orderDetailsData as $orderDetailsDatas)
-                                            @if ($orderDetailsDatas['status'] == 'active') 
-                                                <tr>
-                                                    <td>{{ ucwords(strtolower($orderDetailsDatas['customer_name'])) }}</td>
-                                                    <td>{{ ucwords(strtolower($orderDetailsDatas['particulars'])) }}</td>
-                                                    <td style="text-align:center">{{ $orderDetailsDatas['quantity'] }}</td>
-                                                    <td>₱ {{ number_format($orderDetailsDatas['price'], 2) }}</td>
-                                                    <td>₱ {{ number_format($orderDetailsDatas['total_price'], 2) }}</td>
-                                                    <td>₱ {{ number_format($orderDetailsDatas['initial_payment'], 2) }}</td>
-                                                    <td>₱ {{ number_format($orderDetailsDatas['remaining_balance'], 2) }}</td>
-                                                    <td>{{ $orderDetailsDatas['paymentType']}}</td>
-                                                    <td>{{ $orderDetailsDatas['reserved_debt_date'] }}</td>
-                                                    <td>{{ ucwords(strtolower($orderDetailsDatas['type'])) }}</td>
-                                                    <td>
-                                                        @if ($orderDetailsDatas['type'] == 'reserve')
-                                                            @if ($orderDetailsDatas['status'] == 'cancelled')
-                                                                <button type="button" class="btn btn-danger btn-sm" disabled>Cancelled</button>
-                                                            @elseif ($orderDetailsDatas['status'] == 'paid')
-                                                                <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
-                                                            @else
-                                                                <form action="{{ route('orderCancel', $orderDetailsDatas['creditID']) }}" method="POST" style="display:inline;">
-                                                                    @csrf
-                                                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel(event)">Cancel</button>
-                                                                </form>
-                                                                <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
+                                        @if (!empty($orderDetailsData))
+                                            @foreach ($orderDetailsData as $orderDetailsDatas)
+                                                @if ($orderDetailsDatas['status'] == 'active') 
+                                                    <tr>
+                                                        <td>{{ ucwords(strtolower($orderDetailsDatas['customer_name'])) }}</td>
+                                                        <td>{{ $orderDetailsDatas['particulars'] }} </td>
+                                                        <td style="text-align:center">{{ $orderDetailsDatas['quantity'] }}</td>
+                                                        <td>₱ {{ number_format($orderDetailsDatas['price'], 2) }}</td>
+                                                        <td>₱ {{ number_format($orderDetailsDatas['total_price'], 2) }}</td>
+                                                        <td>₱ {{ number_format($orderDetailsDatas['initial_payment'], 2) }}</td>
+                                                        <td>₱ {{ number_format($orderDetailsDatas['remaining_balance'], 2) }}</td>
+                                                        <td>{{ $orderDetailsDatas['paymentType'] }}</td>
+                                                        <td>{{ $orderDetailsDatas['reserved_debt_date'] }}</td>
+                                                        <td>{{ ucwords(strtolower($orderDetailsDatas['type'])) }}</td>
+                                                        <td>
+                                                            @if ($orderDetailsDatas['type'] == 'reserve')
+                                                                @if ($orderDetailsDatas['status'] == 'cancelled')
+                                                                    <button type="button" class="btn btn-danger btn-sm" disabled>Cancelled</button>
+                                                                @elseif ($orderDetailsDatas['status'] == 'paid')
+                                                                    <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
+                                                                @else
+                                                                    <form action="{{ route('orderCancel', $orderDetailsDatas['creditID']) }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel(event)">Cancel</button>
+                                                                    </form>
+                                                                    <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
                                                                     data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
                                                                     data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
                                                                     data-particulars="{{ $orderDetailsDatas['particulars'] }}"
@@ -178,13 +179,13 @@
                                                                     data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
                                                                     data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
                                                                     Pay
-                                                                </a>
-                                                            @endif
-                                                        @elseif ($orderDetailsDatas['type'] == 'credit')
-                                                            @if ($orderDetailsDatas['status'] == 'paid')
-                                                                <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
-                                                            @else
-                                                                <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
+                                                                    </a>
+                                                                @endif
+                                                            @elseif ($orderDetailsDatas['type'] == 'credit')
+                                                                @if ($orderDetailsDatas['status'] == 'paid')
+                                                                    <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
+                                                                @else
+                                                                    <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
                                                                     data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
                                                                     data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
                                                                     data-particulars="{{ $orderDetailsDatas['particulars'] }}"
@@ -195,14 +196,20 @@
                                                                     data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
                                                                     data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
                                                                     Pay
-                                                                </a>
+                                                                    </a>
+                                                                @endif
                                                             @endif
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="10" style="text-align:center;">No data available</td>
+                                            </tr>
+                                        @endif
                                     </tbody>
+
                                 </table>
                             </div>
                         </div>

@@ -49,31 +49,51 @@ class adminaccess extends Controller
 
         return view('admin.inventory', compact('products', 'suppliers'));
     }
-    public function adminOrder(Request $request) {
-        // Retrieve all necessary data
+    public function adminOrder(Request $request)
+    {
         $products = tblproduct::all();
         $services = tblservice::all();
         $credits = tblcredit::all();
-        $creditID = $request->input('creditID'); // Get credit ID from the request
-    
-        // Load customers with their related orders
+        
         $customers = tblcustomer::with(['orderReceipts' => function ($query) {
             $query->with(['paymentMethod', 'credit']);
         }])->get();
-    
+
         $orderDetailsData = [];
         $overallTotal = 0;
-    
+
+        if ($request->has('orderItems')) {
+            foreach ($request->validatedData['orderItems'] as $item) {
+                $productId = $item['type'] === 'product' ? $item['id'] : null;
+                $serviceId = $item['type'] === 'service' ? $item['id'] : null;
+
+                $orderItem = tblorderitems::create([
+                    'product_id' => $productId,
+                    'service_ID' => $serviceId,
+                    'qty_order' => $item['quantity'],
+                    'total_price' => $item['total'],
+                ]);
+                $orderItemsIds[] = $orderItem->orderitems_id;
+
+                if ($item['type'] === 'product') {
+                    $productsToUpdate[] = [
+                        'id' => $item['id'],
+                        'quantity' => $item['quantity'],
+                    ];
+                }
+            }
+        }
+
         foreach ($customers as $customer) {
             foreach ($customer->orderReceipts as $order) {
-                if ($order->credit && $order->credit->id == $creditID) {
+                if ($order->credit && $order->credit->creditID) {
                     foreach ($order->orderItems as $item) {
                         $totalPrice = $item->total_price; 
                         $initialPayment = $order->paymentMethod ? $order->paymentMethod->payment : 0;
-                        $remainingBalance = $totalPrice - $initialPayment;  // Correct formula for remaining balance
-        
+                        $remainingBalance = $totalPrice - $initialPayment;
+
                         $paymentType = $order->paymentMethod ? $order->paymentMethod->payment_type : 'N/A';
-            
+
                         $orderDetailsData[] = [
                             'creditID' => $order->credit->creditID,
                             'customer_name' => $customer->customer_name,
@@ -84,18 +104,22 @@ class adminaccess extends Controller
                             'initial_payment' => $initialPayment,
                             'remaining_balance' => $remainingBalance,
                             'reserved_debt_date' => $order->order_date,
-                            'paymentType' => $paymentType,  // Use payment method's type
+                            'paymentType' => $paymentType,
                             'type' => $order->credit ? $order->credit->credit_type : null,
                             'status' => $order->credit ? $order->credit->credit_status : null,
                         ];
-        
+
                         $overallTotal += $totalPrice;
                     }
                 }
             }
         }
+
         return view('admin.order', compact('services', 'products', 'credits', 'orderDetailsData', 'overallTotal'));
     }
+
+
+    
     public function adminInventoryReports() { 
         $products = tblproduct::select(
             'tblproduct.product_id',
@@ -175,7 +199,6 @@ class adminaccess extends Controller
     
         return view('admin.salesReport', compact('orderReceipts', 'salesRecipient'));
     }
-    
     public function adminService(){ 
         $services = tblservice::all();
         return view('admin.service', compact('services'));

@@ -35,4 +35,9 @@ class tblorderitems extends Model
 
         return trim($product_name . ($product_name && $service_name ? ' / ' : '') . $service_name);
     }
+    public function orderreceipt() {
+        return $this->belongsTo(tblorderreceipt::class, 'orderitems_id', 'orderitems_id');
+    }
+    
+    
 }

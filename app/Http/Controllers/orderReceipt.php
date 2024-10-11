@@ -85,7 +85,7 @@ class orderReceipt extends Controller
                 }
             }
             foreach ($orderItemsIds as $orderitems_id) {
-                tblorderreceipt::create([
+                $orderReceipt = tblorderreceipt::create([ 
                     'orderitems_id' => $orderitems_id,
                     'customer_id' => $customer->customer_id,
                     'payment_id' => $payment->payment_id,
@@ -93,19 +93,21 @@ class orderReceipt extends Controller
                     'order_date' => $validatedData['billingDate'],
                 ]);
             }
+            $lastOrderReceiptId = $orderReceipt->ordDet_ID;
             return response()->json([
                 'success' => true,
                 'message' => 'Order has been placed successfully!',
-                'ordDet_ID' => end($orderItemsIds) // Fix the issue here
+                'ordDet_ID' => $lastOrderReceiptId 
             ]);
         } catch (\Exception $e) {
             Log::error('Database operation failed: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Database operation failed: ' . $e->getMessage()], 500);
         }
     }
-    public function generatePdf(Request $request, $ordDet_ID)
-    {
-        $orderReceipt = tblorderreceipt::with('orderitems')->findOrFail($ordDet_ID);
+    public function generatePdf($orderitems_id)
+    {   
+        Log::info("Received ordDet_ID: " . $orderitems_id);
+        $orderReceipt = tblorderreceipt::with('orderitems')->findOrFail($orderitems_id);
         $customer = tblcustomer::findOrFail($orderReceipt->customer_id);
         $payment = tblpaymentmethod::findOrFail($orderReceipt->payment_id);
         $representative = auth()->user()->fullname;
@@ -132,8 +134,6 @@ class orderReceipt extends Controller
                     'quantity' => $item->qty_order,
                     'total_price' => $item->total_price,
                 ]);
-
-                // Increment total price
                 $totalPrice += $item->total_price;
             }
         }
@@ -142,7 +142,7 @@ class orderReceipt extends Controller
         $amountDeducted = $amountPaid - $totalPrice;
 
         $data = [
-            'title' => 'Temporary Receipt',
+            'title' => 'Print Receipt',
             'reference' => $reference,
             'date' => now()->format('m/d/Y H:i:s'),
             'orderItems' => $orderItems,
@@ -160,9 +160,7 @@ class orderReceipt extends Controller
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         return $dompdf->stream('orderReceipt.pdf');
-    }
-
-    public function tempReceipt()
+    }    public function tempReceipt()
     {
         $reference = uniqid();
         $orderItems = tblorderitems::all();
@@ -296,10 +294,35 @@ class orderReceipt extends Controller
         $order = tblcredit::findOrFail($creditID);
         $order->credit_status = 'cancel'; 
         $order->save();
+        $orderReceipts = tblorderreceipt::where('ordDet_ID', $creditID)->get();
+
+        foreach ($orderReceipts as $item) {
+            $orderItem = tblorderitems::find($item->orderitems_id);
+            
+            if ($orderItem) {
+                if ($orderItem->product_id) {
+                    $product = tblproduct::with('inventory')->find($orderItem->product_id);
+                    
+                    if ($product) {
+                        Log::info('Product found:', $product->toArray());
+
+                        if ($product->inventory) {
+                            $inventory = $product->inventory;
+                            $inventory->stock_qty += $orderItem->qty_order; 
+                            $inventory->save();
+                            Log::info('Updated Inventory:', $inventory->toArray());
+                        } else {
+                            Log::warning('Inventory not found for product:', $product->toArray());
+                        }
+                    } else {
+                        Log::warning('Product not found for order item:', $orderItem->toArray());
+                    }
+                }
+            }
+        }
 
         return redirect()->back()->with('success', 'Order cancelled successfully.');
-    }     
-
+    }
     public function confirmPayment(Request $request) {
         $creditID = $request->input('creditID');
         $credit = tblcredit::with('orderReceipt.customer', 'orderReceipt.orderItems')->find($creditID);
