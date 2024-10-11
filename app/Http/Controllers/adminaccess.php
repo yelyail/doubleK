@@ -11,6 +11,8 @@ use App\Models\tblservice;
 use App\Models\tblsupplier;
 use App\Models\tblorderreceipt;
 use App\Models\tblpaymentmethod;
+use App\Models\tblcredit;
+use App\Models\tblreturn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -47,15 +49,54 @@ class adminaccess extends Controller
 
         return view('admin.inventory', compact('products', 'suppliers'));
     }
-    public function adminOrder(){ 
+    public function adminOrder(Request $request) {
+        // Retrieve all necessary data
         $products = tblproduct::all();
         $services = tblservice::all();
+        $credits = tblcredit::all();
+        $creditID = $request->input('creditID'); // Get credit ID from the request
+    
+        // Load customers with their related orders
+        $customers = tblcustomer::with(['orderReceipts' => function ($query) {
+            $query->with(['paymentMethod', 'credit']);
+        }])->get();
+    
         $orderDetailsData = [];
         $overallTotal = 0;
-
-        return view('admin.order', compact('services', 'products'));
+    
+        foreach ($customers as $customer) {
+            foreach ($customer->orderReceipts as $order) {
+                if ($order->credit && $order->credit->id == $creditID) {
+                    foreach ($order->orderItems as $item) {
+                        $totalPrice = $item->total_price; 
+                        $initialPayment = $order->paymentMethod ? $order->paymentMethod->payment : 0;
+                        $remainingBalance = $totalPrice - $initialPayment;  // Correct formula for remaining balance
+        
+                        $paymentType = $order->paymentMethod ? $order->paymentMethod->payment_type : 'N/A';
+            
+                        $orderDetailsData[] = [
+                            'creditID' => $order->credit->creditID,
+                            'customer_name' => $customer->customer_name,
+                            'particulars' => $item->product ? $item->product->product_name : 'N/A',
+                            'quantity' => $item->qty_order,
+                            'price' => $item->product ? $item->product->unit_price : 0,
+                            'total_price' => $totalPrice,
+                            'initial_payment' => $initialPayment,
+                            'remaining_balance' => $remainingBalance,
+                            'reserved_debt_date' => $order->order_date,
+                            'paymentType' => $paymentType,  // Use payment method's type
+                            'type' => $order->credit ? $order->credit->credit_type : null,
+                            'status' => $order->credit ? $order->credit->credit_status : null,
+                        ];
+        
+                        $overallTotal += $totalPrice;
+                    }
+                }
+            }
+        }
+        return view('admin.order', compact('services', 'products', 'credits', 'orderDetailsData', 'overallTotal'));
     }
-    public function adminInventoryReports(){ 
+    public function adminInventoryReports() { 
         $products = tblproduct::select(
             'tblproduct.product_id',
             'tblproduct.product_name',
@@ -66,13 +107,13 @@ class adminaccess extends Controller
             'tblproduct.unit_price',
             'tblproduct.prod_add',
             'tblinventory.nextRestockDate',
-            'tblreturn.returnDate',
-            'tblreturn.returnReason'
+            DB::raw('COUNT(tblreturn.ordDet_ID) AS return_count')
         )
         ->join('tblinventory', 'tblproduct.inventory_ID', '=', 'tblinventory.inventory_ID')
         ->join('tblsupplier', 'tblinventory.supplier_ID', '=', 'tblsupplier.supplier_ID')
         ->leftJoin('tblorderitems', 'tblproduct.product_id', '=', 'tblorderitems.product_id')
-        ->leftJoin('tblreturn', 'tblproduct.product_id', '=', 'tblreturn.product_id')
+        ->leftJoin('tblorderreceipt', 'tblorderitems.orderitems_id', '=', 'tblorderreceipt.orderitems_id') // Join with order receipt
+        ->leftJoin('tblreturn', 'tblorderreceipt.ordDet_ID', '=', 'tblreturn.ordDet_ID') // Now join tblreturn through tblorderreceipt
         ->where('tblproduct.archived', false)
         ->groupBy(
             'tblproduct.product_id', 
@@ -81,14 +122,13 @@ class adminaccess extends Controller
             'tblsupplier.supplier_name',
             'tblinventory.stock_qty',
             'tblproduct.unit_price',
-            'tblinventory.nextRestockDate',
-            'tblreturn.returnDate',
-            'tblreturn.returnReason'
+            'tblproduct.prod_add',
+            'tblinventory.nextRestockDate'
         )
         ->get();
-
-        return view('admin.reports',compact('products'));
-    }
+    
+        return view('admin.reports', compact('products'));
+    }    
     public function adminSalesReport() { 
         $orderReceipts = DB::table('tblorderitems')
             ->select(
@@ -151,20 +191,6 @@ class adminaccess extends Controller
         
         return view('admin.supplier', compact('suppliers', 'users'));
     }
-
-    public function adminCustInfo(){
-        return view('admin.custInfo');
-    }
-    public function adminConfirm(){
-        $order = session()->get('order', []);
-        return view('admin.confirm', compact('order'));
-    }
-    public function storeCustomerInfor(Request $request)
-    {
-        $orderDetails = json_decode($request->input('orderDetails'), true);
-        $overallTotal = $request->input('overallTotal');
-        return view('admin.custInfo', compact('orderDetails', 'overallTotal'));
-    }
     public function storeCustomer(Request $request)
     {
         // Validation
@@ -225,7 +251,6 @@ class adminaccess extends Controller
     //for posting 
     public function storeProduct(Request $request)
     {
-        // oy si feeling 
         $request->validate([
             'categoryName' => 'required|string',
             'productName' => 'required|string',
@@ -288,8 +313,7 @@ class adminaccess extends Controller
         } catch (\Exception $e) {
             return redirect()->back();
         }
-    }
-    public function storeService(Request $request){
+    }    public function storeService(Request $request){
         $service = new tblservice;
         $service->service_name = $request->serviceName;
         $service->description = $request->description;
@@ -359,7 +383,6 @@ class adminaccess extends Controller
         ]);
         return redirect()->back()->with('success', 'Service added to order successfully.');
     }
-
     //For editing a content
     public function editClient($user_ID)
     {
@@ -565,5 +588,4 @@ class adminaccess extends Controller
         }
         return response()->json(['message' => 'Product not found.'], 404);
     }
-
 }

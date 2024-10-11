@@ -33,6 +33,10 @@ class tblorderreceipt extends Model
     {
         return $this->hasMany(tblorderitems::class, 'orderitems_id', 'orderitems_id');
     }
+    public function credit()
+    {
+        return $this->hasOne(tblcredit::class, 'ordDet_ID', 'ordDet_ID');
+    }
     
 }
 

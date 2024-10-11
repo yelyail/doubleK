@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle Category Filtering
     window.filterCategory = function() {
             const category = document.getElementById('categoryfilter').value;
             document.getElementById('productTable').style.display = category === 'product' ? 'block' : 'none';
@@ -7,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('reserve').style.display = category === 'custDebt' ? 'block' : 'none';
         };
         filterCategory();
-        // Handle Product Modal Population
         $('#productModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var productId = button.attr('data-item-id');
@@ -24,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.find('#modalProductPrice').text(parseFloat(productPrice).toFixed(2));
             modal.find('#modalProductId').val(productId); 
         });
-        // Add Product to Order Summary
         $('#addProductButton').on('click', function() {
             const productName = $('#modalProductName').text().trim(); // Trim whitespace
             const productPrice = parseFloat($('#modalProductPrice').text());
@@ -284,79 +281,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
-
-        document.getElementById('reservationButton').addEventListener('click', function() {
-            const reservationItems = [];
-            const orderSummaryBody = document.getElementById('orderSummaryBody1');
-        
-            for (let row of orderSummaryBody.rows) {
-                const productId = row.getAttribute('data-product-id');
-                const serviceId = row.getAttribute('data-service-id');
-                const quantity = row.cells[1].innerText;
-                const price = row.cells[2].innerText.replace('₱ ', '');
-                const total = row.cells[3].innerText.replace('₱ ', '');
-        
-                reservationItems.push({
-                    product_id: productId ? parseInt(productId) : null,
-                    service_id: serviceId ? parseInt(serviceId) : null,
-                    quantity: parseInt(quantity),
-                    total: parseFloat(total)
-                });
-            }
-        
-            const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
-            const deliveryDate = document.getElementById('displayDeliveryDate').innerText;
-            const customerName = document.getElementById('finalCustomerName').innerText;
-            const finalTotal = document.getElementById('totalConfirmation').innerText.replace('₱ ', '');
-        
-            const reserveTableBody = document.querySelector('#reserve tbody');
-            reserveTableBody.innerHTML = '';
-        
-            reservationItems.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${customerName}</td>
-                    <td>${item.product_id ? 'Product ID: ' + item.product_id : 'Service ID: ' + item.service_id}</td>
-                    <td>${item.quantity}</td>
-                    <td>₱ ${item.total.toFixed(2)}</td>
-                    <td>₱ ${finalTotal}</td>
-                    <td>${deliveryDate}</td>
-                `;
-                reserveTableBody.appendChild(row);
-            });
-        
-            document.getElementById('reserve').style.display = 'block';
-        
-            $.ajax({
-                url: "{{ route('storeReservation') }}",
-                method: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    reservationItems: reservationItems,
-                    deliveryMethod: deliveryMethod,
-                    deliveryDate: deliveryDate,
-                    finalTotal: finalTotal
-                },
-                success: function(response) {
-                    swal({
-                        title: "Success!",
-                        text: "Reservation made successfully!",
-                        icon: "success",
-                        button: "OK",
-                    });
-                },
-                error: function(xhr) {
-                    console.log(reservationItems);
-                    swal({
-                        title: "Error!",
-                        text: "An error occurred while making the reservation.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                }
-            });
-        });
-        
         // For the table
         function updateConfirmationSummary() {
             const orderSummaryBody1 = document.getElementById('orderSummaryBody1'); // Step 1 table
@@ -375,7 +299,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const price = parseFloat(row.cells[2].innerText.replace('₱ ', '')); 
                 const total = parseFloat(quantity) * price;
 
-                // Assign the values to the new row in Step 3
                 productCell.innerText = productName;
                 quantityCell.innerText = quantity;
                 priceCell.innerText = `₱ ${price.toFixed(2)}`; 
@@ -553,3 +476,469 @@ document.addEventListener('DOMContentLoaded', function() {
         }        
         toggleNextButton();
     });
+
+// for the order if it is reserve or debt
+document.getElementById('reservationButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    Swal.fire({
+        title: "Take a Credit?",
+        showDenyButton: true,
+        showCancelButton: false,
+        confirmButtonText: "Yes",
+        denyButtonText: "No"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const creditStatus = {
+                'debt': 'Take a Debt',
+                'reserve': 'Reserve an Item',
+            };
+            Swal.fire({
+                title: 'Choose an Option',
+                input: 'select',
+                inputOptions: creditStatus,
+                inputPlaceholder: 'Select Option',
+                confirmButtonText: 'Confirm',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel'
+            }).then((inputOptions) => {
+                if (inputOptions.isConfirmed) {  
+                    let selectedOption = inputOptions.value;  
+                    let paymentMethodSelect = document.getElementById('paymentMethod');
+                    let payment = 0;
+                    
+
+                    if (paymentMethodSelect.value === 'cash') {
+                        payment = parseFloat(document.getElementById('cashAmount').value) || 0;
+                    } else if (paymentMethodSelect.value === 'gcash') {
+                        payment = parseFloat(document.getElementById('gcashAmount').value) || 0;
+                    } else if (paymentMethodSelect.value === 'banktransfer') {
+                        payment = parseFloat(document.getElementById('amount').value) || 0;
+                    }
+                    Swal.fire({
+                        title: "Order Confirmed for Credit",
+                        text: `You chose to: ${selectedOption}.  Payment Amount: ₱${payment.toFixed(2)}`,
+                        icon: "success"
+                    }).then(() => {
+                        sendCredit(selectedOption, payment); // Pass the correct selected option to sendCredit
+                    });
+
+                } else {
+                    Swal.fire("Order Confirmed for Credit has been canceled", "", "info");
+                }
+            });
+        } else if (result.isDenied) {
+            Swal.fire("Order Confirmed for Credit has been canceled", "", "info");
+        }
+    });
+});
+function sendOrderToDatabase() {
+    const customerName = document.getElementById('finalCustomerName').innerText;
+    const address = document.getElementById('displayAddress').innerText;
+    const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const paymentMethod = paymentMethodSelect.options[paymentMethodSelect.selectedIndex]?.text || 'N/A';
+    let deliveryDate = document.getElementById('displayDeliveryDate').innerText;
+    let billingDate = document.getElementById('displayBillingDate').innerText;
+
+    if (deliveryMethod.trim() === 'pickup') {
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().slice(0, 10); 
+    
+        deliveryDate = formattedDate;
+        billingDate = formattedDate;
+
+        document.getElementById('displayBillingDate').innerText = billingDate; 
+    }    
+    if (!deliveryDate || deliveryDate === 'N/A') {
+        deliveryDate = null;
+    }
+    if (!billingDate || billingDate === 'N/A') {
+        billingDate = null;
+    }
+    let paymentDetails = '';
+    let referenceNum = '';
+    let payment = 0;
+
+    if (paymentMethodSelect.value === 'cash') {
+        payment = parseFloat(document.getElementById('cashAmount').value) || 0;
+        paymentDetails = `Cash Amount: ₱ ${payment.toFixed(2)}`;
+        referenceNum = null; 
+    } else if (paymentMethodSelect.value === 'gcash') {
+        const senderName = (document.getElementById('senderName')?.value || 'N/A');
+        payment = parseFloat(document.getElementById('gcashAmount').value) || 0;
+        referenceNum = document.getElementById('referenceNum')?.value || 'N/A';
+        paymentDetails = `Sender Name: ${senderName}, Amount: ₱ ${payment.toFixed(2)}, Reference: ${referenceNum}`;
+    } else if (paymentMethodSelect.value === 'banktransfer') {
+        const bankName = (document.getElementById('bankName')?.value || 'N/A');
+        const accHold = (document.getElementById('accHold')?.value || 'N/A');
+        payment = parseFloat(document.getElementById('amount').value) || 0;
+        const transactDate = document.getElementById('transactDate')?.value || 'N/A';
+        referenceNum = document.getElementById('transactRef')?.value || 'N/A';
+        paymentDetails = `Bank: ${bankName}, Account Holder: ${accHold}, Amount: ₱ ${payment.toFixed(2)}, Transaction Date: ${transactDate}, Transaction Reference: ${referenceNum}`;
+    } else {
+        paymentDetails = 'Payment method not recognized.';
+    }
+    let orderItems = [];
+    const orderSummaryBody1 = document.querySelector('#orderSummaryBody1'); // Assuming this is the correct tbody
+
+    Array.from(orderSummaryBody1.rows).forEach(row => {
+        let type = row.dataset.itemType;
+        let id = row.dataset.itemId; 
+        
+        if (type && id) {
+            const productName = row.cells[0].innerText;
+            const quantity = parseInt(row.cells[1].innerText);
+            const price = parseFloat(row.cells[2].innerText.replace('₱ ', ''));
+            const total = parseFloat(quantity) * price;
+
+            if (type === 'service') {
+                orderItems.push({
+                    type: type, 
+                    id: id,
+                    serviceName: productName,
+                    quantity: quantity,
+                    price: price,
+                    total: total
+                });
+            } else if (type === 'product') {
+                orderItems.push({
+                    type: type, 
+                    id: id,
+                    productName: productName, 
+                    quantity: quantity,
+                    price: price,
+                    total: total
+                });
+            } else{
+                orderItems.push({
+                    type: type, 
+                    id: id, 
+                    name: itemName, 
+                    quantity: quantity,
+                    price: price, 
+                    total: total 
+                });
+            }
+        } else {
+            console.error("Type or ID is missing for this row.");
+        }
+    });
+    let totalAmount = orderItems.reduce((sum, item) => sum + item.total, 0);
+
+    if (!deliveryDate || isNaN(Date.parse(deliveryDate))) {
+        console.error('Invalid delivery date:', deliveryDate);
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Delivery Date',
+            text: 'Please provide a valid delivery date.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    const payload = {
+        customerName: customerName,
+        address: address,
+        deliveryMethod: deliveryMethod,
+        deliveryDate: deliveryDate,
+        paymentMethod: paymentMethod,
+        billingDate: billingDate,
+        referenceNum: referenceNum,
+        payment: payment,
+        orderItems: orderItems,
+        totalAmount: totalAmount,
+    };
+    
+    console.log(payload);
+    $.ajax({
+        url: '/confirm/storeOrderReceipt',
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: JSON.stringify(payload),
+        success: function(response) {
+            if (response.warning) {
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Confirmed! :)',
+                    text: response.message,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.open(`/receipt/${response.ordDet_ID}`, '_blank'); 
+                    window.location.reload();
+                });
+            }
+        },                
+        error: function(xhr) {
+            const errorMessage = xhr.responseJSON?.message || 'Something went wrong. Please try again!';            
+            Swal.fire({
+                icon: 'error',
+                title: 'Something went wrong :(',
+                text: errorMessage,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}
+// Function to send credit to the server
+function sendCredit(selectedStatus) {
+    const customerName = document.getElementById('finalCustomerName').innerText;
+    const address = document.getElementById('displayAddress').innerText;
+    const deliveryMethod = document.getElementById('displayDeliveryMethod').innerText;
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const paymentMethod = paymentMethodSelect.options[paymentMethodSelect.selectedIndex]?.text || 'N/A';
+    let deliveryDate = document.getElementById('displayDeliveryDate').innerText;
+    let billingDate = document.getElementById('displayBillingDate').innerText;
+
+    if (deliveryMethod.trim() === 'pickup') {
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().slice(0, 10); 
+    
+        deliveryDate = formattedDate;
+        billingDate = formattedDate;
+
+        document.getElementById('displayBillingDate').innerText = billingDate; 
+    }    
+    if (!deliveryDate || deliveryDate === 'N/A') {
+        deliveryDate = null;
+    }
+    if (!billingDate || billingDate === 'N/A') {
+        billingDate = null;
+    }
+    let paymentDetails = '';
+    let referenceNum = '';
+    let payment = 0;
+
+    if (paymentMethodSelect.value === 'cash') {
+        payment = parseFloat(document.getElementById('cashAmount').value) || 0;
+        paymentDetails = `Cash Amount: ₱ ${payment.toFixed(2)}`;
+        referenceNum = null; 
+    } else if (paymentMethodSelect.value === 'gcash') {
+        const senderName = (document.getElementById('senderName')?.value || 'N/A');
+        payment = parseFloat(document.getElementById('gcashAmount').value) || 0;
+        referenceNum = document.getElementById('referenceNum')?.value || 'N/A';
+        paymentDetails = `Sender Name: ${senderName}, Amount: ₱ ${payment.toFixed(2)}, Reference: ${referenceNum}`;
+    } else if (paymentMethodSelect.value === 'banktransfer') {
+        const bankName = (document.getElementById('bankName')?.value || 'N/A');
+        const accHold = (document.getElementById('accHold')?.value || 'N/A');
+        payment = parseFloat(document.getElementById('amount').value) || 0;
+        const transactDate = document.getElementById('transactDate')?.value || 'N/A';
+        referenceNum = document.getElementById('transactRef')?.value || 'N/A';
+        paymentDetails = `Bank: ${bankName}, Account Holder: ${accHold}, Amount: ₱ ${payment.toFixed(2)}, Transaction Date: ${transactDate}, Transaction Reference: ${referenceNum}`;
+    } else {
+        paymentDetails = 'Payment method not recognized.';
+    }
+
+    // Collect order items data
+    let orderItems = [];
+    const orderSummaryBody1 = document.querySelector('#orderSummaryBody1'); // Assuming this is the correct tbody
+
+    Array.from(orderSummaryBody1.rows).forEach(row => {
+        let type = row.dataset.itemType;
+        let id = row.dataset.itemId; 
+        
+        if (type && id) {
+            const productName = row.cells[0].innerText;
+            const quantity = parseInt(row.cells[1].innerText);
+            const price = parseFloat(row.cells[2].innerText.replace('₱ ', ''));
+            const total = parseFloat(quantity) * price;
+
+            if (type === 'service') {
+                orderItems.push({
+                    type: type, 
+                    id: id,
+                    serviceName: productName,
+                    quantity: quantity,
+                    price: price,
+                    total: total
+                });
+            } else if (type === 'product') {
+                orderItems.push({
+                    type: type, 
+                    id: id,
+                    productName: productName, 
+                    quantity: quantity,
+                    price: price,
+                    total: total
+                });
+            } else{
+                orderItems.push({
+                    type: type, 
+                    id: id, 
+                    name: itemName, 
+                    quantity: quantity,
+                    price: price, 
+                    total: total 
+                });
+            }
+        } else {
+            console.error("Type or ID is missing for this row.");
+        }
+    });
+    let totalAmount = orderItems.reduce((sum, item) => sum + item.total, 0);
+
+    if (!deliveryDate || isNaN(Date.parse(deliveryDate))) {
+        console.error('Invalid delivery date:', deliveryDate);
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Delivery Date',
+            text: 'Please provide a valid delivery date.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    const payload = {
+        customerName: customerName,
+        address: address,
+        deliveryMethod: deliveryMethod,
+        deliveryDate: deliveryDate,
+        paymentMethod: paymentMethod,
+        billingDate: billingDate,
+        referenceNum: referenceNum,
+        payment: payment,
+        orderItems: orderItems,
+        totalAmount: totalAmount,
+        credit_type: selectedStatus
+    };
+    
+    console.log(payload);
+    $.ajax({
+        url: '/storeCredit',
+        type: 'POST',
+        contentType: 'application/json',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: JSON.stringify(payload),
+        success: function(response) {
+            if (response.warning) {
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Confirmed! :)',
+                    text: response.message,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        },                
+        error: function(xhr) {
+            const errorMessage = xhr.responseJSON?.message || 'Something went wrong. Please try again!';            
+            Swal.fire({
+                icon: 'error',
+                title: 'Something went wrong :(',
+                text: errorMessage,
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+}        
+function confirmCancel(event) {
+    event.preventDefault();
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to cancel this order?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            event.target.closest('form').submit();
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const payButtons = document.querySelectorAll('.pay-button');
+
+    payButtons.forEach(button => {
+        button.addEventListener('click', function () {
+
+            document.getElementById('modalCustomerName').innerText = this.getAttribute('data-customer-name');
+            document.getElementById('modalTotalPrice').innerText = parseFloat(this.getAttribute('data-total-price')).toFixed(2);
+            document.getElementById('modalInitialPayment').innerText = parseFloat(this.getAttribute('data-initial-payment')).toFixed(2);
+            document.getElementById('modalRemainingBalance').innerText = parseFloat(this.getAttribute('data-remaining-balance')).toFixed(2);
+            document.getElementById('modalReservedDebtDate').innerText = this.getAttribute('data-reserved-debt-date');
+            document.getElementById('modalCreditID').value = this.getAttribute('data-credit-id');
+        });
+    });
+});
+function confirmPayment() {
+    const creditID = document.getElementById('modalCreditID').value;
+    const paymentAmount = parseFloat(document.getElementById('paymentAmount').value);
+
+    if (!paymentAmount || paymentAmount <= 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Amount',
+            text: 'Please enter a valid payment amount.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    // Prepare the data to send to the server
+    const data = {
+        creditID: creditID,
+        paymentAmount: paymentAmount
+    };
+
+    // Send the data to the server
+    fetch('/confirmPayment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add this line if using Laravel
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.open(`/receipt/${response.ordDet_ID}`, '_blank'); 
+            window.location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Payment Confirmed',
+                text: 'Your payment has been successfully processed.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Optionally, close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('payModal'));
+                modal.hide();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'There was a problem with your request.',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+
+

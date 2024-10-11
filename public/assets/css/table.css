@@ -56,7 +56,12 @@
     font-size: 16px; 
     transition: background-color 0.3s, transform 0.2s; 
 }
-
+.btn-cstm{
+    background-color: #2F4760; 
+    color: #FDFDFC;
+    font-size: 12px; 
+    transition: background-color 0.3s, transform 0.2s; 
+}
 .btn-repair {
     background-color: #fdfdfc00; 
     color: #050912; 
@@ -65,7 +70,6 @@
     padding: 5px 10px; 
     transition: background-color 0.3s, transform 0.2s; 
 }
-
 .custom-btn:hover,
 .btn-custom:hover,
 .btn-repair:hover {
@@ -286,10 +290,24 @@ h4, h5, h6 {
     background-color: #1182df;
     color: white;
     padding: 5px 10px;
-    border: none;
+    border: 1px solid #ced4da;
     border-radius: 10px;
+    appearance: none;
+    background-image: none; 
+    background-size: 0; 
     cursor: pointer;
 }
+.place-btn-1 option{
+    background-color: #FDFDFC;
+    color: #050912;
+}
+.place-btn-1::after {
+    content: "▼"; 
+    position: absolute;
+    right: 10px; 
+    color: white; 
+}
+
 
 .place-btn {
     background-color: #229b26;

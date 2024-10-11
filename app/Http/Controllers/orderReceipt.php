@@ -8,6 +8,7 @@ use App\Models\tblpaymentmethod;
 use App\Models\tblorderitems;
 use App\Models\tblorderreceipt;
 use App\Models\tblservice;
+use App\Models\tblcredit;
 use Dompdf\Dompdf;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\tblproduct; 
@@ -195,25 +196,145 @@ class orderReceipt extends Controller
 
         return view('admin.order', $data);
     }
-
-
-    public function storeReservation(Request $request){
-        $request->validate([
-            'reservationItems' => 'required|array',
-            'deliveryMethod' => 'required|string',
-            'deliveryDate' => 'required|string',
-            'finalTotal' => 'required|numeric',
+    public function storeCredit(Request $request){
+        $validatedData = $request->validate([
+            'customerName' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'deliveryDate' => 'nullable|date',
+            'paymentMethod' => 'required|string',
+            'referenceNum' => 'nullable|string',
+            'payment' => 'required|numeric',
+            'billingDate' => 'required|date',
+            'totalAmount' => 'required|numeric',
+            'orderItems' => 'required|array',
+            'orderItems.*.type' => 'required|in:product,service',
+            'orderItems.*.id' => 'required|integer',
+            'orderItems.*.quantity' => 'required|integer',
+            'orderItems.*.price' => 'required|numeric',
+            'orderItems.*.total' => 'required|numeric',
+            'credit_type' => 'required|string',
         ]);
-        foreach ($request->reservationItems as $item) {
-            tblorderitems::create([
-                'product_id' => $item['product_id'],
-                'service_ID' => $item['service_id'],
-                'qty_order' => $item['quantity'],
-                'total_price' => $item['total'],
+
+        try {
+            $customer = tblcustomer::create([
+                'customer_name' => $validatedData['customerName'],
+                'address' => $validatedData['address'],
             ]);
+            $payment = tblpaymentmethod::create([
+                'payment_type' => $validatedData['paymentMethod'],
+                'reference_num' => $validatedData['referenceNum'],
+                'payment' => $validatedData['payment'],
+            ]);
+
+            $orderItemsIds = [];
+            $productsToUpdate = [];
+
+            foreach ($validatedData['orderItems'] as $item) {
+                $productId = $item['type'] === 'product' ? $item['id'] : null;
+                $serviceId = $item['type'] === 'service' ? $item['id'] : null;
+
+                $orderItem = tblorderitems::create([
+                    'product_id' => $productId,
+                    'service_ID' => $serviceId,
+                    'qty_order' => $item['quantity'],
+                    'total_price' => $item['total'],
+                ]);
+
+                $orderItemsIds[] = $orderItem->orderitems_id;
+                if ($item['type'] === 'product') {
+                    $productsToUpdate[] = [
+                        'id' => $item['id'],
+                        'quantity' => $item['quantity']
+                    ];
+                }
+            }
+            foreach ($productsToUpdate as $productUpdate) {
+                $product = tblproduct::with('inventory')->find($productUpdate['id']);
+                if ($product && $product->inventory) {
+                    $inventory = $product->inventory;
+                    $inventory->stock_qty -= $productUpdate['quantity'];
+                    if ($inventory->stock_qty < 0) {
+                        Log::warning('Insufficient stock for product ID ' . $productUpdate['id'] . '. Current stock: ' . $inventory->stock_qty);
+                        session()->flash('warning', 'Insufficient stock for product ID ' . $productUpdate['id'] . '. Current stock: ' . $inventory->stock_qty);
+                    } else {
+                        $inventory->save();
+                        Log::info('Inventory updated for product ID ' . $productUpdate['id'] . ': ' . $inventory->stock_qty);
+                    }
+                } else {
+                    Log::warning('No inventory found for product ID ' . $productUpdate['id']);
+                }
+            }
+            $lastOrdDetID = null; 
+            foreach ($orderItemsIds as $orderitems_id) {
+                $receipt = tblorderreceipt::create([
+                    'orderitems_id' => $orderitems_id,
+                    'customer_id' => $customer->customer_id,
+                    'payment_id' => $payment->payment_id,
+                    'delivery_date' => $validatedData['deliveryDate'],
+                    'order_date' => $validatedData['billingDate'],
+                ]);
+                $lastOrdDetID = $receipt->ordDet_ID; // Store the last created receipt ID
+            }
+            tblcredit::create([
+                'ordDet_ID' => $lastOrdDetID,
+                'credit_type' => $validatedData['credit_type'],
+                'credit_status' => 'active', 
+                'credit_date' => now(),
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Order has been placed successfully!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Database operation failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Database operation failed: ' . $e->getMessage()], 500);
+        }
+    }   
+    public function cancel($creditID)
+    {
+        $order = tblcredit::findOrFail($creditID);
+        $order->credit_status = 'cancel'; 
+        $order->save();
+
+        return redirect()->back()->with('success', 'Order cancelled successfully.');
+    }     
+
+    public function confirmPayment(Request $request) {
+        $creditID = $request->input('creditID');
+        $credit = tblcredit::with('orderReceipt.customer', 'orderReceipt.orderItems')->find($creditID);
+        if (!$credit) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Credit record not found.'
+            ], 404);
         }
 
-        // Return a success response
-        return response()->json(['message' => 'Reservation made successfully!']);
+        // Prepare the data for the report
+        $order = $credit->orderReceipt;
+        $customer = $order->customer;
+
+        $reportData = [
+            'customer_name' => $customer->customer_name,
+            'address' => $customer->address,
+            'total_price' => $order->total_price,
+            'remaining_balance' => $order->remaining_balance,
+            'payment_type' => $order->payment->payment_type,
+            'date' => now()->format('Y-m-d'),
+            'order_items' => $order->orderItems->toArray(),
+            'representative' => auth()->user()->fullname,
+        ];
+
+        // Generate the report
+        return $this->createPdfReport($reportData);
     }
+    private function createPdfReport($data) {
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml(view('reportTemplate', $data)->render());
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        
+        return $dompdf->stream('orderReport.pdf');
+    }
+    
 }

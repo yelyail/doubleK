@@ -20,81 +20,94 @@ class salesReceiptController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function salesReceipt(Request $request)
-    {
-        $fromDate = $request->input('from_date');
-        $toDate = $request->input('to_date');
+public function salesReceipt(Request $request)
+{
+    $request->validate([
+        'from_date' => 'required|date',
+        'to_date' => 'required|date|after_or_equal:from_date'
+    ], [
+        'from_date.required' => 'Please provide a starting date.',
+        'to_date.required' => 'Please provide an ending date.',
+        'to_date.after_or_equal' => 'The ending date must be the same or later than the starting date.'
+    ]);
 
-        $reportCounter = $request->session()->get('report_counter', 1);
-        $request->session()->put('report_counter', $reportCounter + 1);
+    $fromDate = \Carbon\Carbon::parse($request->input('from_date'))->startOfDay();
+    $toDate = \Carbon\Carbon::parse($request->input('to_date'))->endOfDay();
 
-        try {
-            $orderReceipts = tblorderreceipt::with(['orderitems.product', 'orderitems.service', 'customer', 'paymentmethod'])
-                ->whereBetween('order_date', [$fromDate, $toDate])
-                ->get();
+    $reportCounter = $request->session()->get('report_counter', 1);
+    $request->session()->put('report_counter', $reportCounter + 1);
 
+    try {
+        $orderReceipts = tblorderreceipt::with(['orderitems.product', 'orderitems.service', 'customer', 'paymentmethod'])
+            ->whereBetween('order_date', [$fromDate, $toDate])
+            ->get();
+
+        if ($request->has('download')) {
+            if ($orderReceipts->isEmpty()) {
+                return response()->json(['error' => 'No records found for the selected dates.'], 404);
+            }
+        
             $reportData = [];
             $totalSales = 0;
             $representative = auth()->user()->fullname;
 
-            if ($request->has('download')) {
-                if ($orderReceipts->isEmpty()) {
-                    return response()->json(['error' => 'No records found for the selected dates.'], 404);
-                }
-                foreach ($orderReceipts as $orderReceipt) {
-                    $customer = $orderReceipt->customer;
-                    $payment = $orderReceipt->paymentmethod;
-                    $orderItems = $orderReceipt->orderitems;
-                    $totalPrice = $orderItems->sum('total_price');
+            foreach ($orderReceipts as $orderReceipt) {
+                $customer = $orderReceipt->customer;
+                $payment = $orderReceipt->paymentmethod;
+                $orderItems = $orderReceipt->orderitems;
+
+                foreach ($orderItems as $item) {
+                    $product = $item->product;
+                    $service = $item->service;
+                    $totalPrice = $item->total_price; 
                     $amount = $payment->payment ?? 0;
 
-                    foreach ($orderItems as $item) {
-                        $product = $item->product;
-                        $service = $item->service;
+                    $reportData[] = [
+                        'order_id' => $reportCounter,
+                        'customer_name' => $customer->customer_name ?? 'N/A',
+                        'particulars' => $product->product_name ?? $service->service_name ?? 'N/A',
+                        'quantity_ordered' => $item->qty_order,
+                        'unit_price' => $product ? number_format($product->unit_price, 2) : 'N/A',
+                        'totalPrice' => number_format($totalPrice, 2),
+                        'amount' => number_format($amount, 2),
+                        'payment' => number_format($amount, 2),
+                        'payment_type' => $payment->payment_type ?? 'N/A',
+                        'reference_num' => $payment->reference_num ?? 'N/A',
+                        'order_date' => $orderReceipt->order_date,
+                        'sales_recipient' => $representative,
+                    ];
 
-                        $reportData[] = [
-                            'order_id' => $reportCounter,
-                            'customer_name' => $customer->customer_name ?? 'N/A',
-                            'particulars' => $product->product_name ?? $service->service_name ?? 'N/A',
-                            'quantity_ordered' => $item->qty_order,
-                            'unit_price' => $product ? number_format($product->unit_price, 2) : 'N/A',
-                            'totalPrice' => number_format($totalPrice, 2),
-                            'amount' => number_format($amount, 2),
-                            'payment' => number_format($amount, 2),
-                            'payment_type' => $payment->payment_type ?? 'N/A',
-                            'reference_num' => $payment->reference_num ?? 'N/A',
-                            'order_date' => $orderReceipt->order_date,
-                            'sales_recipient' => $representative,
-                        ];
-                    }
-
-                    $totalSales += $totalPrice;
+                    $totalSales += $totalPrice; 
                 }
-                $data = [
-                    'title' => 'Sales Report',
-                    'date' => now()->format('m/d/Y H:i:s'),
-                    'orderItems' => $reportData,
-                    'representative' => $representative,
-                    'total_sales' => number_format($totalSales, 2),
-                    'order_id' => 'Report #' . $reportCounter,
-                    'fromDate' => $fromDate,
-                    'toDate' => $toDate,
-                ];
-                $dompdf = new Dompdf();
-                $dompdf->loadHtml(view('salesReportPrint', $data)->render());
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-
-                return response()->streamDownload(function() use ($dompdf) {
-                    echo $dompdf->output();
-                }, 'salesReport.pdf');
             }
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to generate PDF. Please try again later.'], 500);
-        }
+            $data = [
+                'title' => 'Sales Report',
+                'date' => now()->format('m/d/Y H:i:s'),
+                'orderItems' => $reportData,
+                'representative' => $representative,
+                'total_sales' => number_format($totalSales, 2),
+                'order_id' => 'Report #' . $reportCounter,
+                'fromDate' => $fromDate->format('Y-m-d'),
+                'toDate' => $toDate->format('Y-m-d'),
+            ];
+            $dompdf = new Dompdf();
+            $dompdf->loadHtml(view('salesReportPrint', $data)->render());
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
 
-        return response()->json(['message' => 'No download requested.'], 200);
+            return response()->streamDownload(function() use ($dompdf) {
+                echo $dompdf->output();
+            }, 'salesReport.pdf');
+        }
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to generate PDF. Please try again later.'], 500);
     }
+
+    return response()->json(['message' => 'No download requested.'], 200);
+}
+
+
+
 
     public function requestRepair(Request $request)
     {
@@ -118,7 +131,7 @@ class salesReceiptController extends Controller
                 'ordDet_ID' => $orderReceipt->ordDet_ID, 
                 'returnDate' => $currentDate,
                 'returnReason' => $returnReason,
-                'return_status' => 'ongoing', 
+                'return_status' => 'complete', 
             ]);
 
             if ($newReturn) {
@@ -132,8 +145,6 @@ class salesReceiptController extends Controller
             return response()->json(['error' => 'An internal error occurred. Please try again later.'], 500);
         }
     }
-
-
     public function updateStatus(Request $request, $ordDet_ID)
     {
         $request->validate([
@@ -150,40 +161,28 @@ class salesReceiptController extends Controller
     
         return response()->json(['success' => 'Status has been successfully confirmed.']);
     }
-    
-
-
-
-
     public function inventoryReceipt(Request $request)
     {
         $admin = auth()->user(); 
         $representative = $admin ? $admin->fullname : 'Unknown Representative';
 
-        $fromDate = $request->input('from_date');
-        $toDate = $request->input('to_date');
+        $request->validate([
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date'
+        ], [
+            'from_date.required' => 'Please provide a starting date.',
+            'to_date.required' => 'Please provide an ending date.',
+            'to_date.after_or_equal' => 'The ending date must be the same or later than the starting date.'
+        ]);
 
-        try {
-            if ($fromDate) {
-                $fromDate = \Carbon\Carbon::parse($fromDate)->startOfDay(); 
-            }
-            
-            if ($toDate) {
-                $toDate = \Carbon\Carbon::parse($toDate)->endOfDay(); 
-            }
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Invalid date format.'], 400);
-        }
+        $fromDate = \Carbon\Carbon::parse($request->input('from_date'))->startOfDay();
+        $toDate = \Carbon\Carbon::parse($request->input('to_date'))->endOfDay();
 
-        // Retrieve the admin name for display
         $adminUser = User::where('jobtitle', 0)->select('fullname')->first();
         $adminName = $adminUser ? $adminUser->fullname : 'N/A';   
 
-        // Retrieve products filtered by the date range
         $products = tblproduct::with(['inventory.supplier'])
-            ->when($fromDate && $toDate, function ($query) use ($fromDate, $toDate) {
-                return $query->whereBetween('prod_add', [$fromDate, $toDate]);
-            })
+            ->whereBetween('prod_add', [$fromDate, $toDate])
             ->get()
             ->map(function ($product) {
                 return [
@@ -199,24 +198,18 @@ class salesReceiptController extends Controller
                     'updatedQty' => $product->updatedQty ?? 'N/A', 
                 ];
             });
-
-        // Check if any products were retrieved after filtering
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No products found for the selected date range.'], 404);
         }
-
-        // Prepare data for the PDF view
         $data = [
             'title' => 'Inventory Report',
             'date' => now()->format('m/d/Y H:i:s'),
             'representative' => $representative,
             'products' => $products, 
             'adminName' => $adminName,
-            'fromDate' => isset($fromDate) ? $fromDate->format('Y-m-d') : null,
-            'toDate' => isset($toDate) ? $toDate->format('Y-m-d') : null,
+            'fromDate' => $fromDate->format('Y-m-d'),
+            'toDate' => $toDate->format('Y-m-d'),
         ];
-
-        // Load the view and render the PDF
         $dompdf = new Dompdf();
         $dompdf->loadHtml(view('inventoryReportPrint', $data)->render());
         $dompdf->setPaper('A4', 'portrait');

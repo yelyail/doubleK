@@ -89,6 +89,9 @@ Route::middleware(['auth','userAccess:1,2'])->group(function() {
 });
 
 // Printing Receipt Routes
+Route::get('/confirmPayment', [orderReceipt::class, 'confirmPayment'])->middleware('userAccess:0,1,2');
+Route::post('/cancel/{creditID}', [orderReceipt::class, 'cancel'])->name('orderCancel')->middleware('userAccess:0,1,2');
+Route::post('/storeCredit',[orderReceipt::class, 'storeCredit'])->name('storeCredit')->middleware('userAccess:0,1,2');
 Route::get('/receipt/{ordDet_ID}', [OrderReceipt::class, 'generatePdf'])->name('generateReceipt')->middleware('userAccess:0,1,2');
 Route::get('/receipt', [OrderReceipt::class, 'tempReceipt']);
 Route::post('/admin/return', [salesReceiptController::class, 'requestRepair'])->name('requestRepair')->middleware('userAccess:0,1,2');
@@ -96,8 +99,5 @@ Route::get('/salesReport', [salesReceiptController::class, 'salesReceipt'])->nam
 Route::post('/confirm/storeOrderReceipt',[orderReceipt::class, 'storeReceipt'])->name('storeReceipt')->middleware('userAccess:0,1,2');
 Route::get('/inventoryReceipt', [salesReceiptController::class, 'inventoryReceipt'])->name('generateInventoryReports')->middleware('userAccess:0,1,2');
 Route::post('/confirmRepair/{ordDet_ID}', [salesReceiptController::class, 'updateStatus'])->name('updateStatus')->middleware('userAccess:0,1,2');
-
-Route::get('orderReceipt', [receiptPrintController::class, 'orderReceipt'])->middleware('userAccess:0,1,2');
-Route::get('receipt', [receiptPrintController::class, 'receipt'])->middleware('userAccess:0,1,2');
 
 //require __DIR__.'/auth.php';

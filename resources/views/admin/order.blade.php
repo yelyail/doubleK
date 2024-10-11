@@ -89,7 +89,7 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- Services Table (Initially Hidden) -->
+                        <!-- Services Table -->
                         <div id="serviceInput" style="display: none;">
                             <div class="table-responsive">
                                 <table class="table table-striped custom-table">
@@ -123,7 +123,7 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- Customer Debt Table (Initially Hidden) -->
+                        <!-- Customer Debt Table -->
                         <div id="reserve" style="display: none;">
                             <div class="table-responsive">
                                 <table class="table table-striped custom-table">
@@ -133,17 +133,80 @@
                                             <th>Particulars</th>
                                             <th>Quantity</th>
                                             <th>Price</th>
+                                            <th>Total Price</th>
                                             <th>Initial Payment</th>
                                             <th>Remaining Balance</th>
+                                            <th>Payment Type</th>
                                             <th>Reserved/Debt Date</th>
+                                            <th>Status</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        </tbody>
+                                        @foreach ($orderDetailsData as $orderDetailsDatas)
+                                            @if ($orderDetailsDatas['status'] == 'active') 
+                                                <tr>
+                                                    <td>{{ ucwords(strtolower($orderDetailsDatas['customer_name'])) }}</td>
+                                                    <td>{{ ucwords(strtolower($orderDetailsDatas['particulars'])) }}</td>
+                                                    <td style="text-align:center">{{ $orderDetailsDatas['quantity'] }}</td>
+                                                    <td>₱ {{ number_format($orderDetailsDatas['price'], 2) }}</td>
+                                                    <td>₱ {{ number_format($orderDetailsDatas['total_price'], 2) }}</td>
+                                                    <td>₱ {{ number_format($orderDetailsDatas['initial_payment'], 2) }}</td>
+                                                    <td>₱ {{ number_format($orderDetailsDatas['remaining_balance'], 2) }}</td>
+                                                    <td>{{ $orderDetailsDatas['paymentType']}}</td>
+                                                    <td>{{ $orderDetailsDatas['reserved_debt_date'] }}</td>
+                                                    <td>{{ ucwords(strtolower($orderDetailsDatas['type'])) }}</td>
+                                                    <td>
+                                                        @if ($orderDetailsDatas['type'] == 'reserve')
+                                                            @if ($orderDetailsDatas['status'] == 'cancelled')
+                                                                <button type="button" class="btn btn-danger btn-sm" disabled>Cancelled</button>
+                                                            @elseif ($orderDetailsDatas['status'] == 'paid')
+                                                                <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
+                                                            @else
+                                                                <form action="{{ route('orderCancel', $orderDetailsDatas['creditID']) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel(event)">Cancel</button>
+                                                                </form>
+                                                                <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
+                                                                    data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
+                                                                    data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
+                                                                    data-particulars="{{ $orderDetailsDatas['particulars'] }}"
+                                                                    data-quantity="{{ $orderDetailsDatas['quantity'] }}"
+                                                                    data-price="{{ $orderDetailsDatas['price'] }}"
+                                                                    data-total-price="{{ $orderDetailsDatas['total_price'] }}"
+                                                                    data-initial-payment="{{ $orderDetailsDatas['initial_payment'] }}"
+                                                                    data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
+                                                                    data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
+                                                                    Pay
+                                                                </a>
+                                                            @endif
+                                                        @elseif ($orderDetailsDatas['type'] == 'credit')
+                                                            @if ($orderDetailsDatas['status'] == 'paid')
+                                                                <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
+                                                            @else
+                                                                <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
+                                                                    data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
+                                                                    data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
+                                                                    data-particulars="{{ $orderDetailsDatas['particulars'] }}"
+                                                                    data-quantity="{{ $orderDetailsDatas['quantity'] }}"
+                                                                    data-price="{{ $orderDetailsDatas['price'] }}"
+                                                                    data-total-price="{{ $orderDetailsDatas['total_price'] }}"
+                                                                    data-initial-payment="{{ $orderDetailsDatas['initial_payment'] }}"
+                                                                    data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
+                                                                    data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
+                                                                    Pay
+                                                                </a>
+                                                            @endif
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -165,7 +228,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="orderSummaryBody1">
-                                    <!-- Order items will be appended here -->
                                 </tbody>
                             </table>
                             <div class="card-title-text text-end mt-4">
@@ -214,9 +276,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="paymentMethod" class="form-label">Payment Method</label>
+                                <label for="paymentMethod" class="form-label">Payment Type</label>
                                 <select class="form-control" id="paymentMethod" name="paymentType" required>
-                                    <option value="" disabled selected>Choose a payment method</option>
+                                    <option value="" disabled selected>Choose a payment type</option>
                                     <option value="cash">Cash</option>
                                     <option value="gcash">GCash</option>
                                     <option value="banktransfer">Bank Transfer</option>
@@ -278,8 +340,8 @@
                             <span class="order-peso" id="totalConfirmation">₱0.00</span>
                         </div>
                         <div class="buttons">
-                            <button type="submit" id="placeOrderButton" class="place-btn">Place Order</button>
-                            <button type="submit" id="reservationButton" class="place-btn-1">Make Reservation</button>
+                            <button type="submit" id="placeOrderButton" class="place-btn">Confirm Order</button>
+                            <button type='submit' id="reservationButton"class="place-btn-1">Credit Hold Option</button>
                         </div>
                     </div>
                     <div class="modal-body">
@@ -287,6 +349,8 @@
                             <div class="col-md-6">
                                 <h3><b>Customer Information</b></h3>
                                 <p class="orderinfo" id="finalCustomerName"><b>Customer Name</b></p>
+                                <p class="orderinfo" id="displayBillingAddress"><b>Billing Address</b></p>
+                                <p class="orderinfo" id="displayBillingDate">Transaction Date</p>
                             </div>
                             <div class="col-md-6">
                                 <h3><b>Delivery Address</b></h3>
@@ -297,15 +361,10 @@
                         </div>
                             <div class="row mt-4">
                                 <div class="col-md-6">
-                                    <h3><b>Payment Method</b></h3>
+                                    <h3><b>Payment Type</b></h3>
                                     <p class="orderinfo" id="displayPaymentMethod"></p>
                                     <p class="orderinfo" id="displayPaymentDetails"></p>
                                     <p class="orderinfo" id="displayChange"></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h3><b>Billing Address</b></h3>
-                                    <p class="orderinfo" id="displayBillingAddress"><b>Billing Address</b></p>
-                                    <p class="orderinfo" id="displayBillingDate">Transaction Date</p>
                                 </div>
                             </div>
 
@@ -337,6 +396,34 @@
     </div>
 </div>
 
+<!-- Pay Modal -->
+<div class="modal fade" id="payModal" tabindex="-1" aria-labelledby="payModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="payModalLabel">Payment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Customer Name:</strong> <span id="modalCustomerName"></span></p>
+                <p><strong>Total Price:</strong> ₱ <span id="modalTotalPrice"></span></p>
+                <p><strong>Initial Payment:</strong> ₱ <span id="modalInitialPayment"></span></p>
+                <p><strong>Remaining Balance:</strong> ₱ <span id="modalRemainingBalance"></span></p>
+                <p><strong>Reserved Debt Date:</strong> <span id="modalReservedDebtDate"></span></p>
+                <div class="mb-3">
+                    <label for="paymentAmount" class="form-label">Payment Amount</label>
+                    <input type="number" class="form-control" id="paymentAmount" placeholder="Enter payment amount" min="0" step="0.01" required>
+                </div>
+                <input type="hidden" id="modalCreditID" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPayment()">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -363,6 +450,31 @@
     </div>
 </div>
 
-<!-- JavaScript to Handle Steps and Order Functionality -->
 <script src="{{ asset('assets/js/order.js') }}"></script>
+<script>
+    function setCreditID(creditID) {
+        document.getElementById('creditID').value = creditID;
+    }
+    function filterTable() {
+        document.getElementById('searchInput').addEventListener('keyup', filterTable);
+
+        let input = document.getElementById('searchInput');
+        let filter = input.value.toLowerCase();
+        let table = document.querySelector('.custom-table');
+        let tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let td = tr[i].getElementsByTagName('td');
+            let found = false;
+
+            if ((td[0] && td[0].textContent.toLowerCase().indexOf(filter) > -1) || 
+                (td[1] && td[1].textContent.toLowerCase().indexOf(filter) > -1)) {
+                found = true;
+            }
+
+            tr[i].style.display = found ? '' : 'none';
+        }
+    }
+</script>
+
 @endsection

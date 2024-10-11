@@ -12,8 +12,9 @@
             <div class="col-md-9">
                 <h1 class="prod_title">Sales Reports</h1>
             </div>
+            <!-- Generate Sales Reports Button -->
             <div class="col-md-3 text-end">
-                <button type="button" class="btn btn-custom" id="plus-button" style="border-radius: 7px; height: 2.3rem; border: none;">
+                <button type="button" class="btn btn-cstm" id="plus-button" style="border-radius: 7px; height: 2.5rem; border: none;" onclick="generateSalesReport()">
                     <i class="bi bi-printer"></i> Generate Sales Reports
                 </button>
             </div>
@@ -32,24 +33,23 @@
                             <option value="gcash">GCash</option>
                             <option value="bank transfer">Bank Transfer</option>
                         </select>
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-search"></i></span>
                         <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search">
-                        <button class="btn custom-btn" type="button" id="searchButton">Search</button>
+                        <button class="btn custom-btn" type="button" onclick="filterTable()">Search</button>
                     </div>
                 </div>
 
-                <!-- Filter by Date -->
+                <!-- Date Filter Form -->
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="date_filter"><b>Filter by Date:</b></label>
-                        <form id="dateFilterForm" method="GET" onsubmit="filterSalesReport(event)">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text"><b>From</b></span>
-                                <input type="date" id="from_date" name="from_date" class="form-control me-2" required>
-                                <span class="input-group-text"><b>To</b></span>
-                                <input type="date" id="to_date" name="to_date" class="form-control" required>
-                                <button type="submit" class="btn btn-custom" id="filterButton">Filter</button>
-                            </div>
-                        </form>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><b>From</b></span>
+                            <input type="date" id="from_date" class="form-control me-2" required>
+                            <span class="input-group-text"><b>To</b></span>
+                            <input type="date" id="to_date" class="form-control me-2" required>
+                            <button type="button" class="btn btn-custom" id="filter-button">Filter</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,6 +74,19 @@
                 </thead>
                 <tbody>
                     @foreach ($orderReceipts as $orderReceipt)
+                        @php
+                            $return = tblreturn::where('ordDet_ID', $orderReceipt->ordDet_ID)->first();
+                            $warranty = $orderReceipt->warranty;
+                            $warrantyUnit = 'days';
+
+                            if ($warranty >= 30) {
+                                $warranty = round($warranty / 30, 1);
+                                $warrantyUnit = 'months';
+                            } elseif ($warranty >= 7) {
+                                $warranty = round($warranty / 7, 1);
+                                $warrantyUnit = 'weeks';
+                            }
+                        @endphp
                         <tr>
                             <td>{{ ucwords(strtolower($orderReceipt->customer_name ?? 'N/A')) }}</td>
                             <td>{{ $orderReceipt->particulars ?? 'N/A' }}</td>
@@ -83,26 +96,9 @@
                             <td>{{ $orderReceipt->payment_type ?? 'N/A' }}</td>
                             <td>{{ $orderReceipt->reference_num ?? 'N/A' }}</td>
                             <td>{{ $orderReceipt->order_date }}</td>
-                            <td>
-                                @php
-                                    $warranty = $orderReceipt->warranty;
-                                    $warrantyUnit = 'days';
-
-                                    if ($warranty >= 30) {
-                                        $warranty = round($warranty / 30, 1);
-                                        $warrantyUnit = 'months';
-                                    } elseif ($warranty >= 7) {
-                                        $warranty = round($warranty / 7, 1);
-                                        $warrantyUnit = 'weeks';
-                                    }
-                                @endphp
-                                {{ $warranty }} {{ $warrantyUnit }}
-                            </td>
+                            <td>{{ $warranty }} {{ $warrantyUnit }}</td>
                             <td>{{ $salesRecipient }}</td>
                             <td>
-                                @php
-                                    $return = tblreturn::where('ordDet_ID', $orderReceipt->ordDet_ID)->first();
-                                @endphp
                                 @if($return)
                                     <button class="btn btn-success ongoing-btn" 
                                             data-ord-det-id="{{ $return->ordDet_ID }}"
@@ -110,15 +106,13 @@
                                             title="Click to confirm">
                                         Confirm
                                     </button>
-
-                                    @else
-                                        <button type='button' class='btn btn-outline-secondary btn-repair' 
-                                                {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }} 
-                                                onclick="showTransferAlert('{{ $orderReceipt->ordDet_ID }}')">
-                                            Request Repair
-                                        </button>
-                                    @endif
-
+                                @else
+                                    <button type='button' class='btn btn-outline-secondary btn-repair' 
+                                            {{ $orderReceipt->particulars && $orderReceipt->warranty > 0 ? '' : 'disabled' }} 
+                                            onclick="showTransferAlert('{{ $orderReceipt->ordDet_ID }}')">
+                                        Request Repair
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -127,54 +121,119 @@
         </div>
     </div>
 
-    <script src="{{ asset('assets/js/salesReport.js') }}"></script>
-    
     <script>
-        function filterSalesReport(event) {
-            event.preventDefault(); 
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('keyup', filterTable);
+            document.getElementById('payment_method_filter').addEventListener('change', filterTable);
+            document.getElementById('filter-button').addEventListener('click', filterTable);
 
-            const fromDate = document.getElementById('from_date').value;
-            const toDate = document.getElementById('to_date').value;
-            if (!fromDate || !toDate) {
-                alert('Please select both From and To dates.');
-                return;
-            }
-            fetch(`{{ route('generateSalesReport') }}?from_date=${fromDate}&to_date=${toDate}`, {
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            function filterTable() {
+                let table = document.querySelector('.cstm-table');
+                let searchInput = document.getElementById('searchInput').value.toLowerCase();
+                let fromDate = document.getElementById('from_date').value ? new Date(document.getElementById('from_date').value) : null;
+                let toDate = document.getElementById('to_date').value ? new Date(document.getElementById('to_date').value) : null;
+                let selectedPaymentMethod = document.getElementById('payment_method_filter').value.toLowerCase().trim(); 
+                let tr = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < tr.length; i++) {
+                    let td = tr[i].getElementsByTagName('td');
+                    let showRow = true;
+
+                    // Search input filtering
+                    if ((td[0] && td[0].textContent.toLowerCase().indexOf(searchInput) === -1) && 
+                        (td[1] && td[1].textContent.toLowerCase().indexOf(searchInput) === -1)) {
+                        showRow = false;
+                    }
+
+                    // Payment method filtering
+                    let tdPaymentType = td[5];
+                    if (tdPaymentType) {
+                        let paymentTypeText = tdPaymentType.textContent.toLowerCase().trim(); 
+                        if (selectedPaymentMethod && paymentTypeText !== selectedPaymentMethod) {
+                            showRow = false;
+                        }
+                    }
+
+                    // Date filtering
+                    let tdDate = td[7];  
+                    if (tdDate) {
+                        let rowDate = new Date(tdDate.textContent.trim());
+                        if ((fromDate && rowDate < fromDate) || (toDate && rowDate > toDate)) {
+                            showRow = false;
+                        }
+                    }
+
+                    tr[i].style.display = showRow ? '' : 'none';
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.querySelector('tbody');
-                tableBody.innerHTML = ''; 
-                data.orderReceipts.forEach(orderReceipt => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${orderReceipt.customer_name}</td>
-                        <td>${orderReceipt.particulars}</td>
-                        <td>${orderReceipt.quantity_ordered}</td>
-                        <td>₱ ${parseFloat(orderReceipt.unit_price).toFixed(2)}</td>
-                        <td>₱ ${parseFloat(orderReceipt.payment).toFixed(2)}</td>
-                        <td>${orderReceipt.payment_type || 'N/A'}</td>
-                        <td>${orderReceipt.reference_num || 'N/A'}</td>
-                        <td>${orderReceipt.order_date}</td>
-                        <td>${orderReceipt.warranty}</td>
-                        <td>${orderReceipt.sales_recipient}</td>
-                        <td>
-                            <button type="button" class="btn btn-outline-secondary btn-repair" 
-                                    ${orderReceipt.particulars && orderReceipt.warranty > 0 ? '' : 'disabled'}>
-                                Request Repair
-                            </button>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
+            }
+        });
+        function generateSalesReport() {
+            let fromDate = document.getElementById('from_date').value;
+            let toDate = document.getElementById('to_date').value;
+
+            if (fromDate && toDate) {
+                let params = new URLSearchParams({
+                    from_date: fromDate,
+                    to_date: toDate,
+                    download: true 
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching filtered data:', error);
-            });
+
+                fetch("{{ route('generateSalesReport') }}?" + params.toString())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                if (data.error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'No Records Found',
+                                        text: data.error,
+                                        confirmButtonText: 'Okay'
+                                    });
+                                }
+                            });
+                        } else {
+                            window.location.href = "{{ route('generateSalesReport') }}?" + params.toString();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while generating the report. Please try again later.',
+                            confirmButtonText: 'Okay'
+                        });
+                    });
+            } else {
+                // Show SweetAlert for invalid date range
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Date Range',
+                    text: 'Please select a valid date range before generating the report.',
+                    confirmButtonText: 'Okay'
+                });
+            }
         }
 
+        function toggleFilter() {
+            var filterDropdown = document.getElementById("payment_method_filter");
+            filterDropdown.style.display = (filterDropdown.style.display === "none" || filterDropdown.style.display === "") ? "block" : "none";
+        }
+
+        function showTransferAlert(ordDet_ID) {
+            Swal.fire({
+                title: 'Confirmation',
+                text: "Are you sure you want to request a repair for this item?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, request!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Add the logic to request a repair for the item here
+                }
+            });
+        }
     </script>
 @endsection
