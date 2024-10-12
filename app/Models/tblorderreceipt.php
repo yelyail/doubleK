@@ -36,8 +36,7 @@ class tblorderreceipt extends Model
 
     public function credit()
     {
-        return $this->hasOne(tblcredit::class, 'ordDet_ID', 'ordDet_ID');
-    }
+        return $this->hasOne(tblcredit::class, 'ordDet_ID', 'ordDet_ID');    }
     
 }
 

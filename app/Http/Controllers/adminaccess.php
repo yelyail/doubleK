@@ -155,43 +155,43 @@ class adminaccess extends Controller
     }    
     public function adminSalesReport() { 
         $orderReceipts = DB::table('tblorderitems')
-            ->select(
-                'tblorderreceipt.ordDet_ID', 
-                DB::raw("GROUP_CONCAT(COALESCE(tblproduct.product_name, tblservice.service_name) SEPARATOR ', ') AS particulars"), 
-                DB::raw('SUM(tblorderitems.qty_order) AS qty_order'), 
-                DB::raw("COALESCE(tblproduct.unit_price, tblservice.service_fee) AS unit_price"), 
-                DB::raw('SUM(tblorderitems.total_price) AS total_price'), 
-                'tblcustomer.customer_name', 
-                'tblpaymentmethod.payment_type',
-                'tblpaymentmethod.reference_num', 
-                'tblpaymentmethod.payment', 
-                'tblproduct.warranty',
-                'tblorderreceipt.order_date',
-                'tblreturn.return_status' 
+        ->select(
+            'tblorderreceipt.ordDet_ID', 
+            DB::raw("GROUP_CONCAT(COALESCE(tblproduct.product_name, tblservice.service_name) SEPARATOR ', ') AS particulars"), 
+            DB::raw('SUM(tblorderitems.qty_order) AS qty_order'), 
+            DB::raw("COALESCE(tblproduct.unit_price, tblservice.service_fee) AS unit_price"), 
+            DB::raw('SUM(tblorderitems.total_price) AS total_price'), 
+            'tblcustomer.customer_name', 
+            'tblpaymentmethod.payment_type',
+            'tblpaymentmethod.reference_num', 
+            'tblproduct.warranty',
+            'tblorderreceipt.order_date',
+            'tblreturn.return_status',
+            DB::raw('ABS(IFNULL(SUM(tblcredit.credit_amount), 0) - SUM(tblpaymentmethod.payment)) AS payment')
             )
-            ->leftJoin('tblproduct', 'tblorderitems.product_id', '=', 'tblproduct.product_id')
-            ->leftJoin('tblservice', 'tblorderitems.service_ID', '=', 'tblservice.service_ID')
-            ->leftJoin('tblorderreceipt', 'tblorderitems.orderitems_id', '=', 'tblorderreceipt.orderitems_id')
-            ->leftJoin('tblcustomer', 'tblorderreceipt.customer_id', '=', 'tblcustomer.customer_id')
-            ->leftJoin('tblpaymentmethod', 'tblorderreceipt.payment_id', '=', 'tblpaymentmethod.payment_id')
-            ->leftJoin('tblreturn', 'tblorderreceipt.ordDet_ID', '=', 'tblreturn.ordDet_ID')
-            ->whereNotNull('tblorderitems.orderitems_id') 
-            ->groupBy(
-                'tblorderreceipt.ordDet_ID',
-                'tblcustomer.customer_name', 
-                'tblpaymentmethod.payment_type', 
-                'tblpaymentmethod.reference_num', 
-                'tblpaymentmethod.payment', 
-                'tblproduct.product_name',
-                'tblservice.service_name',
-                'tblproduct.unit_price',
-                'tblservice.service_fee',
-                'tblproduct.warranty',
-                'tblorderreceipt.order_date',
-                'tblreturn.return_status'
-            )
-            ->get();
-    
+        ->leftJoin('tblproduct', 'tblorderitems.product_id', '=', 'tblproduct.product_id')
+        ->leftJoin('tblservice', 'tblorderitems.service_ID', '=', 'tblservice.service_ID')
+        ->leftJoin('tblorderreceipt', 'tblorderitems.orderitems_id', '=', 'tblorderreceipt.orderitems_id')
+        ->leftJoin('tblcustomer', 'tblorderreceipt.customer_id', '=', 'tblcustomer.customer_id')
+        ->leftJoin('tblpaymentmethod', 'tblorderreceipt.payment_id', '=', 'tblpaymentmethod.payment_id')
+        ->leftJoin('tblreturn', 'tblorderreceipt.ordDet_ID', '=', 'tblreturn.ordDet_ID')
+        ->leftJoin('tblcredit', 'tblorderreceipt.ordDet_ID', '=', 'tblcredit.creditID')
+        ->whereNotNull('tblorderitems.orderitems_id') 
+        ->groupBy(
+            'tblorderreceipt.ordDet_ID',
+            'tblcustomer.customer_name', 
+            'tblpaymentmethod.payment_type', 
+            'tblpaymentmethod.reference_num', 
+            'tblproduct.product_name',
+            'tblservice.service_name',
+            'tblproduct.unit_price',
+            'tblservice.service_fee',
+            'tblproduct.warranty',
+            'tblorderreceipt.order_date',
+            'tblreturn.return_status'
+        )
+        ->get();
+
         $salesRecipient = Auth::user()->fullname; 
         foreach ($orderReceipts as $orderReceipt) {
             $orderReceipt->combined_name = $orderReceipt->particulars;

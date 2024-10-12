@@ -476,7 +476,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }        
         toggleNextButton();
     });
+function filterTable() {
+    document.getElementById('searchInput').addEventListener('keyup', filterTable);
 
+    let input = document.getElementById('searchInput');
+    let filter = input.value.toLowerCase();
+    let table = document.querySelector('.custom-table');
+    let tr = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < tr.length; i++) {
+        let td = tr[i].getElementsByTagName('td');
+        let found = false;
+        if ((td[0] && td[0].textContent.toLowerCase().indexOf(filter) > -1) || 
+            (td[1] && td[1].textContent.toLowerCase().indexOf(filter) > -1)) {
+           found = true;
+        }
+        tr[i].style.display = found ? '' : 'none';
+    }
+}
 // for the order if it is reserve or debt
 document.getElementById('reservationButton').addEventListener('click', function(e) {
     e.preventDefault();
@@ -700,30 +717,57 @@ function confirmCancel(event) {
         cancelButtonText: 'No, keep it'
     }).then((result) => {
         if (result.isConfirmed) {
-            event.target.closest('form').submit();
+            const form = event.target.closest('form');
+            form.submit();
+            Swal.fire({
+                title: 'Success!',
+                text: 'Order canceled successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
         }
     });
 }
-document.addEventListener('DOMContentLoaded', function () {
-    const payButtons = document.querySelectorAll('.pay-button');
+document.querySelectorAll('.pay-button').forEach(button => {
+    button.addEventListener('click', function () {
+        const creditID = this.getAttribute('data-credit-id');
+        const customerName = this.getAttribute('data-customer-name');
+        const totalPrice = this.getAttribute('data-total-price');
+        const initialPayment = this.getAttribute('data-initial-payment');
+        const remainingBalance = this.getAttribute('data-remaining-balance');
+        const reservedDebtDate = this.getAttribute('data-reserved-debt-date');
 
-    payButtons.forEach(button => {
-        button.addEventListener('click', function () {
+        // Set values in the modal
+        document.getElementById('modalCreditID').value = creditID; // Hidden input
+        document.getElementById('modalCustomerName').innerText = customerName;
+        document.getElementById('modalTotalPrice').innerText = totalPrice;
+        document.getElementById('modalInitialPayment').innerText = initialPayment;
+        document.getElementById('modalRemainingBalance').innerText = remainingBalance;
+        document.getElementById('modalReservedDebtDate').innerText = reservedDebtDate;
 
-            document.getElementById('modalCustomerName').innerText = this.getAttribute('data-customer-name');
-            document.getElementById('modalTotalPrice').innerText = parseFloat(this.getAttribute('data-total-price')).toFixed(2);
-            document.getElementById('modalInitialPayment').innerText = parseFloat(this.getAttribute('data-initial-payment')).toFixed(2);
-            document.getElementById('modalRemainingBalance').innerText = parseFloat(this.getAttribute('data-remaining-balance')).toFixed(2);
-            document.getElementById('modalReservedDebtDate').innerText = this.getAttribute('data-reserved-debt-date');
-            document.getElementById('modalCreditID').value = this.getAttribute('data-credit-id');
-        });
+        // Debugging: Log values to check if they're being set
+        console.log('Credit ID:', creditID);
+        console.log('Customer Name:', customerName);
+        console.log('Total Price:', totalPrice);
+        console.log('Initial Payment:', initialPayment);
+        console.log('Remaining Balance:', remainingBalance);
+        console.log('Reserved Debt Date:', reservedDebtDate);
     });
 });
-function confirmPayment() {
-    const creditID = document.getElementById('modalCreditID').value;
-    const paymentAmount = parseFloat(document.getElementById('paymentAmount').value);
+function confirmPayment(event) {
+    event.preventDefault(); // Prevent the default button behavior
+    const form = document.getElementById('paymentForm');
+    const formData = new FormData(form); 
 
-    if (!paymentAmount || paymentAmount <= 0) {
+    const remainingBalance = parseFloat(document.getElementById('modalRemainingBalance').innerText.replace(/[^0-9.-]+/g, ""));
+    const paymentAmount = parseFloat(formData.get('paymentAmount')); 
+
+    // Validate payment amount
+    console.log('Payment Amount:', paymentAmount);
+    console.log('Remaining Balance:', remainingBalance);
+
+    // Check for valid payment amount
+    if (isNaN(paymentAmount) || paymentAmount <= 0) {
         Swal.fire({
             icon: 'error',
             title: 'Invalid Amount',
@@ -733,60 +777,66 @@ function confirmPayment() {
         return;
     }
 
-    // Prepare the data to send to the server
-    const data = {
-        creditID: creditID,
-        paymentAmount: paymentAmount
-    };
-
-    // Send the data to the server
-    fetch('/confirmPayment', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add this line if using Laravel
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            window.open(`/receipt/${response.ordDet_ID}`, '_blank'); 
-            window.location.reload();
-            Swal.fire({
-                icon: 'success',
-                title: 'Payment Confirmed',
-                text: 'Your payment has been successfully processed.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                // Optionally, close the modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('payModal'));
-                modal.hide();
-            });
-        } else {
+    // Check if payment amount is less than remaining balance
+    if (paymentAmount < remainingBalance) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Insufficient Payment',
+            text: `Payment amount is not enough. You need to pay at least ${remainingBalance}.`,
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    Swal.fire({
+        icon: 'success',
+        title: 'Valid Payment',
+        text: `Payment amount is valid. Proceeding with the payment.`,
+        confirmButtonText: 'OK'
+    }).then(() => {
+        fetch('/confirmPayment', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: formData 
+        })
+        .then(response => {
+            console.log('Response Status:', response.status);
+            if (!response.ok) {
+                return response.text().then(errorText => {
+                    throw new Error(errorText);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Confirmed',
+                    text: 'Your payment has been successfully processed.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.open(`/receipt/${formData.get('creditID')}`, '_blank'); 
+                    window.location.reload(); 
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error(error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: data.message,
+                text: 'There was a problem with your request.',
                 confirmButtonText: 'OK'
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'There was a problem with your request.',
-            confirmButtonText: 'OK'
         });
     });
 }
-
-
-

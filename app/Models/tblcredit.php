@@ -15,9 +15,10 @@ class tblcredit extends Model
         'ordDet_ID',
         'credit_type',
         'credit_status',
+        'credit_amount'
     ];
-    public function ordereceipt()
-    {
+    public function orderReceipt() {
         return $this->belongsTo(tblorderreceipt::class, 'ordDet_ID', 'ordDet_ID');
     }
+    
 }

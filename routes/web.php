@@ -89,7 +89,7 @@ Route::middleware(['auth','userAccess:1,2'])->group(function() {
 });
 
 // Printing Receipt Routes
-Route::get('/confirmPayment', [orderReceipt::class, 'confirmPayment'])->middleware('userAccess:0,1,2');
+Route::post('/confirmPayment', [orderReceipt::class, 'confirmPayment'])->middleware('userAccess:0,1,2');
 Route::post('/cancel/{creditID}', [orderReceipt::class, 'cancel'])->name('orderCancel')->middleware('userAccess:0,1,2');
 Route::post('/storeCredit',[orderReceipt::class, 'storeCredit'])->name('storeCredit')->middleware('userAccess:0,1,2');
 Route::get('/receipt/{ordDet_ID}', [OrderReceipt::class, 'generatePdf'])->name('generateReceipt')->middleware('userAccess:0,1,2');

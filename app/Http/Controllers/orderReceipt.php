@@ -12,7 +12,8 @@ use App\Models\tblcredit;
 use Dompdf\Dompdf;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\tblproduct; 
-use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class orderReceipt extends Controller
 {
@@ -105,62 +106,67 @@ class orderReceipt extends Controller
         }
     }
     public function generatePdf($orderitems_id)
-    {   
-        Log::info("Received ordDet_ID: " . $orderitems_id);
-        $orderReceipt = tblorderreceipt::with('orderitems')->findOrFail($orderitems_id);
-        $customer = tblcustomer::findOrFail($orderReceipt->customer_id);
-        $payment = tblpaymentmethod::findOrFail($orderReceipt->payment_id);
-        $representative = auth()->user()->fullname;
+{   
+    $orderReceipt = tblorderreceipt::with('orderitems')->findOrFail($orderitems_id);
+    $customer = tblcustomer::findOrFail($orderReceipt->customer_id);
+    $representative = auth()->user()->fullname;
+    $payment = tblpaymentmethod::where('payment_id', $orderReceipt->payment_id)->first();
+    
+    $orderReceipts = tblorderreceipt::with('orderitems')
+        ->where('customer_id', $orderReceipt->customer_id)
+        ->where('order_date', $orderReceipt->order_date)
+        ->get();
+    
+    $reference = uniqid();
+    $orderItems = collect();
+    $totalPrice = 0;
 
-        $orderReceipts = tblorderreceipt::with('orderitems')
-            ->where('customer_id', $orderReceipt->customer_id)
-            ->where('order_date', $orderReceipt->order_date)
-            ->get();
-
-        $reference = uniqid();
-
-        $orderItems = collect();
-        $totalPrice = 0;
-
-        foreach ($orderReceipts as $receipt) {
-            foreach ($receipt->orderitems as $item) {
-                $product = $item->product;
-                $service = $item->service;
-
-                // Add item to the collection
-                $orderItems->push([
-                    'product_name' => $product ? $product->product_name : null,
-                    'service_name' => $service ? $service->service_name : null,
-                    'quantity' => $item->qty_order,
-                    'total_price' => $item->total_price,
-                ]);
-                $totalPrice += $item->total_price;
-            }
+    foreach ($orderReceipts as $receipt) {
+        foreach ($receipt->orderitems as $item) {
+            $product = $item->product;
+            $service = $item->service;
+            $orderItems->push([
+                'product_name' => $product ? $product->product_name : null,
+                'service_name' => $service ? $service->service_name : null,
+                'quantity' => $item->qty_order,
+                'total_price' => $item->total_price,
+            ]);
+            $totalPrice += $item->total_price;
         }
+    }
 
-        $amountPaid = $payment->payment;
-        $amountDeducted = $amountPaid - $totalPrice;
+    $totalPayments = tblpaymentmethod::where('payment_id', $orderReceipt->payment_id)
+                    ->sum('payment');
+    $totalCredits = tblcredit::where('ordDet_ID', $orderReceipt->ordDet_ID)
+                    ->sum('credit_amount');
 
-        $data = [
-            'title' => 'Print Receipt',
-            'reference' => $reference,
-            'date' => now()->format('m/d/Y H:i:s'),
-            'orderItems' => $orderItems,
-            'customer_name' => $customer->customer_name,
-            'address' => $customer->address,
-            'payment_type' => $payment->payment_type,
-            'total_price' => number_format($totalPrice, 2),
-            'payment' => number_format($amountPaid, 2),
-            'amount_deducted' => $amountDeducted >= 0 ? number_format($amountDeducted, 2) : '0.00',
-            'representative' => $representative,
-        ];
+    $amountPaid = abs($totalCredits - $totalPayments);
+    $amountDeducted = $amountPaid - $totalPrice;
 
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml(view('orderreceiptPrint', $data)->render());
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        return $dompdf->stream('orderReceipt.pdf');
-    }    public function tempReceipt()
+    $data = [
+        'title' => 'Print Receipt',
+        'reference' => $reference,
+        'date' => now()->format('m/d/Y H:i:s'),
+        'orderItems' => $orderItems,
+        'customer_name' => $customer->customer_name,
+        'address' => $customer->address,
+        'payment_type' => $payment ? $payment->payment_type : 'N/A',
+        'total_price' => number_format($totalPrice, 2),
+        'payment' => number_format($amountPaid, 2),
+        'amount_deducted' => $amountDeducted >= 0 ? number_format($amountDeducted, 2) : '0.00',
+        'representative' => $representative,
+    ];
+
+    $dompdf = new Dompdf();
+    $dompdf->loadHtml(view('orderreceiptPrint', $data)->render());
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    return $dompdf->stream('orderReceipt.pdf');
+}
+
+ 
+
+    public function tempReceipt()
     {
         $reference = uniqid();
         $orderItems = tblorderitems::all();
@@ -320,36 +326,56 @@ class orderReceipt extends Controller
                 }
             }
         }
-
-        return redirect()->back()->with('success', 'Order cancelled successfully.');
+        return redirect()->back()->with('success', 'Order canceled successfully.');
     }
-    public function confirmPayment(Request $request) {
-        $creditID = $request->input('creditID');
-        $credit = tblcredit::with('orderReceipt.customer', 'orderReceipt.orderItems')->find($creditID);
-        if (!$credit) {
+    public function confirmPayment(Request $request)
+    {
+        $request->validate([
+            'paymentAmount' => 'required|numeric|min:0',
+            'creditID' => 'required|exists:tblcredit,creditID', 
+        ]);
+        try {
+            $credit = tblcredit::findOrFail($request->input('creditID'));
+            if ($request->input('paymentAmount') < $credit->credit_amount) {
+                return response()->json(['success' => false, 'message' => 'Payment amount is less than the remaining balance.']);
+            }
+            
+            $credit->credit_amount -= $request->input('paymentAmount');
+            $credit->credit_status = 'paid'; 
+            $credit->save();
+    
+            $order = tblorderreceipt::with('orderItems')->findOrFail($credit->ordDet_ID);
+            $customer = tblcustomer::findOrFail($order->customer_id); 
+    
+            // Prepare report data
+            $reportData = [
+                'customer_name' => $customer->customer_name,
+                'address' => $customer->address,
+                'total_price' => $order->total_price,
+                'credit_amount' => $credit->credit_amount,
+                'payment_type' => $order->paymentMethod->payment_type ?? 'N/A', 
+                'date' => now()->format('Y-m-d'),
+                'order_items' => $order->orderItems->toArray(),
+                'representative' => auth()->user()->fullname,
+            ];
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment confirmed and credit status updated to paid.',
+                'reportData' => $reportData
+            ]);
+    
+        } catch (\Exception $e) {
+            Log::error('Payment processing error: ' . $e->getMessage(), [
+                'request' => $request->all(), 
+                'creditID' => $request->input('creditID'),
+                'credit_amount' => $credit->credit_amount ?? null, // Log credit amount being checked
+            ]);
             return response()->json([
                 'success' => false,
-                'message' => 'Credit record not found.'
-            ], 404);
+                'message' => 'An error occurred while processing the payment.'
+            ], 500);
         }
-
-        // Prepare the data for the report
-        $order = $credit->orderReceipt;
-        $customer = $order->customer;
-
-        $reportData = [
-            'customer_name' => $customer->customer_name,
-            'address' => $customer->address,
-            'total_price' => $order->total_price,
-            'remaining_balance' => $order->remaining_balance,
-            'payment_type' => $order->payment->payment_type,
-            'date' => now()->format('Y-m-d'),
-            'order_items' => $order->orderItems->toArray(),
-            'representative' => auth()->user()->fullname,
-        ];
-
-        // Generate the report
-        return $this->createPdfReport($reportData);
     }
     private function createPdfReport($data) {
         $dompdf = new Dompdf();

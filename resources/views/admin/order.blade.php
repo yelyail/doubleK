@@ -159,7 +159,7 @@
                                                         <td>{{ ucwords(strtolower($orderDetailsDatas['type'])) }}</td>
                                                         <td>
                                                             @if ($orderDetailsDatas['type'] == 'reserve')
-                                                                @if ($orderDetailsDatas['status'] == 'cancelled')
+                                                                @if ($orderDetailsDatas['status'] == 'debt')
                                                                     <button type="button" class="btn btn-danger btn-sm" disabled>Cancelled</button>
                                                                 @elseif ($orderDetailsDatas['status'] == 'paid')
                                                                     <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
@@ -169,23 +169,24 @@
                                                                         <button type="button" class="btn btn-danger btn-sm" onclick="confirmCancel(event)">Cancel</button>
                                                                     </form>
                                                                     <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
-                                                                    data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
-                                                                    data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
-                                                                    data-particulars="{{ $orderDetailsDatas['particulars'] }}"
-                                                                    data-quantity="{{ $orderDetailsDatas['quantity'] }}"
-                                                                    data-price="{{ $orderDetailsDatas['price'] }}"
-                                                                    data-total-price="{{ $orderDetailsDatas['total_price'] }}"
-                                                                    data-initial-payment="{{ $orderDetailsDatas['initial_payment'] }}"
-                                                                    data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
-                                                                    data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
-                                                                    Pay
+                                                                        data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
+                                                                        data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
+                                                                        data-particulars="{{ $orderDetailsDatas['particulars'] }}"
+                                                                        data-quantity="{{ $orderDetailsDatas['quantity'] }}"
+                                                                        data-price="{{ $orderDetailsDatas['price'] }}"
+                                                                        data-total-price="{{ $orderDetailsDatas['total_price'] }}"
+                                                                        data-initial-payment="{{ $orderDetailsDatas['initial_payment'] }}"
+                                                                        data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
+                                                                        data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
+                                                                        Pay
                                                                     </a>
+
                                                                 @endif
                                                             @elseif ($orderDetailsDatas['type'] == 'credit')
                                                                 @if ($orderDetailsDatas['status'] == 'paid')
                                                                     <button type="button" class="btn btn-success btn-sm" disabled>Paid</button>
                                                                 @else
-                                                                    <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
+                                                                <a href="#" class="btn btn-primary btn-sm pay-button" data-bs-toggle="modal" data-bs-target="#payModal"
                                                                     data-credit-id="{{ $orderDetailsDatas['creditID'] }}"
                                                                     data-customer-name="{{ $orderDetailsDatas['customer_name'] }}"
                                                                     data-particulars="{{ $orderDetailsDatas['particulars'] }}"
@@ -196,7 +197,8 @@
                                                                     data-remaining-balance="{{ $orderDetailsDatas['remaining_balance'] }}"
                                                                     data-reserved-debt-date="{{ $orderDetailsDatas['reserved_debt_date'] }}">
                                                                     Pay
-                                                                    </a>
+                                                                </a>
+
                                                                 @endif
                                                             @endif
                                                         </td>
@@ -404,7 +406,7 @@
 </div>
 
 <!-- Pay Modal -->
-<div class="modal fade" id="payModal" tabindex="-1" aria-labelledby="payModalLabel" aria-hidden="true">
+<div class="modal" id="payModal" tabindex="-1" aria-labelledby="payModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -412,24 +414,32 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Customer Name:</strong> <span id="modalCustomerName"></span></p>
-                <p><strong>Total Price:</strong> ₱ <span id="modalTotalPrice"></span></p>
-                <p><strong>Initial Payment:</strong> ₱ <span id="modalInitialPayment"></span></p>
-                <p><strong>Remaining Balance:</strong> ₱ <span id="modalRemainingBalance"></span></p>
-                <p><strong>Reserved Debt Date:</strong> <span id="modalReservedDebtDate"></span></p>
-                <div class="mb-3">
-                    <label for="paymentAmount" class="form-label">Payment Amount</label>
-                    <input type="number" class="form-control" id="paymentAmount" placeholder="Enter payment amount" min="0" step="0.01" required>
-                </div>
-                <input type="hidden" id="modalCreditID" value="">
+                <form id="paymentForm"> <!-- Form element -->
+                    <p><strong>Customer Name:</strong> <span id="modalCustomerName"></span><pp>
+                    <p><strong>Total Price:</strong> ₱ <span id="modalTotalPrice"></span></p>
+                    <p><strong>Initial Payment:</strong> ₱ <span id="modalInitialPayment"></span></p>
+                    <p><strong>Remaining Balance:</strong> ₱ <span id="modalRemainingBalance"></span></p>
+                    <p><strong>Reserved Debt Date:</strong> <span id="modalReservedDebtDate"></span></p>
+                    <div class="mb-3">
+                        <label for="paymentAmount" class="form-label">Payment Amount</label>
+                        <input type="number" class="form-control" id="paymentAmount" name="paymentAmount" placeholder="Enter payment amount" min="0" step="0.01" required>
+                    </div>
+                    <input type="hidden" id="modalCreditID" name="creditID" value="">
+                    <input type="hidden" id="remainingBalance" value="0">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmPayment(event)">Confirm Payment</button>
+                    </div>
+                </form> <!-- End of form -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="confirmPayment()">Confirm Payment</button>
-            </div>
+            
         </div>
     </div>
 </div>
+
+
+
+
 
 <!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
@@ -462,26 +472,7 @@
     function setCreditID(creditID) {
         document.getElementById('creditID').value = creditID;
     }
-    function filterTable() {
-        document.getElementById('searchInput').addEventListener('keyup', filterTable);
-
-        let input = document.getElementById('searchInput');
-        let filter = input.value.toLowerCase();
-        let table = document.querySelector('.custom-table');
-        let tr = table.getElementsByTagName('tr');
-
-        for (let i = 1; i < tr.length; i++) {
-            let td = tr[i].getElementsByTagName('td');
-            let found = false;
-
-            if ((td[0] && td[0].textContent.toLowerCase().indexOf(filter) > -1) || 
-                (td[1] && td[1].textContent.toLowerCase().indexOf(filter) > -1)) {
-                found = true;
-            }
-
-            tr[i].style.display = found ? '' : 'none';
-        }
-    }
+    
 </script>
 
 @endsection

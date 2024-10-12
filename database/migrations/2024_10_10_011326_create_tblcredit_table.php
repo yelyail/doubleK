@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('ordDet_ID')->nullable();
             $table->string('credit_type');
             $table->string('credit_status')->nullable();
+            $table->string('credit_amount')->nullable();
             $table->foreign('ordDet_ID')->references('ordDet_ID')->on('tblorderreceipt');
             $table->timestamps();
         });
