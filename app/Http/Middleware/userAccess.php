@@ -16,17 +16,22 @@ class userAccess
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next, $jobtitle)
+    public function handle(Request $request, Closure $next, $jobtitles)
     {
         if (Auth::check()) {
-            if (is_numeric($jobtitle)) {
-                $jobtitle = (int) $jobtitle;
-            }
-            if (Auth::user()->jobtitle == $jobtitle) {
-                return $next($request); 
+            $allowedJobtitles = explode(',', $jobtitles); // Split into an array
+
+            // Log for debugging
+            Log::info('Allowed job titles: ', $allowedJobtitles);
+            Log::info('User job title: ', ['jobtitle' => Auth::user()->jobtitle]);
+
+            if (in_array(Auth::user()->jobtitle, $allowedJobtitles)) {
+                return $next($request);
             }
         }
-        return redirect()->back()->with('error', "You don't have permission to access this page");
+
+        return redirect()->back()->with('error', "You don't have permission to access this page.");
     }
+
 
 }

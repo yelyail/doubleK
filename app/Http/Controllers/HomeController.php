@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\tblproduct;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\tblorderitems;
@@ -35,12 +36,8 @@ use App\Models\tblorderreceipt;
     }
     public function userDashboard()
     {
-        $products = tblproduct::all();
-        $services = tblservice::all();
-        $orderDetailsData = [];
-        $overallTotal = 0;
-
-        return $this->dashboardView('user.dashboard',compact('services', 'products'));
+        Log::info('Inside userDashboard controller');
+        return $this->dashboardView('user.dashboard');
     }
     private function dashboardView($view, $data = [])
     {

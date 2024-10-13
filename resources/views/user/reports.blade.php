@@ -1,4 +1,4 @@
-@extends('admin.side')
+@extends('user.side')
 
 @section('title', 'Double-K Computer')
 

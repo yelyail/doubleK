@@ -12,15 +12,14 @@ use App\Http\Controllers\salesReceiptController;
 
 Route::get('/', function () {
     return redirect()->route('login');
-})->middleware('checkLogin');
+})->name('signin')->middleware('checkLogin');
 // Authentication Routes
 Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::middleware('userAccess:0')->get('/admin/dashboard', [HomeController::class, 'adminDashboard'])->name('adminDashboard');
-Route::middleware('userAccess:1,2')->get('/user/dashboard', [HomeController::class, 'userDashboard'])->name('userDashboard');
+Route::get('/admin/dashboard', [HomeController::class, 'adminDashboard'])->name('adminDashboard');
+Route::get('/user/dashboard', [HomeController::class, 'userDashboard'])->name('userDashboard');
 
-Route::get('/login', [AuthController::class, 'login'])->name('login')->middleware('checkLogin');
-Route::post('/loginStore', [AuthController::class, 'loginSave'])->name('loginSave')->middleware('checkLogin');
+Route::post('/loginSave', [AuthController::class, 'loginSave'])->name('loginSave')->middleware('checkLogin');
 Route::get('/logout', [AuthController::class, 'logout'])->name('signout');
 Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/registerStore', [AuthController::class, 'registerSave'])->name('registerSave');
@@ -81,8 +80,8 @@ Route::middleware(['auth','userAccess:0,1,2'])->group(function() {
 });
 
 // User Routes
-Route::middleware(['auth','userAccess:1,2'])->group(function() {
-    Route::controller(dashboardController::class)->group(function() {
+Route::middleware(['auth'])->group(function () {
+    Route::controller(DashboardController::class)->group(function () {
         Route::get('/user/order', 'userOrder')->name('userOrder');
         Route::get('/user/reports', 'userReports')->name('userReports');
     });

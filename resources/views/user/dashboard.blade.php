@@ -1,4 +1,4 @@
-@extends('admin.side')
+@extends('user.side')
 
 @section('title', 'Double-K Computer')
 
@@ -13,7 +13,7 @@
     <div class="row">
         <!-- Inventory Status Column -->
         <div class="col-lg-6 col-md-6">
-            <a href="{{ route('adminInventory') }}" class="text-decoration-none">
+            <a href="{{ route('userReports') }}" class="text-decoration-none">
                 <div class="card mb-4">
                     <div class="card-body btn-custom">
                         <h3 class="card-title"><b>Inventory Status</b></h3>
@@ -95,10 +95,10 @@
         </div>
 
         <!-- Best Sellers Column -->
-        <div class="col-lg-6 col-md-6">
-            <div class="card1 mb-4">
+        <div class="col-lg-6 col-md-12 h-200"> <!-- h-100 for full height -->
+            <div class="card1 mb-4" style="min-height: 500px;"> <!-- Or set a custom min-height -->
                 <h1 class="card-title1">Best Sellers</h1>
-                <div class="table-responsive">
+                <div class="table-responsive" style="height:550px">
                     <table class="table table-striped cstm-tbl">
                         <thead>
                             <tr>

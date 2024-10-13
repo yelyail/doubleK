@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 
 class AuthController extends Controller
 {
@@ -70,6 +71,7 @@ class AuthController extends Controller
             Auth::login($user);
             session(['userID' => $user->user_ID]);
             Log::info("User jobtitle", ['jobtitle' => $user->jobtitle]);
+            Log::info('Authenticated user', ['user' => Auth::user()]);
 
             switch ($user->jobtitle) {
                 case 0:

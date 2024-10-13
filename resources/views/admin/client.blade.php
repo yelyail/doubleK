@@ -48,9 +48,9 @@
                                         @if ($client->jobtitle === 0)
                                             {{ 'Admin' }}
                                         @elseif ($client->jobtitle === 1)
-                                            {{ 'Helper' }}
-                                        @elseif ($client->jobtitle === 2)
                                             {{ 'Staff' }}
+                                        @elseif ($client->jobtitle === 2)
+                                            {{ 'Helper' }}
                                         @else
                                             {{ 'Unknown' }} <!-- Optional fallback for other cases -->
                                         @endif
@@ -159,8 +159,8 @@
                         <select class="form-control" name="jobtype" id="editJobRole" required>
                             <option value="" disabled selected hidden>Choose Job Role</option>
                             <option value="0">Admin</option>
-                            <option value="1">Helper</option>
-                            <option value="2">Staff</option>
+                            <option value="1">Staff</option>
+                            <option value="2">Helper</option>
                         </select>
                         <div class="invalid-feedback">Please select a job role.</div>
                     </div>

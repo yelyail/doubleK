@@ -110,34 +110,34 @@
                     @csrf
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="Enter category name">
+                        <input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="Enter category name" required>
                     </div>
                     <div class="mb-3">
                         <label for="productName" class="form-label">Product Name</label>
-                        <input type="text" class="form-control" id="productName" name="productName" placeholder="Enter Product name">
+                        <input type="text" class="form-control" id="productName" name="productName" placeholder="Enter Product name" required>
                     </div>
                     <div class="mb-3">
                         <label for="itemDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="itemDescription" rows="3" name="productDescription" placeholder="Enter a description"></textarea>
+                        <textarea class="form-control" id="itemDescription" rows="3" name="productDescription" placeholder="Enter a description" required></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="stocks" class="form-label">Stocks</label>
-                        <input type="number" class="form-control" id="stocks" name="stocks" placeholder="Enter how many stocks">
+                        <input type="number" class="form-control" id="stocks" name="stocks" placeholder="Enter how many stocks" required>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="itemPrice" class="form-label">Price</label>
-                            <input type="text" class="form-control" id="itemPrice" name="pricePerUnit" placeholder="Enter price">
+                            <input type="text" class="form-control" id="itemPrice" name="pricePerUnit" placeholder="Enter price" required>
                         </div>
                         <div class="col-md-6">
                             <label for="itemDate" class="form-label">Date Added</label>                                    
-                            <input type="date" class="form-control" id="itemDate" name="dateAdded">
+                            <input type="date" class="form-control" id="itemDate" name="dateAdded" required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="warranty" class="form-label">Warranty</label>
                         <div class="col-md-6">
-                            <input type="number" class="form-control me-2" id="warrantyPeriod" name="warrantyPeriod" placeholder="Enter warranty period">
+                            <input type="number" class="form-control me-2" id="warrantyPeriod" name="warrantyPeriod" placeholder="Enter warranty period" required>
                         </div>
                         <div class="col-md-6">
                             <select class="form-select" id="warrantyUnit" name="warrantyUnit" required>
