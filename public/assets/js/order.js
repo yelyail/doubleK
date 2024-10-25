@@ -440,7 +440,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 totalAmount: totalAmount,
             };
             
-            console.log(payload);
             $.ajax({
                 url: '/confirm/storeOrderReceipt',
                 type: 'POST',
@@ -745,13 +744,6 @@ document.querySelectorAll('.pay-button').forEach(button => {
         document.getElementById('modalRemainingBalance').innerText = remainingBalance;
         document.getElementById('modalReservedDebtDate').innerText = reservedDebtDate;
 
-        // Debugging: Log values to check if they're being set
-        console.log('Credit ID:', creditID);
-        console.log('Customer Name:', customerName);
-        console.log('Total Price:', totalPrice);
-        console.log('Initial Payment:', initialPayment);
-        console.log('Remaining Balance:', remainingBalance);
-        console.log('Reserved Debt Date:', reservedDebtDate);
     });
 });
 function confirmPayment(event) {
@@ -761,10 +753,6 @@ function confirmPayment(event) {
 
     const remainingBalance = parseFloat(document.getElementById('modalRemainingBalance').innerText.replace(/[^0-9.-]+/g, ""));
     const paymentAmount = parseFloat(formData.get('paymentAmount')); 
-
-    // Validate payment amount
-    console.log('Payment Amount:', paymentAmount);
-    console.log('Remaining Balance:', remainingBalance);
 
     // Check for valid payment amount
     if (isNaN(paymentAmount) || paymentAmount <= 0) {
