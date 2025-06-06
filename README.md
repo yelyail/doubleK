@@ -27,24 +27,3 @@ Backend: Laravel (PHP) <br>
 Frontend: Bootstrap (HTML/CSS/JS) <br>
 Database: MySQL <br>
 </p>
-
-# 1. Clone the repository
-git clone https://github.com/yelyail/doubleK.git
-cd doubleK
-
-# 2. Install PHP dependencies
-composer install
-
-# 3. Copy and configure environment file
-cp .env.example .env
-php artisan key:generate
-
-# 4. Set up your database
-Create a MySQL database
-Update DB settings in .env file
-
-# 5. Run migrations (create tables)
-php artisan migrate
-
-# 6. Serve the Laravel app
-php artisan serve
