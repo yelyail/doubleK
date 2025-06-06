@@ -22,10 +22,10 @@ Track historical transaction data.<br>
 </p>
 
 <p>
-<h1 font="bold">🛠️ Technologies Used</h1>
-Backend: Laravel (PHP)
-Frontend: Bootstrap (HTML/CSS/JS)
-Database: MySQL
+<h1 font="bold">🛠️ Technologies Used</h1> <br>
+Backend: Laravel (PHP) <br> 
+Frontend: Bootstrap (HTML/CSS/JS) <br>
+Database: MySQL <br>
 </p>
 
 # 1. Clone the repository
